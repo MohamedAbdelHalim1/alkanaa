@@ -1,40 +1,61 @@
-<div class="container">
-    @php
-        $cart_count = count($carts);
-        $active_carts = $cart_count > 0 ? $carts->toQuery()->active()->get() : [];
-    @endphp
-    @if( $cart_count > 0 )
-        <div class="row">
-            <div class="col-lg-8">
-                @if(auth()->check())
+@php
+    $cart_count = count($carts);
+    $active_carts = $cart_count > 0 ? $carts->toQuery()->active()->get() : [];
+    $knIsAr = in_array(app()->getLocale(), ['sa', 'ar', 'eg']);
+    $kt = fn ($ar, $en) => $knIsAr ? $ar : $en;
+@endphp
+<div class="kn-wrap">
+    <div class="kn-co-head">
+        <h1 class="kn-co-title">
+            {{ $kt('سلة الشراء', 'Shopping cart') }}
+            @if ($cart_count > 0)
+                <small>({{ $cart_count }})</small>
+            @endif
+        </h1>
+        <a href="{{ route('home') }}" class="kn-link">{{ $kt('متابعة التسوق', 'Continue shopping') }}</a>
+    </div>
+
+    @if ($cart_count > 0)
+        @include('frontend.partials.cart.checkout_steps', ['current' => 1])
+
+        <div class="kn-co-layout">
+            <div class="kn-co-main">
+                @if (auth()->check())
                     @php
                         $welcomeCoupon = ifUserHasWelcomeCouponAndNotUsed();
                     @endphp
-                    @if($welcomeCoupon)
-                        <div class="alert alert-primary align-items-center border d-flex flex-wrap justify-content-between rounded-0" style="border-color: #3490F3 !important;">
-                            @php
-                                $discount = $welcomeCoupon->discount_type == 'amount' ? single_price($welcomeCoupon->discount) : $welcomeCoupon->discount.'%';
-                            @endphp
-                            <div class="fw-400 fs-14" style="color: #3490F3 !important;">
-                                {{ translate('Welcome Coupon') }} <strong>{{ $discount }}</strong> {{ translate('Discount on your Purchase Within') }} <strong>{{ $welcomeCoupon->validation_days }}</strong> {{ translate('days of Registration') }}
-                            </div>
-                            <button class="btn btn-sm mt-3 mt-lg-0 rounded-4" onclick="copyCouponCode('{{ $welcomeCoupon->coupon_code }}')" style="background-color: #3490F3; color: white;" >{{ translate('Copy coupon Code') }}</button>
+                    @if ($welcomeCoupon)
+                        @php
+                            $discount = $welcomeCoupon->discount_type == 'amount' ? single_price($welcomeCoupon->discount) : $welcomeCoupon->discount . '%';
+                        @endphp
+                        <div class="kn-cart-note" role="note">
+                            <p class="kn-cart-note-text">
+                                {{ translate('Welcome Coupon') }} <strong>{{ $discount }}</strong>
+                                {{ translate('Discount on your Purchase Within') }}
+                                <strong>{{ $welcomeCoupon->validation_days }}</strong>
+                                {{ translate('days of Registration') }}
+                            </p>
+                            <button type="button" class="kn-btn kn-co-btn-outline"
+                                onclick="copyCouponCode('{{ $welcomeCoupon->coupon_code }}')">
+                                <i class="las la-copy" aria-hidden="true"></i>
+                                {{ translate('Copy coupon Code') }}
+                            </button>
                         </div>
                     @endif
                 @endif
-                <div class="bg-white p-3 p-lg-4 text-left">
-                    <div class="mb-4">
-                        <div class="form-group mb-2 border-bottom">
-                            <div class="aiz-checkbox-inline mb-3">
-                                <label class="aiz-checkbox">
-                                    <input type="checkbox" class="check-all" @if(count($active_carts) == $cart_count) checked @endif>
-                                    <span class="fs-14 text-secondary ml-3">{{ translate('Select All') }} ({{ $cart_count }})</span>
-                                    <span class="aiz-square-check"></span>
-                                </label>
-                            </div>
-                        </div>
-                        <!-- Cart Items -->
-                        <ul class="list-group list-group-flush">
+
+                <div class="kn-cart-panel">
+                    <div class="kn-cart-toolbar">
+                        <label class="aiz-checkbox kn-cart-check">
+                            <input type="checkbox" class="check-all" @if (count($active_carts) == $cart_count) checked @endif>
+                            <span class="aiz-square-check"></span>
+                            <span class="kn-cart-check-text">{{ translate('Select All') }} ({{ $cart_count }})</span>
+                        </label>
+                        <span class="kn-cart-toolbar-hint">{{ $kt('المنتجات المحددة فقط تدخل في الطلب', 'Only selected items are ordered') }}</span>
+                    </div>
+
+                    <!-- Cart Items -->
+                    <ul class="kn-cart-lines">
                         @php
                             $total = 0;
                             $admin_products = array();
@@ -60,246 +81,97 @@
                             }
                         @endphp
 
-                            <!-- Inhouse Products -->
-                            @if (!empty($admin_products))
+                        <!-- Inhouse Products -->
+                        @if (!empty($admin_products))
+                            @php
+                                $all_admin_products = true;
+                                if(count($admin_products) != count($carts->toQuery()->active()->whereIn('product_id', $admin_products)->get())){
+                                    $all_admin_products = false;
+                                }
+                            @endphp
+                            <li class="kn-cart-group">
+                                <label class="aiz-checkbox kn-cart-check">
+                                    <input type="checkbox" class="check-one check-seller" value="admin" @if ($all_admin_products) checked @endif>
+                                    <span class="aiz-square-check"></span>
+                                    <span class="kn-cart-group-title">{{ translate('Inhouse Products') }} ({{ count($admin_products) }})</span>
+                                </label>
+                            </li>
+                            @foreach ($admin_products as $key => $product_id)
                                 @php
-                                    $all_admin_products = true;
-                                    if(count($admin_products) != count($carts->toQuery()->active()->whereIn('product_id', $admin_products)->get())){
-                                        $all_admin_products = false;
+                                    $product = get_single_product($product_id);
+                                    $cartItem = $carts->toQuery()->where('product_id', $product_id)->where('variation', $admin_product_variation[$key])->first();
+                                    $product_stock = $product->stocks->where('variant', $cartItem->variation)->first();
+                                    $total = $total + cart_product_price($cartItem, $product, false) * $cartItem->quantity;
+                                @endphp
+                                @include('frontend.partials.cart.cart_line', [
+                                    'product' => $product,
+                                    'cartItem' => $cartItem,
+                                    'product_stock' => $product_stock,
+                                    'product_id' => $product_id,
+                                    'variation' => $admin_product_variation[$key],
+                                    'checkClass' => 'check-one-admin',
+                                    'kt' => $kt,
+                                ])
+                            @endforeach
+                        @endif
+
+                        <!-- Seller Products -->
+                        @if (!empty($seller_products))
+                            @foreach ($seller_products as $key => $seller_product)
+                                @php
+                                    $all_seller_products = true;
+                                    if(count($seller_product) != count($carts->toQuery()->active()->whereIn('product_id', $seller_product)->get())){
+                                        $all_seller_products = false;
                                     }
                                 @endphp
-                                <div class="pt-3 px-0">
-                                    <div class="aiz-checkbox-inline">
-                                        <label class="aiz-checkbox d-block">
-                                            <input type="checkbox" class="check-one check-seller" value="admin" @if($all_admin_products) checked @endif>
-                                            <span class="fs-16 fw-700 text-dark ml-3 pb-3 d-block border-left-0 border-top-0 border-right-0 border-bottom border-dashed">
-                                                {{ translate('Inhouse Products') }} ({{ count($admin_products) }})
-                                            </span>
-                                            <span class="aiz-square-check"></span>
-                                        </label>
-                                    </div>
-                                </div>
-                                @foreach ($admin_products as $key => $product_id)
+                                <li class="kn-cart-group">
+                                    <label class="aiz-checkbox kn-cart-check">
+                                        <input type="checkbox" class="check-one check-seller" value="seller-{{ $key }}" @if ($all_seller_products) checked @endif>
+                                        <span class="aiz-square-check"></span>
+                                        <span class="kn-cart-group-title">{{ get_shop_by_user_id($key)->name }} {{ translate('Products') }} ({{ count($seller_product) }})</span>
+                                    </label>
+                                </li>
+                                @foreach ($seller_product as $key2 => $product_id)
                                     @php
                                         $product = get_single_product($product_id);
-                                        $cartItem = $carts->toQuery()->where('product_id', $product_id)->where('variation', $admin_product_variation[$key])->first();
+                                        $cartItem = $carts->toQuery()->where('product_id', $product_id)->where('variation', $seller_product_variation[$key][$key2])->first();
                                         $product_stock = $product->stocks->where('variant', $cartItem->variation)->first();
                                         $total = $total + cart_product_price($cartItem, $product, false) * $cartItem->quantity;
                                     @endphp
-                                    <li class="list-group-item px-0 border-md-0">
-                                        <div class="row gutters-5 align-items-center">
-                                            <!-- select -->
-                                            <div class="col-auto">
-                                                <div class="aiz-checkbox pl-0">
-                                                    <label class="aiz-checkbox">
-                                                        <input type="checkbox" class="check-one check-one-admin" name="id[]" value="{{$product_id}}" @if($cartItem->status == 1) checked @endif>
-                                                        <span class="aiz-square-check"></span>
-                                                    </label>
-                                                </div>
-                                            </div>
-                                            <!-- Product Image & name -->
-                                            <div class="col-md-5 col-10 d-flex align-items-center mb-2 mb-md-0">
-                                                <span class="mr-2 ml-0">
-                                                    <img src="{{ uploaded_asset($product->thumbnail_img) }}"
-                                                        class="img-fit size-64px"
-                                                        alt="{{ $product->getTranslation('name')  }}"
-                                                        onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
-                                                </span>
-                                                <span>
-                                                    <span class="fs-14 fw-400 text-dark text-truncate-2 mb-2">{{ $product->getTranslation('name') }}</span>
-                                                    @if ($admin_product_variation[$key] != '')
-                                                        <span class="fs-12 text-secondary">{{ translate('Variation') }}: {{ $admin_product_variation[$key] }}</span>
-                                                    @endif
-                                                </span>
-                                            </div>
-                                            <!-- Price & Tax -->
-                                            <div class="col-md col-4 ml-4 ml-sm-0 my-3 my-md-0 d-flex flex-column ml-sm-5 ml-md-0">
-                                                <span class="fs-12 text-secondary">{{ translate('Price')}}</span>
-                                                <span class="fw-700 fs-14 mb-2">{{ cart_product_price($cartItem, $product, true, false) }}</span>
-                                                <span>
-                                                    <span class="opacity-90 fs-12">{{ translate('Tax')}}: {{ cart_product_tax($cartItem, $product) }}</span>
-                                                </span>
-                                            </div>
-                                            <!-- Quantity & Total -->
-                                            <div class="col-xl-4 col-md-3 col d-flex flex-column flex-xl-row justify-content-xl-between align-items-xl-center">
-                                                <!-- Quantity -->
-                                                <div>
-                                                    @if ($product->digital != 1 && $product->auction_product == 0)
-                                                        <div class="d-flex flex-xl-column flex-xxl-row align-items-center aiz-plus-minus mr-0 ml-0" style="width: max-content !important;">
-                                                            <button
-                                                                class="btn col-auto btn-icon btn-sm btn-light rounded-0"
-                                                                type="button" data-type="plus"
-                                                                data-field="quantity[{{ $cartItem->id }}]">
-                                                                <i class="las la-plus"></i>
-                                                            </button>
-                                                            <input type="number" name="quantity[{{ $cartItem->id }}]"
-                                                                class="col border-0 text-center px-0 fs-14 input-number"
-                                                                placeholder="1" value="{{ $cartItem['quantity'] }}"
-                                                                min="{{ $product->min_qty }}"
-                                                                max="{{ $product_stock->qty ?? 0 }}"
-                                                                onchange="updateQuantity({{ $cartItem->id }}, this)" style="min-width: 45px;">
-                                                            <button
-                                                                class="btn col-auto btn-icon btn-sm btn-light rounded-0"
-                                                                type="button" data-type="minus"
-                                                                data-field="quantity[{{ $cartItem->id }}]">
-                                                                <i class="las la-minus"></i>
-                                                            </button>
-                                                        </div>
-                                                    @elseif($product->auction_product == 1)
-                                                        <span class="fw-700 fs-14">1</span>
-                                                    @endif
-                                                </div>
-                                                <!-- Total -->
-                                                <div class="mr-2 mt-2 mt-xl-0">
-                                                    <span class="fw-700 fs-14 text-primary">{{ single_price(cart_product_price($cartItem, $product, false) * $cartItem->quantity) }}</span>
-                                                </div>
-                                            </div>
-                                            <!-- Remove From Cart -->
-                                            <div class="col-auto text-right">
-                                                <a href="javascript:void(0)" onclick="removeFromCartView(event, {{ $cartItem->id }})" class="btn btn-icon btn-sm bg-white hov-svg-danger" title="{{ translate('Remove') }}">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="12.27" height="16" viewBox="0 0 12.27 16">
-                                                        <g id="Group_23970" data-name="Group 23970" transform="translate(-1332 -420)">
-                                                          <path id="Path_28714" data-name="Path 28714" d="M17.9,9.037l-.258,7.8a2.569,2.569,0,0,1-2.577,2.485h-4.9A2.569,2.569,0,0,1,7.587,16.84l-.258-7.8a.645.645,0,0,1,1.289-.043l.258,7.8a1.289,1.289,0,0,0,1.289,1.239h4.9a1.289,1.289,0,0,0,1.289-1.241l.258-7.8a.645.645,0,0,1,1.289.043Zm.852-2.6a.644.644,0,0,1-.644.644H7.122a.644.644,0,1,1,0-1.289h2a.822.822,0,0,0,.82-.74,1.927,1.927,0,0,1,1.922-1.736h1.5a1.927,1.927,0,0,1,1.922,1.736.822.822,0,0,0,.82.74h2a.644.644,0,0,1,.644.644ZM11.058,5.8h3.11A2.126,2.126,0,0,1,14,5.189a.644.644,0,0,0-.64-.58h-1.5a.644.644,0,0,0-.64.58,2.126,2.126,0,0,1-.165.608Zm.649,9.761V10.072a.644.644,0,0,0-1.289,0v5.488a.644.644,0,0,0,1.289,0Zm3.1,0V10.072a.644.644,0,1,0-1.289,0v5.488a.644.644,0,1,0,1.289,0Z" transform="translate(1325.522 416.678)" fill="#9d9da6"/>
-                                                        </g>
-                                                    </svg>
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </li>
+                                    @include('frontend.partials.cart.cart_line', [
+                                        'product' => $product,
+                                        'cartItem' => $cartItem,
+                                        'product_stock' => $product_stock,
+                                        'product_id' => $product_id,
+                                        'variation' => $seller_product_variation[$key][$key2],
+                                        'checkClass' => 'check-one-seller-' . $key,
+                                        'kt' => $kt,
+                                    ])
                                 @endforeach
-                            @endif
-
-                            <!-- Seller Products -->
-                            @if (!empty($seller_products))
-                                @foreach ($seller_products as $key => $seller_product)
-                                    @php
-                                        $all_seller_products = true;
-                                        if(count($seller_product) != count($carts->toQuery()->active()->whereIn('product_id', $seller_product)->get())){
-                                            $all_seller_products = false;
-                                        }
-                                    @endphp
-                                    <div class="pt-3 px-0">
-                                        <div class="aiz-checkbox-inline">
-                                            <label class="aiz-checkbox d-block">
-                                                <input type="checkbox" class="check-one check-seller" value="seller-{{ $key }}"  @if($all_seller_products) checked @endif>
-                                                <span class="fs-16 fw-700 text-dark ml-3 pb-3 d-block border-left-0 border-top-0 border-right-0 border-bottom border-dashed">
-                                                    {{ get_shop_by_user_id($key)->name }} {{ translate('Products') }} ({{ count($seller_product) }})
-                                                </span>
-                                                <span class="aiz-square-check"></span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                    @foreach ($seller_product as $key2 => $product_id)
-                                        @php
-                                            $product = get_single_product($product_id);
-                                            $cartItem = $carts->toQuery()->where('product_id', $product_id)->where('variation', $seller_product_variation[$key][$key2])->first();
-                                            $product_stock = $product->stocks->where('variant', $cartItem->variation)->first();
-                                            $total = $total + cart_product_price($cartItem, $product, false) * $cartItem->quantity;
-                                        @endphp
-                                        <li class="list-group-item px-0 border-md-0">
-                                            <div class="row gutters-5 align-items-center">
-                                                <!-- select -->
-                                                <div class="col-auto">
-                                                    <div class="aiz-checkbox pl-0">
-                                                        <label class="aiz-checkbox">
-                                                            <input type="checkbox" class="check-one check-one-seller-{{ $key }}" name="id[]" value="{{$product_id}}" @if($cartItem->status == 1) checked @endif>
-                                                            <span class="aiz-square-check"></span>
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                                <!-- Product Image & name -->
-                                                <div class="col-md-5 col-10 d-flex align-items-center mb-2 mb-md-0">
-                                                    <span class="mr-2 ml-0">
-                                                        <img src="{{ uploaded_asset($product->thumbnail_img) }}"
-                                                            class="img-fit size-64px"
-                                                            alt="{{ $product->getTranslation('name')  }}"
-                                                            onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
-                                                    </span>
-                                                    <span>
-                                                        <span class="fs-14 fw-400 text-dark text-truncate-2 mb-2">{{ $product->getTranslation('name') }}</span>
-                                                        @if ($seller_product_variation[$key][$key2] != '')
-                                                            <span class="fs-12 text-secondary">{{ translate('Variation') }}: {{ $seller_product_variation[$key][$key2] }}</span>
-                                                        @endif
-                                                    </span>
-                                                </div>
-                                                <!-- Price & Tax -->
-                                                <div class="col-md col-4 ml-4 ml-sm-0 my-3 my-md-0 d-flex flex-column ml-sm-5 ml-md-0">
-                                                    <span class="fs-12 text-secondary">{{ translate('Price')}}</span>
-                                                    <span class="fw-700 fs-14 mb-2">{{ cart_product_price($cartItem, $product, true, false) }}</span>
-                                                    <span>
-                                                        <span class="opacity-90 fs-12">{{ translate('Tax')}}: {{ cart_product_tax($cartItem, $product) }}</span>
-                                                    </span>
-                                                </div>
-                                                <!-- Quantity & Total -->
-                                                <div class="col-xl-4 col-md-3 col d-flex flex-column flex-xl-row justify-content-xl-between align-items-xl-center">
-                                                    <!-- Quantity -->
-                                                    <div>
-                                                        @if ($product->digital != 1 && $product->auction_product == 0)
-                                                            <div class="d-flex flex-xl-column flex-xxl-row align-items-center aiz-plus-minus mr-0 ml-0" style="width: max-content !important;">
-                                                                <button
-                                                                    class="btn col-auto btn-icon btn-sm btn-light rounded-0"
-                                                                    type="button" data-type="plus"
-                                                                    data-field="quantity[{{ $cartItem->id }}]">
-                                                                    <i class="las la-plus"></i>
-                                                                </button>
-                                                                <input type="number" name="quantity[{{ $cartItem->id }}]"
-                                                                    class="col border-0 text-center px-0 fs-14 input-number"
-                                                                    placeholder="1" value="{{ $cartItem['quantity'] }}"
-                                                                    min="{{ $product->min_qty }}"
-                                                                    max="{{ $product_stock->qty ?? 0 }}"
-                                                                    onchange="updateQuantity({{ $cartItem->id }}, this)" style="min-width: 45px;">
-                                                                <button
-                                                                    class="btn col-auto btn-icon btn-sm btn-light rounded-0"
-                                                                    type="button" data-type="minus"
-                                                                    data-field="quantity[{{ $cartItem->id }}]">
-                                                                    <i class="las la-minus"></i>
-                                                                </button>
-                                                            </div>
-                                                        @elseif($product->auction_product == 1)
-                                                            <span class="fw-700 fs-14">1</span>
-                                                        @endif
-                                                    </div>
-                                                    <!-- Total -->
-                                                    <div class="mr-2 mt-2 mt-xl-0">
-                                                        <span class="fw-700 fs-14 text-primary">{{ single_price(cart_product_price($cartItem, $product, false) * $cartItem->quantity) }}</span>
-                                                    </div>
-                                                </div>
-                                                <!-- Remove From Cart -->
-                                                <div class="col-auto text-right">
-                                                    <a href="javascript:void(0)" onclick="removeFromCartView(event, {{ $cartItem->id }})" class="btn btn-icon btn-sm bg-white hov-svg-danger" title="{{ translate('Remove') }}">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="12.27" height="16" viewBox="0 0 12.27 16">
-                                                            <g id="Group_23970" data-name="Group 23970" transform="translate(-1332 -420)">
-                                                              <path id="Path_28714" data-name="Path 28714" d="M17.9,9.037l-.258,7.8a2.569,2.569,0,0,1-2.577,2.485h-4.9A2.569,2.569,0,0,1,7.587,16.84l-.258-7.8a.645.645,0,0,1,1.289-.043l.258,7.8a1.289,1.289,0,0,0,1.289,1.239h4.9a1.289,1.289,0,0,0,1.289-1.241l.258-7.8a.645.645,0,0,1,1.289.043Zm.852-2.6a.644.644,0,0,1-.644.644H7.122a.644.644,0,1,1,0-1.289h2a.822.822,0,0,0,.82-.74,1.927,1.927,0,0,1,1.922-1.736h1.5a1.927,1.927,0,0,1,1.922,1.736.822.822,0,0,0,.82.74h2a.644.644,0,0,1,.644.644ZM11.058,5.8h3.11A2.126,2.126,0,0,1,14,5.189a.644.644,0,0,0-.64-.58h-1.5a.644.644,0,0,0-.64.58,2.126,2.126,0,0,1-.165.608Zm.649,9.761V10.072a.644.644,0,0,0-1.289,0v5.488a.644.644,0,0,0,1.289,0Zm3.1,0V10.072a.644.644,0,1,0-1.289,0v5.488a.644.644,0,1,0,1.289,0Z" transform="translate(1325.522 416.678)" fill="#9d9da6"/>
-                                                            </g>
-                                                        </svg>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </li>
-                                    @endforeach
-                                @endforeach
-                            @endif
-                        </ul>
-                    </div>
+                            @endforeach
+                        @endif
+                    </ul>
                 </div>
             </div>
 
             <!-- Cart Summary -->
-            <div class="col-lg-4 mt-lg-0 mt-4" id="cart_summary">
+            <aside class="kn-co-aside" id="cart_summary">
                 @include('frontend.partials.cart.cart_summary', ['proceed' => 1, 'carts' => $active_carts])
-            </div>
+            </aside>
         </div>
     @else
-        <div class="row">
-            <div class="col-xl-8 mx-auto">
-                <div class="border bg-white p-4">
-                    <!-- Empty cart -->
-                    <div class="text-center p-3">
-                        <i class="las la-frown la-3x opacity-60 mb-3"></i>
-                        <h3 class="h4 fw-700">{{translate('Your Cart is empty')}}</h3>
-                    </div>
-                </div>
-            </div>
+        <!-- Empty cart -->
+        <div class="kn-cart-empty">
+            <span class="kn-plinth kn-cart-empty-icon" aria-hidden="true">
+                <i class="fa-solid fa-cart-shopping"></i>
+            </span>
+            <h2 class="kn-cart-empty-title">{{ translate('Your Cart is empty') }}</h2>
+            <p class="kn-cart-empty-text">
+                {{ $kt('تصفح معدات المطابخ التجارية وأضف ما تحتاجه إلى السلة.', 'Browse our commercial kitchen equipment and add what you need to your cart.') }}
+            </p>
+            <a href="{{ route('home') }}" class="kn-btn kn-btn-primary kn-co-btn-lg">
+                {{ $kt('متابعة التسوق', 'Continue shopping') }}
+            </a>
         </div>
     @endif
 </div>

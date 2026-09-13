@@ -21,6 +21,10 @@ yarn-error.log
 .DS_Store
 .idea/
 /public/*
+# Vite build output is committed — this project deploys by pushing the repo
+# directly (no separate CI build step), so public/build must ship with it.
+!/public/build
+!/public/build/**
 updates/
 composer.lock
 *.lock

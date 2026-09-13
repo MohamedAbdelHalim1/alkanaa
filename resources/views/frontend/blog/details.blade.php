@@ -30,101 +30,95 @@
 @endsection
 
 @section('content')
+    @php
+        $placeholderRect = static_asset('assets/img/placeholder-rect.jpg');
+    @endphp
 
-<section class="py-4">
-    <div class="container">
-        <div class="row gutters-16 justify-content-center">
+    <div class="kn-page">
+        <div class="kn-wrap">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ translate('Home') }}</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('blog') }}">{{ translate('Blog') }}</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ $blog->title }}</li>
+                </ol>
+            </nav>
 
-            <!-- Blog Details -->
-            <div class="col-xxl-7 col-lg-8">
-                <div class="mb-4">
-                    <!-- Title -->
-                    <h2 class="fs-20 fs-md-24 fw-700 mb-3">
-                        <a href="{{ url("blog").'/'. $blog->slug }}" class="text-reset hov-text-primary" title="{{ $blog->title }}">
-                            {{ $blog->title }}
-                        </a>
-                    </h2>
-                    <div class="row">
-                        <div class="col-4">
-                            <!-- Date -->
-                            <div>
-                                <small class="fs-12 fw-400 opacity-60">{{ date('M d, Y',strtotime($blog->created_at)) }}</small>
+            <div class="kn-post-page">
+                <!-- Blog Details -->
+                <article class="kn-article">
+                    <header class="kn-post-header">
+                        @if ($blog->category != null)
+                            <div class="kn-post-meta">
+                                <span class="kn-post-cat">{{ $blog->category->category_name }}</span>
                             </div>
-                            <!-- Caregory -->
-                            @if($blog->category != null)
-                                <div>
-                                    <small class="fs-12 fw-400 text-blue">{{ $blog->category->category_name }}</small>
-                                </div>
-                            @endif
-                        </div>
-                        <!-- Share -->
-                        <div class="col-8 text-right">
+                        @endif
+                        <h1 class="kn-page-title">{{ $blog->title }}</h1>
+                        <div class="kn-post-header-row">
+                            <div class="kn-post-meta">
+                                <time datetime="{{ date('Y-m-d', strtotime($blog->created_at)) }}">{{ date('M d, Y', strtotime($blog->created_at)) }}</time>
+                            </div>
+                            <!-- Share -->
                             <div class="aiz-share"></div>
                         </div>
-                    </div>
+                    </header>
+
                     <!-- Image -->
-                    <img src="{{ static_asset('assets/img/placeholder-rect.jpg') }}"
-                        data-src="{{ uploaded_asset($blog->banner) }}"
-                        alt="{{ $blog->title }}"
-                        class="img-fluid lazyload w-100 mt-3 mb-4">
+                    @if ($blog->banner)
+                        <figure class="kn-post-banner">
+                            <img src="{{ $placeholderRect }}"
+                                data-src="{{ uploaded_asset($blog->banner) }}"
+                                alt="{{ $blog->title }}"
+                                class="lazyload">
+                        </figure>
+                    @endif
+
                     <!-- Description -->
-                    <div class="mb-4 overflow-hidden">
+                    <div class="kn-prose">
                         {!! $blog->description !!}
                     </div>
+
                     <!-- Facebook Comment -->
                     @if (get_setting('facebook_comment') == 1)
-                    <div class="mb-4">
-                        <div class="fb-comments" data-href="{{ route("blog",$blog->slug) }}" data-width="" data-numposts="5"></div>
-                    </div>
-                    @endif
-                </div>
-            </div>
-
-            
-            <!-- recent posts -->
-            <div class="col-xxl-3 col-lg-4">
-                <div class="p-3 border">
-                    <h3 class="fs-16 fw-700 text-dark mb-3">{{ translate('Recent Posts') }}</h3>
-                    <div class="row">
-                        @foreach($recent_blogs as $recent_blog)
-                        <div class="col-lg-12 col-sm-6 mb-4 hov-scale-img">
-                            <div class="d-flex">
-                                <div class="">
-                                    <a href="{{ url("blog").'/'. $recent_blog->slug }}" class="text-reset d-block overflow-hidden size-80px size-xl-90px mr-2">
-                                        <img src="{{ static_asset('assets/img/placeholder-rect.jpg') }}"
-                                            data-src="{{ uploaded_asset($recent_blog->banner) }}"
-                                            alt="{{ $recent_blog->title }}"
-                                            class="img-fit lazyload h-100 has-transition">
-                                    </a>
-                                </div>
-                                <div class="">
-                                    <h2 class="fs-14 fw-700 mb-2 mb-xl-3 h-35px text-truncate-2">
-                                        <a href="{{ url("blog").'/'. $recent_blog->slug }}" class="text-reset hov-text-primary" title="{{ $recent_blog->title }}">
-                                            {{ $recent_blog->title }}
-                                        </a>
-                                    </h2>
-                                    <div>
-                                        <small class="fs-12 fw-400 opacity-60">{{ date('M d, Y',strtotime($recent_blog->created_at)) }}</small>
-                                    </div>
-                                    @if($recent_blog->category != null)
-                                        <div>
-                                            <small class="fs-12 fw-400 text-blue">{{ $recent_blog->category->category_name }}</small>
-                                        </div>
-                                    @endif
-                                </div>
-                            </div>
+                        <div class="kn-section">
+                            <div class="fb-comments" data-href="{{ route('blog', $blog->slug) }}" data-width="" data-numposts="5"></div>
                         </div>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
+                    @endif
+                </article>
 
+                <!-- recent posts -->
+                @if ($recent_blogs->count() > 0)
+                    <aside class="kn-panel" aria-labelledby="kn-recent-title">
+                        <h2 id="kn-recent-title" class="kn-aside-title">{{ translate('Recent Posts') }}</h2>
+                        <ul class="kn-recent">
+                            @foreach ($recent_blogs as $recent_blog)
+                                <li class="kn-recent-item">
+                                    <a href="{{ url('blog') . '/' . $recent_blog->slug }}" class="kn-recent-thumb" tabindex="-1" aria-hidden="true">
+                                        <img src="{{ $placeholderRect }}"
+                                            data-src="{{ uploaded_asset($recent_blog->banner) }}"
+                                            alt=""
+                                            class="lazyload">
+                                    </a>
+                                    <div>
+                                        <h3 class="kn-recent-title">
+                                            <a href="{{ url('blog') . '/' . $recent_blog->slug }}" title="{{ $recent_blog->title }}">{{ $recent_blog->title }}</a>
+                                        </h3>
+                                        <div class="kn-post-meta">
+                                            <time datetime="{{ date('Y-m-d', strtotime($recent_blog->created_at)) }}">{{ date('M d, Y', strtotime($recent_blog->created_at)) }}</time>
+                                            @if ($recent_blog->category != null)
+                                                <span class="kn-post-cat">{{ $recent_blog->category->category_name }}</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </aside>
+                @endif
+            </div>
         </div>
     </div>
-</section>
-
 @endsection
-
 
 @section('script')
     @if (get_setting('facebook_comment') == 1)

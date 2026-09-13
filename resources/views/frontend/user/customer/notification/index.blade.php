@@ -2,123 +2,107 @@
 
 @section('panel_content')
 
-<div class="card rounded-0 shadow-none border">
-    <div class="card-header row gutters-5">
-        <div class="col">
-            <h5 class="mb-0 fs-20 fw-700 text-dark">{{translate('Notifications')}}</h5>
-        </div>
-        <div class="col-md-3 text-right">
-            <div class="btn-group mb-2">
-                <button type="button" class="btn py-0" data-toggle="dropdown" aria-expanded="false">
-                    <i class="las la-ellipsis-v"></i>
-                </button>
-                <div class="dropdown-menu dropdown-menu-right">
-                    <button onclick="bulk_notification_delete()" class="dropdown-item">{{ translate('Delete Selection') }}</button>
-                </div>
-            </div>
-        </div>
+<div class="kn-page-head">
+    <h1 class="kn-page-title">{{ translate('Notifications') }}</h1>
+    <button type="button" onclick="bulk_notification_delete()" class="kn-btn kn-btn-outline">
+        <i class="las la-trash" aria-hidden="true"></i>
+        <span>{{ translate('Delete Selection') }}</span>
+    </button>
+</div>
+
+<section class="kn-panel">
+    <div class="kn-panel-head">
+        <label class="aiz-checkbox mb-0">
+            <input type="checkbox" class="check-all">
+            <span class="aiz-square-check"></span>{{ translate('Select All') }}
+        </label>
     </div>
-    <div class="card-body">
-        <!-- Notifications -->
-        <ul class="list-group list-group-flush">
-            <div class="form-group">
-                <div class="aiz-checkbox-inline">
-                    <label class="aiz-checkbox">
-                        <input type="checkbox" class="check-all">
-                        <span class="aiz-square-check"></span>{{ translate('Select All') }}
-                    </label>
-                </div>
-            </div>
+    <!-- Notifications -->
+    <ul class="kn-list">
+        @php
+            $notificationShowDesign = get_setting('notification_show_type');
+            if($notificationShowDesign != 'only_text'){
+                $notifyImageDesign = '';
+                if($notificationShowDesign == 'design_2'){
+                    $notifyImageDesign = 'rounded-1';
+                }
+                elseif($notificationShowDesign == 'design_3'){
+                    $notifyImageDesign = 'rounded-circle';
+                }
+            }
+        @endphp
+        @forelse($notifications as $notification)
             @php
-                $notificationShowDesign = get_setting('notification_show_type');
-                if($notificationShowDesign != 'only_text'){
-                    $notifyImageDesign = '';
-                    if($notificationShowDesign == 'design_2'){
-                        $notifyImageDesign = 'rounded-1';
-                    }
-                    elseif($notificationShowDesign == 'design_3'){
-                        $notifyImageDesign = 'rounded-circle';
-                    }
+                $showNotification = true;
+                if (($notification->type == 'App\Notifications\PreorderNotification') && !addon_is_activated('preorder'))
+                {
+                    $showNotification = false;
                 }
             @endphp
-            @forelse($notifications as $notification)
+            @if($showNotification)
                 @php
-                    $showNotification = true;
-                    if (($notification->type == 'App\Notifications\PreorderNotification') && !addon_is_activated('preorder'))
-                    {
-                        $showNotification = false;
-                    }
+                    $notificationType = get_notification_type($notification->notification_type_id, 'id');
+                    $notifyContent = $notificationType->getTranslation('default_text');
                 @endphp
-                @if($showNotification)
-                    <li class="list-group-item d-flex justify-content-between align-items- py-3 px-0">
-                        <div class="media text-inherit">
-                            <div class="media-body">
-                                <div class="d-flex">
-                                    @php
-                                        $notificationType = get_notification_type($notification->notification_type_id, 'id');
-                                        $notifyContent = $notificationType->getTranslation('default_text');
-                                    @endphp
-                                    <div class="form-group d-inline-block">
-                                        <label class="aiz-checkbox">
-                                            <input type="checkbox" class="check-one" name='id[]' value="{{$notification->id}}">
-                                            <span class="aiz-square-check"></span>
-                                        </label>
-                                    </div>
-                                    @if($notificationShowDesign != 'only_text')
-                                        <div class="size-35px mr-2">
-                                            <img
-                                                src="{{ uploaded_asset($notificationType->image) }}"
-                                                onerror="this.onerror=null;this.src='{{ static_asset('assets/img/notification.png') }}';"
-                                                class="img-fit h-100 {{ $notifyImageDesign }}" >
-                                        </div>
-                                    @endif
-                                    <div>
-                                        <p class="mb-1 text-truncate-2">
-                                            @if($notification->type == 'App\Notifications\OrderNotification')
-                                                @php
-                                                    $orderCode  = $notification->data['order_code'];
-                                                        $route = route('purchase_history.details', encrypt($notification->data['order_id']));
-                                                        $orderCode = "<a href='".$route."'>".$orderCode."</a>";
-                                                    $notifyContent = str_replace('[[order_code]]', $orderCode, $notifyContent);
-                                                @endphp
-                                            @elseif($notification->type == 'App\Notifications\PreorderNotification')
-                                                @php
-                                                    $orderCode  = $notification->data['order_code'];
-                                                        $route = route('preorder.order_details', encrypt($notification->data['preorder_id']));
-                                                        $orderCode = "<a href='".$route."'>".$orderCode."</a>";
-                                                    $notifyContent = str_replace('[[order_code]]', $orderCode, $notifyContent);
-                                                @endphp
-                                            @elseif($notification->type == 'App\Notifications\CustomNotification')
-                                                @php
-                                                    $link = $notification->data['link'];
-                                                    if($link != null){
-                                                        $notifyContent = "<a href='".$link."'>".$notifyContent."</a>";
-                                                    }
-                                                @endphp
-                                            @endif
-                                            {!! $notifyContent !!}
-                                        </p>
-                                        <small class="text-muted">
-                                            {{ date("F j Y, g:i a", strtotime($notification->created_at)) }}
-                                        </small>
-                                    </div>
-                                </div>
-                            </div>
+                <li class="kn-list-item">
+                    <label class="aiz-checkbox">
+                        <input type="checkbox" class="check-one" name='id[]' value="{{$notification->id}}"
+                            aria-label="{{ translate('Select') }}">
+                        <span class="aiz-square-check"></span>
+                    </label>
+                    @if($notificationShowDesign != 'only_text')
+                        <div class="size-35px flex-shrink-0">
+                            <img
+                                src="{{ uploaded_asset($notificationType->image) }}" alt=""
+                                onerror="this.onerror=null;this.src='{{ static_asset('assets/img/notification.png') }}';"
+                                class="img-fit h-100 {{ $notifyImageDesign }}" >
                         </div>
-                    </li>
-                @endif
-            @empty
-                <li class="list-group-item">
-                    <div class="py-4 text-center fs-16">{{ translate('No notification found') }}</div>
+                    @endif
+                    <div class="kn-list-body">
+                        <p class="kn-list-text mt-0 mb-1">
+                            @if($notification->type == 'App\Notifications\OrderNotification')
+                                @php
+                                    $orderCode  = $notification->data['order_code'];
+                                        $route = route('purchase_history.details', encrypt($notification->data['order_id']));
+                                        $orderCode = "<a href='".$route."'>".$orderCode."</a>";
+                                    $notifyContent = str_replace('[[order_code]]', $orderCode, $notifyContent);
+                                @endphp
+                            @elseif($notification->type == 'App\Notifications\PreorderNotification')
+                                @php
+                                    $orderCode  = $notification->data['order_code'];
+                                        $route = route('preorder.order_details', encrypt($notification->data['preorder_id']));
+                                        $orderCode = "<a href='".$route."'>".$orderCode."</a>";
+                                    $notifyContent = str_replace('[[order_code]]', $orderCode, $notifyContent);
+                                @endphp
+                            @elseif($notification->type == 'App\Notifications\CustomNotification')
+                                @php
+                                    $link = $notification->data['link'];
+                                    if($link != null){
+                                        $notifyContent = "<a href='".$link."'>".$notifyContent."</a>";
+                                    }
+                                @endphp
+                            @endif
+                            {!! $notifyContent !!}
+                        </p>
+                        <span class="kn-list-meta">
+                            {{ date("F j Y, g:i a", strtotime($notification->created_at)) }}
+                        </span>
+                    </div>
                 </li>
-            @endforelse
-        </ul>
-        <!-- Pagination -->
-        <div class="aiz-pagination mt-3">
-            {{ $notifications->links() }}
-        </div>
+            @endif
+        @empty
+            <li class="kn-list-item">
+                <div class="kn-empty w-100">
+                    <p class="kn-empty-title">{{ translate('No notification found') }}</p>
+                </div>
+            </li>
+        @endforelse
+    </ul>
+    <!-- Pagination -->
+    <div class="aiz-pagination">
+        {{ $notifications->links() }}
     </div>
-</div>
+</section>
 
 @endsection
 

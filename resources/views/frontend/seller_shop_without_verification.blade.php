@@ -38,63 +38,55 @@
         }
     @endphp
 
-    <section class="py-5 mb-4 bg-white">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6 mx-auto">
-                    <div class="d-flex justify-content-center">
-                        <!-- Shop Logo -->
-                        <a href="{{ route('shop.visit', $shop->slug) }}" class="overflow-hidden size-64px rounded-content" style="border: 1px solid #e5e5e5;
-                            box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.06);min-width: fit-content;">
-                            <img class="lazyload h-64px  mx-auto"
-                                src="{{ static_asset('assets/img/placeholder.jpg') }}"
-                                data-src="{{ uploaded_asset($shop->logo) }}"
-                                onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
-                        </a>
-                        <div class="ml-3">
-                            <!-- Shop Name & Verification Status -->
-                            <a href="{{ route('shop.visit', $shop->slug) }}"
-                                class="text-dark d-block fs-16 fw-700">
-                                {{ $shop->name }}
-                                <span class="ml-2">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="17.5" height="17.5" viewBox="0 0 17.5 17.5">
-                                        <g id="Group_25616" data-name="Group 25616" transform="translate(-537.249 -1042.75)">
-                                            <path id="Union_5" data-name="Union 5" d="M0,8.75A8.75,8.75,0,1,1,8.75,17.5,8.75,8.75,0,0,1,0,8.75Zm.876,0A7.875,7.875,0,1,0,8.75.875,7.883,7.883,0,0,0,.876,8.75Zm.875,0a7,7,0,1,1,7,7A7.008,7.008,0,0,1,1.751,8.751Zm3.73-.907a.789.789,0,0,0,0,1.115l2.23,2.23a.788.788,0,0,0,1.115,0l3.717-3.717a.789.789,0,0,0,0-1.115.788.788,0,0,0-1.115,0l-3.16,3.16L6.6,7.844a.788.788,0,0,0-1.115,0Z" transform="translate(537.249 1042.75)" fill="red"/>
-                                        </g>
-                                    </svg>
-                                </span>
-                            </a>
-                            <!-- Ratting -->
-                            <div class="rating rating-mr-2 text-dark">
-                                {{ renderStarRating($shop->rating) }}
-                                <span class="opacity-60 fs-12">({{ $shop->num_of_reviews }}
-                                    {{ translate('Reviews') }})</span>
-                            </div>
-                            <!-- Address -->
-                            <div class="location fs-12 opacity-70 text-dark mt-1">{{ $shop->address }}</div>
-                            <!-- Member Since -->
-                            <div class="mt-3">
-                                <div class="fs-10 fw-400 text-secondary">{{ translate('Member Since') }}</div>
-                                <div class="fs-16 fw-700 text-secondary">{{ date('d M Y',strtotime($shop->created_at)) }}</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+    <div class="kn-wrap kn-page">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{{ route('home') }}">{{ translate('Home') }}</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">{{ $shop->name }}</li>
+            </ol>
+        </nav>
 
-    <section class="mb-4">
-        <div class="container">
-            <div class="row">
-                <div class="col-xxl-5 col-xl-6 col-md-8 mx-auto">
-                    <div class="bg-white border p-4 text-center">
-                        <h3 class="fw-600 fs-20">
-                            {{$shop->user->name}} {{ translate('has not been verified yet.')}}
-                        </h3>
-                    </div>
+        <div class="kn-shop-info">
+            <!-- Shop Logo -->
+            <a href="{{ route('shop.visit', $shop->slug) }}" class="kn-shop-info-logo" tabindex="-1" aria-hidden="true">
+                <img class="lazyload"
+                    src="{{ static_asset('assets/img/placeholder.jpg') }}"
+                    data-src="{{ uploaded_asset($shop->logo) }}" alt=""
+                    onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
+            </a>
+            <div class="kn-shop-info-main">
+                <!-- Shop Name & Verification Status -->
+                <h1 class="kn-shop-info-name">
+                    <a href="{{ route('shop.visit', $shop->slug) }}">{{ $shop->name }}</a>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="17.5" height="17.5" viewBox="0 0 17.5 17.5" aria-hidden="true">
+                        <g transform="translate(-537.249 -1042.75)">
+                            <path d="M0,8.75A8.75,8.75,0,1,1,8.75,17.5,8.75,8.75,0,0,1,0,8.75Zm.876,0A7.875,7.875,0,1,0,8.75.875,7.883,7.883,0,0,0,.876,8.75Zm.875,0a7,7,0,1,1,7,7A7.008,7.008,0,0,1,1.751,8.751Zm3.73-.907a.789.789,0,0,0,0,1.115l2.23,2.23a.788.788,0,0,0,1.115,0l3.717-3.717a.789.789,0,0,0,0-1.115.788.788,0,0,0-1.115,0l-3.16,3.16L6.6,7.844a.788.788,0,0,0-1.115,0Z" transform="translate(537.249 1042.75)" fill="#d92d20"/>
+                        </g>
+                    </svg>
+                </h1>
+                <!-- Ratting -->
+                <div class="rating rating-mr-2">
+                    {{ renderStarRating($shop->rating) }}
+                    <span class="kn-shop-stat-label">({{ $shop->num_of_reviews }} {{ translate('Reviews') }})</span>
+                </div>
+                <!-- Address -->
+                @if ($shop->address)
+                    <p class="kn-shop-address">{{ $shop->address }}</p>
+                @endif
+            </div>
+            <div class="kn-shop-info-side">
+                <!-- Member Since -->
+                <div class="kn-shop-stat">
+                    <span class="kn-shop-stat-label">{{ translate('Member Since') }}</span>
+                    <span class="kn-shop-stat-value">{{ date('d M Y',strtotime($shop->created_at)) }}</span>
                 </div>
             </div>
         </div>
-    </section>
+
+        <div class="alert alert-warning kn-shop-notice" role="status">
+            {{$shop->user->name}} {{ translate('has not been verified yet.')}}
+        </div>
+    </div>
 @endsection

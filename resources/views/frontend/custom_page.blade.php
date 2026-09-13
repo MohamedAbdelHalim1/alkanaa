@@ -30,30 +30,25 @@
 @endsection
 
 @section('content')
-<section class="pt-4 mb-4">
-    <div class="container text-center">
-        <div class="row">
-            <div class="col-lg-6 text-center text-lg-left">
-                <h1 class="fw-600 h4">{{ $page->getTranslation('title') }}</h1>
-            </div>
-            <div class="col-lg-6">
-                <ul class="breadcrumb bg-transparent p-0 justify-content-center justify-content-lg-end">
-                    <li class="breadcrumb-item has-transition opacity-50 hov-opacity-100">
-                        <a class="text-reset" href="{{ route('home') }}">{{ translate('Home')}}</a>
-                    </li>
-                    <li class="text-dark fw-600 breadcrumb-item">
-                        "{{ $page->title }}"
-                    </li>
-                </ul>
-            </div>
+    <div class="kn-page">
+        <div class="kn-wrap">
+            <article class="kn-article">
+                <header class="kn-page-head">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a href="{{ route('home') }}">{{ translate('Home') }}</a>
+                            </li>
+                            <li class="breadcrumb-item active" aria-current="page">{{ $page->getTranslation('title') }}</li>
+                        </ol>
+                    </nav>
+                    <h1 class="kn-page-title">{{ $page->getTranslation('title') }}</h1>
+                </header>
+
+                <div class="kn-prose">
+                    @php echo $page->getTranslation('content'); @endphp
+                </div>
+            </article>
         </div>
     </div>
-</section>
-<section class="mb-4">
-	<div class="container">
-        <div class="p-4 bg-white rounded shadow-sm overflow-hidden mw-100 text-left">
-		    @php echo $page->getTranslation('content'); @endphp
-        </div>
-	</div>
-</section>
 @endsection

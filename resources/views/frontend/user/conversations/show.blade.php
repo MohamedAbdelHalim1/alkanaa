@@ -1,58 +1,55 @@
 @extends('frontend.layouts.user_panel')
 
 @section('panel_content')
-    <div class="aiz-titlebar mb-4">
-        <div class="h6 fw-700">
-            <span>{{ translate('Conversations With ')}}</span>
-            @if ($conversation->sender_id == Auth::user()->id && $conversation->receiver->shop != null)
-                <a href="{{ route('shop.visit', $conversation->receiver->shop->slug) }}" class="">{{ $conversation->receiver->shop->name }}</a>
-            @endif
+    <div class="kn-page-head">
+        <div>
+            <a href="{{ route('conversations.index') }}" class="kn-auth-back" style="margin-top:0;">
+                <i class="las la-arrow-left" aria-hidden="true"></i> {{ translate('Conversations') }}
+            </a>
+            <h1 class="kn-page-title">{{ $conversation->title }}</h1>
+            <p class="kn-page-sub">
+                <span>{{ translate('Conversations With ') }}</span>
+                @if ($conversation->sender_id == Auth::user()->id && $conversation->receiver->shop != null)
+                    <a href="{{ route('shop.visit', $conversation->receiver->shop->slug) }}" class="fw-700">{{ $conversation->receiver->shop->name }}</a>
+                @endif
+            </p>
         </div>
     </div>
-    <div class="card rounded-0 shadow-none border">
-        <div class="card-header bg-light">
-            <div>
-                <!-- Conversation title -->
-                <h5 class="card-title fs-14 fw-700 mb-1">{{ $conversation->title }}</h5>
-                <!-- Conversation Woth -->
-                <p class="mb-0 fs-14 text-secondary fw-400">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" class="mr-2">
-                        <g id="Group_24976" data-name="Group 24976" transform="translate(1053.151 256.688)">
-                            <path id="Path_3012" data-name="Path 3012" d="M134.849,88.312h-8a2,2,0,0,0-2,2v5a2,2,0,0,0,2,2v3l2.4-3h5.6a2,2,0,0,0,2-2v-5a2,2,0,0,0-2-2m1,7a1,1,0,0,1-1,1h-8a1,1,0,0,1-1-1v-5a1,1,0,0,1,1-1h8a1,1,0,0,1,1,1Z" transform="translate(-1178 -341)" fill="#b5b5bf"/>
-                            <path id="Path_3013" data-name="Path 3013" d="M134.849,81.312h8a1,1,0,0,1,1,1v5a1,1,0,0,1-1,1h-.5a.5.5,0,0,0,0,1h.5a2,2,0,0,0,2-2v-5a2,2,0,0,0-2-2h-8a2,2,0,0,0-2,2v.5a.5.5,0,0,0,1,0v-.5a1,1,0,0,1,1-1" transform="translate(-1182 -337)" fill="#b5b5bf"/>
-                            <path id="Path_3014" data-name="Path 3014" d="M131.349,93.312h5a.5.5,0,0,1,0,1h-5a.5.5,0,0,1,0-1" transform="translate(-1181 -343.5)" fill="#b5b5bf"/>
-                            <path id="Path_3015" data-name="Path 3015" d="M131.349,99.312h5a.5.5,0,1,1,0,1h-5a.5.5,0,1,1,0-1" transform="translate(-1181 -346.5)" fill="#b5b5bf"/>
-                        </g>
-                    </svg>
-                    {{ translate('Between you and') }}
-                    @if ($conversation->sender_id == Auth::user()->id)
-                        {{ $conversation->receiver->shop ? $conversation->receiver->shop->name : $conversation->receiver->name }}
-                    @else
-                        {{ $conversation->sender->name }}
-                    @endif
-                </p>
-            </div>
+
+    <section class="kn-panel">
+        <div class="kn-panel-head">
+            <!-- Conversation With -->
+            <p class="kn-list-meta mb-0">
+                <i class="las la-comments" aria-hidden="true"></i>
+                {{ translate('Between you and') }}
+                @if ($conversation->sender_id == Auth::user()->id)
+                    {{ $conversation->receiver->shop ? $conversation->receiver->shop->name : $conversation->receiver->name }}
+                @else
+                    {{ $conversation->sender->name }}
+                @endif
+            </p>
         </div>
 
-        <div class="card-body">
+        <div class="kn-panel-body">
             <!-- Conversations -->
             <div id="messages">
                 @include('frontend.partials.messages', ['conversation', $conversation])
             </div>
 
             <!-- Send message -->
-            <form class="pt-4" action="{{ route('messages.store') }}" method="POST">
+            <form class="pt-3" action="{{ route('messages.store') }}" method="POST">
                 @csrf
                 <input type="hidden" name="conversation_id" value="{{ $conversation->id }}">
-                <div class="form-group">
-                    <textarea class="form-control rounded-0" rows="4" name="message" placeholder="{{ translate('Type your reply') }}" required></textarea>
+                <div class="kn-field">
+                    <label for="conversation-message" class="kn-sr-only">{{ translate('Type your reply') }}</label>
+                    <textarea class="form-control" id="conversation-message" rows="4" name="message" placeholder="{{ translate('Type your reply') }}" required></textarea>
                 </div>
-                <div class="form-group mb-0 text-right">
-                    <button type="submit" class="btn btn-primary rounded-0 w-150px">{{ translate('Send') }}</button>
+                <div class="kn-form-actions">
+                    <button type="submit" class="kn-btn kn-btn-primary">{{ translate('Send') }}</button>
                 </div>
             </form>
         </div>
-    </div>
+    </section>
 @endsection
 
 @section('script')

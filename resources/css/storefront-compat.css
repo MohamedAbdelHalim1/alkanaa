@@ -1,0 +1,1978 @@
+/*
+ * AlKanaa storefront styles (legacy-compatible entry).
+ *
+ * This file loads AFTER Bootstrap/AIZ, which are unlayered. Tailwind
+ * utilities live in a cascade layer and therefore LOSE to Bootstrap's
+ * element rules (h1-h6 weight, a color/underline, p margins). Everything
+ * that must look right is written below as unlayered `kn-*` classes;
+ * Tailwind utilities are only used for layout that Bootstrap doesn't touch.
+ */
+@import "./fonts.css";
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+@import "./theme.css";
+@import "./skin.css";
+@import "./pages/listing.css";
+@import "./pages/product.css";
+@import "./pages/cart.css";
+@import "./pages/account.css";
+@import "./pages/content.css";
+
+@source "../views";
+
+[x-cloak] {
+    display: none !important;
+}
+
+:root {
+    --kn-blue: #2346d1;
+    --kn-blue-dark: #1a36a6;
+    --kn-blue-soft: #e8edfc;
+    --kn-navy: #0b1b3a;
+    --kn-ink: #0e1a2e;
+    --kn-muted: #5b6b82;
+    --kn-line: #e3e8ef;
+    --kn-steel: #eef2f6;
+    --kn-steel-2: #dde4ed;
+    --kn-yellow: #ffc928;
+    --kn-red: #d92d20;
+    --kn-green: #12805c;
+    --kn-radius: 14px;
+    --kn-radius-sm: 10px;
+    --kn-page: 1280px;
+    /* Native ratio of the promo artwork in public/assets/front_img (1363×818). */
+    --kn-art-ratio: 1363 / 818;
+}
+
+body {
+    color: var(--kn-ink);
+}
+
+/* Visible keyboard focus everywhere on the storefront */
+.kn-home a:focus-visible,
+.kn-home button:focus-visible,
+.kn-header a:focus-visible,
+.kn-header button:focus-visible,
+.kn-header input:focus-visible,
+.site-footer a:focus-visible,
+.kn-card a:focus-visible,
+.kn-card button:focus-visible,
+.mobile-bottom-nav a:focus-visible,
+.mobile-bottom-nav button:focus-visible {
+    outline: 2px solid var(--kn-yellow);
+    outline-offset: 2px;
+    border-radius: 6px;
+}
+
+.kn-sr-only {
+    position: absolute !important;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+
+/* ------------------------------------------------------------------ */
+/* Layout                                                             */
+/* ------------------------------------------------------------------ */
+.kn-wrap {
+    width: 100%;
+    max-width: var(--kn-page);
+    margin-inline: auto;
+    padding-inline: 16px;
+}
+
+@media (min-width: 768px) {
+    .kn-wrap { padding-inline: 24px; }
+}
+
+.kn-section {
+    padding-block: 18px;
+}
+
+@media (min-width: 992px) {
+    .kn-section { padding-block: 32px; }
+}
+
+.kn-section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--kn-line);
+}
+
+@media (min-width: 992px) {
+    .kn-section-head {
+        margin-bottom: 24px;
+        padding-bottom: 12px;
+    }
+}
+
+.kn-section-title {
+    min-width: 0;
+    margin: 0;
+    font-size: 1.0625rem;
+    line-height: 1.4;
+    font-weight: 700;
+    color: var(--kn-navy);
+    letter-spacing: 0;
+}
+
+@media (min-width: 768px) {
+    .kn-section-title { font-size: 1.5rem; }
+}
+
+.kn-link {
+    flex-shrink: 0;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--kn-blue) !important;
+    text-decoration: none !important;
+    white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+    .kn-link { font-size: 0.875rem; }
+}
+
+.kn-link:hover {
+    color: var(--kn-blue-dark) !important;
+    text-decoration: underline !important;
+    text-underline-offset: 4px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Buttons                                                            */
+/* ------------------------------------------------------------------ */
+.kn-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 40px;
+    padding: 8px 18px;
+    border: 0;
+    border-radius: var(--kn-radius-sm);
+    font-size: 0.875rem;
+    font-weight: 700;
+    line-height: 1.2;
+    text-decoration: none !important;
+    cursor: pointer;
+    transition: background-color .15s ease, color .15s ease;
+}
+
+.kn-btn-primary {
+    background: var(--kn-blue);
+    color: #fff !important;
+}
+
+.kn-btn-primary:hover {
+    background: var(--kn-blue-dark);
+}
+
+.kn-btn-primary:disabled {
+    background: #c7cfdb;
+    color: #fff !important;
+    cursor: not-allowed;
+}
+
+.kn-btn-yellow,
+.yellow-cta-btn {
+    background: var(--kn-yellow);
+    color: var(--kn-navy) !important;
+}
+
+.kn-btn-yellow:hover,
+.yellow-cta-btn:hover {
+    background: #ffb800;
+}
+
+.yellow-cta-btn {
+    display: inline-block;
+    padding: 6px 18px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 13px;
+    text-decoration: none !important;
+}
+
+/* ------------------------------------------------------------------ */
+/* Header                                                             */
+/* ------------------------------------------------------------------ */
+.kn-header-bar,
+.royal-header-top {
+    background: var(--kn-blue);
+    color: #fff;
+}
+
+.kn-header-bar .kn-wrap {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    min-height: 72px;
+}
+
+.kn-logo {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    color: #fff !important;
+    text-decoration: none !important;
+}
+
+.kn-logo img {
+    height: 40px;
+    width: auto;
+    max-width: 180px;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+}
+
+.kn-logo-text {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.kn-search {
+    flex: 1;
+    max-width: 640px;
+    margin: 0 auto;
+}
+
+.kn-search form {
+    margin: 0;
+}
+
+.kn-search-field,
+.header-search-pill {
+    display: flex;
+    align-items: center;
+    height: 46px;
+    padding-inline: 14px 6px;
+    background: #fff;
+    border-radius: var(--kn-radius-sm);
+    border: 2px solid transparent;
+    transition: border-color .15s ease;
+}
+
+.kn-search-field:focus-within {
+    border-color: var(--kn-yellow);
+}
+
+.kn-search-field input,
+.header-search-pill input {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    padding: 0 8px !important;
+    border: 0 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    font-size: 16px; /* 16px stops iOS zooming into the field */
+    color: var(--kn-ink);
+}
+
+@media (min-width: 992px) {
+    .kn-search-field input { font-size: 0.9375rem; }
+}
+
+.kn-search-field input::placeholder {
+    color: #8592a6;
+}
+
+.kn-search-field > i {
+    color: #8592a6;
+    font-size: 15px;
+}
+
+.kn-search-submit {
+    flex-shrink: 0;
+    height: 34px;
+    padding: 0 16px;
+    border: 0;
+    border-radius: 8px;
+    background: var(--kn-navy);
+    color: #fff;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.kn-search-submit:hover {
+    background: #000d26;
+}
+
+.kn-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.header-icon-action {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: var(--kn-radius-sm);
+    background: transparent;
+    color: #fff !important;
+    font-size: 18px;
+    text-decoration: none !important;
+    transition: background-color .15s ease;
+}
+
+.header-icon-action:hover {
+    background: rgba(255, 255, 255, .14);
+    color: #fff !important;
+}
+
+.header-icon-badge {
+    position: absolute;
+    top: 3px;
+    inset-inline-end: 2px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: var(--kn-yellow);
+    color: var(--kn-navy);
+    font-size: 10.5px;
+    font-weight: 700;
+    line-height: 18px;
+    text-align: center;
+}
+
+.kn-lang-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 36px;
+    padding: 0 12px;
+    margin-inline-start: 6px;
+    border: 1px solid rgba(255, 255, 255, .35);
+    border-radius: 8px;
+    background: transparent;
+    color: #fff;
+    font-size: 0.8125rem;
+    font-weight: 600;
+}
+
+.kn-lang-btn:hover {
+    background: rgba(255, 255, 255, .12);
+}
+
+.kn-subnav {
+    background: #fff;
+    border-bottom: 1px solid var(--kn-line);
+}
+
+.kn-subnav .kn-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 52px;
+}
+
+.kn-subnav-links {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.kn-subnav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 36px;
+    padding: 0 12px;
+    border-radius: 8px;
+    color: var(--kn-ink) !important;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none !important;
+}
+
+.kn-subnav-link:hover {
+    background: var(--kn-steel);
+    color: var(--kn-blue) !important;
+}
+
+.kn-subnav-link i {
+    color: var(--kn-muted);
+    font-size: 13px;
+}
+
+.kn-cat-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    height: 38px;
+    padding: 0 16px;
+    border-radius: 8px;
+    background: var(--kn-navy);
+    color: #fff !important;
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-decoration: none !important;
+}
+
+.kn-cat-trigger:hover {
+    background: var(--kn-blue);
+}
+
+.kn-motto {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--kn-muted);
+}
+
+.kn-motto img {
+    border-radius: 2px;
+}
+
+/* Mobile header */
+.kn-mobile-motto {
+    background: var(--kn-navy);
+    color: #dbe3f3;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.5;
+    text-align: center;
+    padding: 5px 12px;
+}
+
+.kn-mobile-header {
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+    background: var(--kn-blue);
+    padding: 6px 12px 10px;
+    box-shadow: 0 1px 0 rgba(11, 27, 58, .12);
+}
+
+.kn-mobile-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.kn-mobile-row .kn-logo img {
+    height: 30px;
+}
+
+.kn-mobile-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: #fff !important;
+    font-size: 19px;
+    text-decoration: none !important;
+}
+
+.kn-mobile-icon:hover {
+    background: rgba(255, 255, 255, .14);
+}
+
+.kn-mobile-header .kn-search-field {
+    height: 44px;
+}
+
+/* Mobile drawer */
+.kn-drawer {
+    max-width: 86vw;
+}
+
+.kn-drawer .offcanvas-header {
+    background: var(--kn-navy);
+    color: #fff;
+}
+
+.kn-drawer-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 48px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    color: var(--kn-ink) !important;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    text-decoration: none !important;
+}
+
+.kn-drawer-link:hover {
+    background: var(--kn-steel);
+}
+
+.kn-drawer-link > span {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.kn-drawer-link i {
+    width: 18px;
+    text-align: center;
+    color: var(--kn-blue);
+}
+
+.kn-drawer-sub {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 6px 10px;
+    color: #334155 !important;
+    font-size: 0.875rem;
+    text-decoration: none !important;
+    border-radius: 8px;
+}
+
+.kn-drawer-sub:hover {
+    background: var(--kn-steel);
+}
+
+/* Mega menu */
+.mega-menu, .mega-menu-ltr {
+    position: absolute;
+    top: 100%;
+    inset-inline-start: 0;
+    z-index: 9999;
+    display: none;
+    width: 860px;
+    max-width: 90vw;
+    margin-top: 8px;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid var(--kn-line);
+    border-radius: var(--kn-radius);
+    box-shadow: 0 18px 40px rgba(11, 27, 58, .14);
+}
+
+.mega-menu .category-list, .mega-menu-ltr .category-list {
+    width: 270px;
+    max-height: 480px;
+    margin: 0;
+    padding: 8px;
+    overflow-y: auto;
+    list-style: none;
+    background: var(--kn-steel);
+    border-inline-end: 1px solid var(--kn-line);
+}
+
+.mega-menu .category-list li a, .mega-menu-ltr .category-list li a {
+    display: block;
+    padding: 8px 10px;
+    border-radius: 8px;
+    color: var(--kn-ink);
+    font-size: 13.5px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.mega-menu .category-list li:hover a,
+.mega-menu .category-list li.active-cat a,
+.mega-menu-ltr .category-list li:hover a,
+.mega-menu-ltr .category-list li.active-cat a {
+    background: #fff;
+    color: var(--kn-blue);
+}
+
+.mega-menu .subcategories-wrapper, .mega-menu-ltr .subcategories-wrapper {
+    flex: 1;
+    max-height: 480px;
+    padding: 20px 24px;
+    overflow-y: auto;
+    background: #fff;
+}
+
+.mega-menu .sub-category-container, .mega-menu-ltr .sub-category-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.mega-menu .sub-group-title a, .mega-menu-ltr .sub-group-title a {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--kn-navy);
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.mega-menu .sub-group-title a:hover, .mega-menu-ltr .sub-group-title a:hover {
+    color: var(--kn-blue);
+}
+
+.mega-menu .third-level-list, .mega-menu-ltr .third-level-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.mega-menu .third-level-list a, .mega-menu-ltr .third-level-list a {
+    color: var(--kn-muted);
+    font-size: 13px;
+    text-decoration: none;
+}
+
+.mega-menu .third-level-list a:hover, .mega-menu-ltr .third-level-list a:hover {
+    color: var(--kn-blue);
+}
+
+/* ------------------------------------------------------------------ */
+/* Home: hero slider                                                  */
+/* ------------------------------------------------------------------ */
+.kn-hero {
+    padding-top: 12px;
+    padding-bottom: 4px;
+}
+
+/* Phones: the slider runs the full screen width, flush to the header. */
+@media (max-width: 767px) {
+    .kn-wrap.kn-hero {
+        padding-inline: 0;
+        padding-top: 0;
+    }
+
+    .kn-hero .swiper {
+        border-radius: 0;
+    }
+
+    .kn-hero .swiper-pagination {
+        margin-top: 8px;
+    }
+}
+
+@media (min-width: 992px) {
+    .kn-hero { padding-top: 20px; padding-bottom: 8px; }
+}
+
+.kn-hero .swiper {
+    border-radius: var(--kn-radius);
+    overflow: hidden;
+    background: var(--kn-steel);
+}
+
+/* Slider artwork is uploaded at 1500×340 with the headline near an edge:
+   show it at its natural ratio so no words are cropped on phones. */
+.kn-hero-img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.kn-hero .swiper-pagination {
+    position: static;
+    margin-top: 10px;
+}
+
+.swiper-pagination-bullet {
+    width: 8px;
+    height: 8px;
+    background: #b9c3d3;
+    opacity: 1;
+    transition: width .2s ease;
+}
+
+.swiper-pagination-bullet-active {
+    width: 22px;
+    border-radius: 4px;
+    background: var(--kn-blue);
+}
+
+/* ------------------------------------------------------------------ */
+/* The steel plinth: equipment photographed on a stainless surface.   */
+/* White product backgrounds are multiplied into the steel so JPG     */
+/* thumbnails read as cut-outs.                                       */
+/* ------------------------------------------------------------------ */
+.kn-plinth {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background:
+        linear-gradient(180deg, #f6f8fb 0%, #eef2f6 62%, #dfe6ef 62.5%, #e9eef4 100%);
+    border-radius: var(--kn-radius-sm);
+}
+
+.kn-plinth img {
+    position: relative;
+    z-index: 1;
+    max-width: 82%;
+    max-height: 82%;
+    object-fit: contain;
+    mix-blend-mode: multiply;
+}
+
+/* Category artwork already carries its own backdrop: show it whole. */
+.kn-plinth.is-artwork {
+    background: #fff;
+}
+
+.kn-plinth.is-artwork img {
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: cover;
+    mix-blend-mode: normal;
+}
+
+/* Categories */
+.kn-cat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    text-align: center;
+    text-decoration: none !important;
+}
+
+.kn-cat .kn-plinth {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border: 1px solid var(--kn-line);
+    transition: border-color .15s ease;
+}
+
+.kn-cat:hover .kn-plinth {
+    border-color: var(--kn-blue);
+}
+
+.kn-cat .kn-plinth i {
+    font-size: 30px;
+    color: var(--kn-blue);
+}
+
+.kn-cat-name {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 2.8em;
+    margin: 0;
+    padding-inline: 2px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--kn-ink);
+}
+
+.kn-cat:hover .kn-cat-name {
+    color: var(--kn-blue);
+}
+
+@media (min-width: 768px) {
+    .kn-cat-name { font-size: 0.875rem; }
+}
+
+/* Solution banners — boxes follow the artwork's own ratio, no cropping */
+.kn-banners {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+@media (min-width: 992px) {
+    .kn-banners {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 20px;
+    }
+}
+
+.kn-banner {
+    display: block;
+    overflow: hidden;
+    border-radius: var(--kn-radius-sm);
+    background: var(--kn-steel);
+}
+
+@media (min-width: 768px) {
+    .kn-banner { border-radius: var(--kn-radius); }
+}
+
+.kn-banner img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: var(--kn-art-ratio);
+    object-fit: cover;
+    transition: transform .35s ease;
+}
+
+.kn-banner:hover img {
+    transform: scale(1.03);
+}
+
+/* Wide stainless artwork (≈2.1:1) carries its headline on the left edge;
+   anchor the crop there so the words stay whole in the 5:3 boxes. */
+.kn-banner.is-wide img,
+.kn-tile.is-wide img,
+.kn-offer-img.is-wide img {
+    object-position: left center;
+}
+
+/* ------------------------------------------------------------------ */
+/* Best sellers                                                       */
+/* ------------------------------------------------------------------ */
+.kn-bs-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+}
+
+.kn-bs-row + .kn-bs-row {
+    margin-top: 10px;
+}
+
+.kn-products {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    align-items: stretch;
+}
+
+@media (min-width: 768px) {
+    .kn-products {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 16px;
+    }
+}
+
+@media (min-width: 992px) {
+    .kn-bs-row {
+        grid-template-columns: minmax(0, 4fr) minmax(0, 1fr);
+        gap: 16px;
+    }
+
+    .kn-bs-row + .kn-bs-row {
+        margin-top: 16px;
+    }
+}
+
+/* Portrait promo artwork beside the best sellers (desktop only). The image
+   is absolutely positioned so its tall natural height never stretches the
+   product row; it simply fills whatever height the cards set. */
+.kn-promo-art {
+    position: relative;
+    display: none;
+    overflow: hidden;
+    border-radius: var(--kn-radius);
+    background: var(--kn-blue);
+}
+
+.kn-promo-art img {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+}
+
+@media (min-width: 992px) {
+    .kn-promo-art {
+        display: block;
+    }
+}
+
+/* ------------------------------------------------------------------ */
+/* Product card                                                       */
+/* ------------------------------------------------------------------ */
+.kn-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-width: 0;
+    padding: 6px;
+    background: #fff;
+    border: 1px solid var(--kn-line);
+    border-radius: var(--kn-radius-sm);
+    text-align: start;
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+@media (min-width: 768px) {
+    .kn-card {
+        padding: 10px;
+        border-radius: var(--kn-radius);
+    }
+}
+
+.kn-card:hover {
+    border-color: #c6d0e0;
+    box-shadow: 0 8px 22px rgba(11, 27, 58, .08);
+}
+
+.kn-card-media {
+    position: relative;
+    display: block;
+}
+
+.kn-card-media .kn-plinth {
+    display: flex;
+    aspect-ratio: 1 / 1;
+    text-decoration: none !important;
+}
+
+.kn-card-media .kn-plinth img {
+    transition: transform .3s ease;
+}
+
+.kn-card:hover .kn-card-media .kn-plinth img {
+    transform: scale(1.04);
+}
+
+.kn-card-discount {
+    position: absolute;
+    top: 6px;
+    inset-inline-start: 6px;
+    z-index: 2;
+    padding: 1px 7px;
+    border-radius: 6px;
+    background: var(--kn-red);
+    color: #fff;
+    font-size: 11.5px;
+    font-weight: 700;
+    line-height: 20px;
+    /* No `direction` here: logical insets resolve against the element's own
+       direction, so an LTR badge would jump onto the wishlist heart in Arabic.
+       The text itself is isolated with <bdi dir="ltr"> in the markup. */
+}
+
+.kn-card-wish {
+    position: absolute;
+    top: 4px;
+    inset-inline-end: 4px;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: #fff;
+    color: var(--kn-muted);
+    font-size: 15px;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(11, 27, 58, .12);
+}
+
+.kn-card-wish:hover {
+    color: var(--kn-red);
+}
+
+.kn-card-body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+    padding: 8px 2px 0;
+}
+
+@media (min-width: 768px) {
+    .kn-card-body { padding: 10px 4px 2px; }
+}
+
+.kn-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px 8px;
+    margin-bottom: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+@media (min-width: 768px) {
+    .kn-card-meta { font-size: 11.5px; margin-bottom: 6px; }
+}
+
+.kn-stock {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--kn-green);
+    white-space: nowrap;
+}
+
+.kn-stock::before {
+    content: "";
+    flex-shrink: 0;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.kn-stock.is-out {
+    color: var(--kn-red);
+}
+
+.kn-ship {
+    color: var(--kn-blue);
+    white-space: nowrap;
+}
+
+.kn-card-title {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 2.8em;
+    margin: 0 0 4px;
+    color: var(--kn-ink) !important;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.4;
+    text-decoration: none !important;
+    overflow-wrap: anywhere;
+    unicode-bidi: plaintext;
+    text-align: start;
+}
+
+@media (min-width: 768px) {
+    .kn-card-title { font-size: 0.9375rem; }
+}
+
+.kn-card-title:hover {
+    color: var(--kn-blue) !important;
+}
+
+.kn-sku {
+    margin: 0 0 6px;
+    color: #8592a6;
+    font-size: 11px;
+    line-height: 1.4;
+    text-align: start;
+    unicode-bidi: plaintext;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.kn-card-foot {
+    margin-top: auto;
+}
+
+.kn-price {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 6px;
+}
+
+.kn-price-now {
+    color: var(--kn-navy);
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.3;
+    white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+    .kn-price-now { font-size: 1.25rem; }
+}
+
+.kn-price-now small {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: var(--kn-muted);
+}
+
+.kn-price-was {
+    color: #8592a6;
+    font-size: 0.75rem;
+    text-decoration: line-through;
+    white-space: nowrap;
+}
+
+.kn-vat {
+    margin: 0 0 8px;
+    color: #8592a6;
+    font-size: 10.5px;
+    line-height: 1.4;
+}
+
+.kn-card .kn-btn {
+    width: 100%;
+    min-height: 40px;
+    padding-inline: 6px;
+    gap: 6px;
+    font-size: 0.8125rem;
+}
+
+@media (min-width: 768px) {
+    .kn-vat { font-size: 11px; margin-bottom: 10px; }
+    .kn-card .kn-btn { min-height: 42px; font-size: 0.875rem; }
+}
+
+/* ------------------------------------------------------------------ */
+/* Projects bento — small tiles use the artwork ratio, no cropping    */
+/* ------------------------------------------------------------------ */
+.kn-bento {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+}
+
+.kn-bento-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+@media (min-width: 992px) {
+    .kn-bento {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .kn-bento-grid {
+        gap: 16px;
+    }
+}
+
+.kn-tile {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    aspect-ratio: var(--kn-art-ratio);
+    border-radius: var(--kn-radius-sm);
+    background: var(--kn-navy);
+    text-decoration: none !important;
+}
+
+@media (min-width: 768px) {
+    .kn-tile { border-radius: var(--kn-radius); }
+}
+
+.kn-tile img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform .35s ease;
+}
+
+a.kn-tile:hover img {
+    transform: scale(1.04);
+}
+
+.kn-tile-shade {
+    position: absolute;
+    inset: auto 0 0 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 18px 10px 8px;
+    background: linear-gradient(0deg, rgba(8, 20, 48, .9) 0%, rgba(8, 20, 48, .55) 55%, rgba(8, 20, 48, 0) 100%);
+    color: #fff;
+}
+
+.kn-tile-label {
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1.35;
+}
+
+@media (min-width: 576px) {
+    .kn-tile-label { font-size: 0.875rem; }
+    .kn-tile-shade { padding: 24px 14px 10px; }
+}
+
+@media (min-width: 992px) {
+    .kn-tile-label { font-size: 1rem; }
+    .kn-tile-shade { padding: 28px 18px 14px; }
+}
+
+/* The feature tile is a real photo, so it may crop; it matches the grid height. */
+.kn-tile-feature {
+    aspect-ratio: 4 / 3;
+}
+
+@media (min-width: 992px) {
+    .kn-tile-feature {
+        aspect-ratio: auto;
+        min-height: 100%;
+    }
+}
+
+.kn-tile-feature .kn-tile-shade {
+    inset: 0;
+    padding: 20px 18px;
+    background: linear-gradient(0deg, rgba(8, 20, 48, .9) 0%, rgba(8, 20, 48, .45) 50%, rgba(8, 20, 48, .05) 100%);
+}
+
+.kn-years {
+    display: block;
+    color: #fff;
+    font-size: 2.25rem;
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+.kn-years-text {
+    display: block;
+    max-width: 34ch;
+    margin-top: 6px;
+    color: #e3e9f6;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+@media (min-width: 768px) {
+    .kn-years { font-size: 3.5rem; }
+    .kn-years-text { font-size: 1.125rem; }
+    .kn-tile-feature .kn-tile-shade { padding: 28px 32px; }
+}
+
+/* ------------------------------------------------------------------ */
+/* Offers — quiet white cards, blue action                            */
+/* ------------------------------------------------------------------ */
+.kn-offers {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 64%;
+    gap: 10px;
+    overflow-x: auto;
+    margin-inline: -16px;
+    padding: 0 16px 6px;
+    scroll-padding-inline: 16px;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+}
+
+.kn-offers::-webkit-scrollbar {
+    display: none;
+}
+
+@media (min-width: 576px) {
+    .kn-offers { grid-auto-columns: 40%; }
+}
+
+@media (min-width: 768px) {
+    .kn-offers {
+        margin-inline: -24px;
+        padding-inline: 24px;
+        scroll-padding-inline: 24px;
+        grid-auto-columns: 30%;
+    }
+}
+
+@media (min-width: 992px) {
+    .kn-offers {
+        grid-auto-flow: row;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        grid-auto-columns: auto;
+        gap: 16px;
+        margin-inline: 0;
+        padding: 0;
+        overflow: visible;
+    }
+}
+
+.kn-offer {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+    padding: 8px 8px 10px;
+    border: 1px solid var(--kn-line);
+    border-radius: var(--kn-radius);
+    background: #fff;
+    color: var(--kn-ink);
+    text-decoration: none !important;
+    scroll-snap-align: start;
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+.kn-offer:hover {
+    border-color: #c6d0e0;
+    box-shadow: 0 8px 22px rgba(11, 27, 58, .08);
+}
+
+.kn-offer-img {
+    overflow: hidden;
+    border-radius: var(--kn-radius-sm);
+    background: var(--kn-steel);
+}
+
+.kn-offer-img img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: var(--kn-art-ratio);
+    object-fit: cover;
+}
+
+.kn-offer-body {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 4px 8px;
+    padding-inline: 2px;
+}
+
+.kn-offer-title {
+    margin: 0;
+    color: var(--kn-navy);
+    font-size: 0.9375rem;
+    font-weight: 700;
+    line-height: 1.35;
+}
+
+.kn-offer-deal {
+    padding: 1px 8px;
+    border-radius: 6px;
+    background: #fdecea;
+    color: var(--kn-red);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 20px;
+    white-space: nowrap;
+}
+
+.kn-offer .kn-btn {
+    width: 100%;
+    margin-top: auto;
+}
+
+/* ------------------------------------------------------------------ */
+/* Footer                                                             */
+/* ------------------------------------------------------------------ */
+.site-footer {
+    margin-top: 44px;
+    padding: 0 0 16px;
+    background: var(--kn-navy);
+    color: #c3cde0;
+    font-size: 0.875rem;
+}
+
+@media (min-width: 992px) {
+    .site-footer { margin-top: 56px; }
+}
+
+.site-footer > .kn-wrap {
+    padding-top: 24px;
+}
+
+@media (min-width: 992px) {
+    .site-footer > .kn-wrap { padding-top: 36px; }
+}
+
+.site-footer a {
+    color: #c3cde0;
+    text-decoration: none;
+}
+
+.site-footer a:hover {
+    color: #fff;
+}
+
+.kn-foot-top {
+    display: grid;
+    gap: 18px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, .12);
+}
+
+@media (min-width: 992px) {
+    .kn-foot-top {
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 40px;
+        padding-bottom: 28px;
+    }
+}
+
+
+
+.kn-foot-logo span {
+    color: #fff;
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.kn-foot-about {
+    max-width: 52ch;
+    margin: 10px 0 0;
+    color: #a9b6cc;
+    font-size: 0.875rem;
+    line-height: 1.75;
+}
+
+.kn-foot-contact {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+@media (min-width: 576px) {
+    .kn-foot-contact { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (min-width: 992px) {
+    .kn-foot-contact { display: flex; gap: 10px; }
+}
+
+.kn-foot-chip {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 56px;
+    padding: 10px 14px;
+    border: 1px solid rgba(255, 255, 255, .14);
+    border-radius: var(--kn-radius-sm);
+    background: rgba(255, 255, 255, .04);
+    color: #fff !important;
+}
+
+.kn-foot-chip:hover {
+    border-color: rgba(255, 255, 255, .35);
+    background: rgba(255, 255, 255, .08);
+}
+
+.kn-foot-chip > i {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--kn-blue);
+    color: #fff;
+    font-size: 16px;
+}
+
+.kn-foot-chip .fa-whatsapp {
+    background: #25d366;
+    font-size: 19px;
+}
+
+.kn-foot-chip > span {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 1.35;
+}
+
+.kn-foot-chip small {
+    color: #93a1bb;
+    font-size: 0.75rem;
+}
+
+.kn-foot-chip bdi {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 600;
+}
+
+/* Link groups */
+.kn-foot-cols {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 768px) {
+    .kn-foot-cols {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 28px 32px;
+        padding-top: 28px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .kn-foot-cols {
+        grid-template-columns: repeat(4, minmax(0, 1fr)) minmax(0, 1.3fr);
+    }
+}
+
+.kn-foot-group {
+    border-bottom: 1px solid rgba(255, 255, 255, .1);
+}
+
+@media (min-width: 768px) {
+    .kn-foot-group { border-bottom: 0; }
+}
+
+.kn-foot-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 52px;
+    margin: 0;
+    color: #fff;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    line-height: 1.4;
+    list-style: none;
+    cursor: pointer;
+}
+
+.kn-foot-title::-webkit-details-marker {
+    display: none;
+}
+
+.kn-foot-title i {
+    color: #93a1bb;
+    font-size: 12px;
+    transition: transform .2s ease;
+}
+
+.kn-foot-group[open] > .kn-foot-title i {
+    transform: rotate(180deg);
+}
+
+.kn-foot-title.is-static {
+    cursor: default;
+}
+
+@media (min-width: 768px) {
+    .kn-foot-title {
+        min-height: 0;
+        margin-bottom: 12px;
+        cursor: default;
+    }
+
+    .kn-foot-title i { display: none; }
+}
+
+.kn-foot-links {
+    margin: 0;
+    padding: 0 0 14px;
+    list-style: none;
+}
+
+.kn-foot-links a {
+    display: block;
+    padding: 9px 0;
+    line-height: 1.5;
+}
+
+@media (min-width: 768px) {
+    .kn-foot-links { padding: 0; }
+    .kn-foot-links a { padding: 5px 0; }
+}
+
+.kn-foot-links a:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
+/* Seller call-out */
+.kn-foot-seller {
+    padding: 18px 0 20px;
+}
+
+@media (min-width: 768px) {
+    .kn-foot-seller { padding: 0; }
+}
+
+.kn-foot-seller .kn-foot-title {
+    min-height: 0;
+    margin-bottom: 6px;
+}
+
+.kn-foot-note {
+    margin: 0 0 12px;
+    color: #a9b6cc;
+    line-height: 1.7;
+}
+
+.kn-foot-cta {
+    width: 100%;
+    min-height: 46px;
+}
+
+@media (min-width: 576px) {
+    .kn-foot-cta { width: auto; }
+}
+
+.kn-foot-follow {
+    margin: 18px 0 8px;
+    color: #fff;
+    font-size: 0.875rem;
+    font-weight: 700;
+}
+
+.kn-foot-social {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.kn-foot-social a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border: 1px solid rgba(255, 255, 255, .16);
+    border-radius: var(--kn-radius-sm);
+    color: #fff !important;
+    font-size: 17px;
+}
+
+.kn-foot-social a:hover {
+    border-color: #fff;
+    background: rgba(255, 255, 255, .08);
+}
+
+/* Legal line */
+.kn-foot-legal {
+    margin-top: 8px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, .12);
+    color: #8594ad;
+    font-size: 0.75rem;
+    line-height: 1.8;
+    text-align: center;
+}
+
+@media (min-width: 768px) {
+    .kn-foot-legal {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-top: 32px;
+        font-size: 0.8125rem;
+        text-align: start;
+    }
+}
+
+.kn-foot-legal p {
+    margin: 0;
+}
+
+.kn-foot-legal p:first-child {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0 14px;
+}
+
+.site-footer a:focus-visible,
+.site-footer summary:focus-visible {
+    outline: 2px solid var(--kn-yellow);
+    outline-offset: 2px;
+    border-radius: 6px;
+}
+
+
+/* ------------------------------------------------------------------ */
+/* Brand motif: the three blue and three red wave lines from the logo  */
+/* ------------------------------------------------------------------ */
+:root {
+    --kn-waves: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='36' viewBox='0 0 240 36'%3E%3Cg fill='none' stroke-width='3' stroke-linecap='round'%3E%3Cpath stroke='%232f6fd0' d='M0 5c20 0 40-4 60-4s40 4 60 4 40-4 60-4 40 4 60 4'/%3E%3Cpath stroke='%232f6fd0' d='M0 11c20 0 40-4 60-4s40 4 60 4 40-4 60-4 40 4 60 4'/%3E%3Cpath stroke='%232f6fd0' d='M0 17c20 0 40-4 60-4s40 4 60 4 40-4 60-4 40 4 60 4'/%3E%3Cpath stroke='%23d0343a' d='M0 23c20 0 40-4 60-4s40 4 60 4 40-4 60-4 40 4 60 4'/%3E%3Cpath stroke='%23d0343a' d='M0 29c20 0 40-4 60-4s40 4 60 4 40-4 60-4 40 4 60 4'/%3E%3Cpath stroke='%23d0343a' d='M0 35c20 0 40-4 60-4s40 4 60 4 40-4 60-4 40 4 60 4'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+.kn-waves {
+    height: 36px;
+    margin-top: -18px;
+    background: var(--kn-waves) repeat-x center / 240px 36px;
+}
+
+/* Header wordmark (phones) and logo lockup (desktop) */
+.kn-wordmark {
+    flex: 1;
+    min-width: 0;
+    color: #fff !important;
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0;
+    text-align: center;
+    text-decoration: none !important;
+    white-space: nowrap;
+}
+
+.kn-logo-lockup {
+    gap: 10px;
+}
+
+.kn-logo-lockup img {
+    height: 52px;
+    width: 52px;
+    max-width: none;
+}
+
+.kn-logo-lockup .kn-logo-text {
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+/* Footer brand: the full-colour logo on a white tile */
+.kn-foot-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    color: #fff !important;
+    text-decoration: none !important;
+}
+
+.kn-foot-mark {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 96px;
+    height: 96px;
+    padding: 6px;
+    border-radius: 16px;
+    background: #fff;
+}
+
+.kn-foot-mark img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    /* Keep the real blue/red colours: the white-logo filter is for the blue header only. */
+    filter: none !important;
+}
+
+@media (min-width: 992px) {
+    .kn-foot-mark { width: 112px; height: 112px; }
+}
+
+.kn-foot-name {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.kn-foot-name strong {
+    color: #fff;
+    font-size: 1.625rem;
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+.kn-foot-name small {
+    color: #93a1bb;
+    font-size: 0.8125rem;
+}
+
+/* The 60-years tile carries the waves along its top edge */
+.kn-tile-feature::after {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    z-index: 1;
+    height: 36px;
+    background: var(--kn-waves) repeat-x center / 240px 36px;
+    opacity: .9;
+    pointer-events: none;
+}
+
+/* Floating WhatsApp */
+.whatsapp-float,
+.whatsapp-float-en {
+    position: fixed;
+    bottom: 24px;
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    background-color: #25d366;
+    color: #fff !important;
+    font-size: 30px;
+    text-decoration: none !important;
+    box-shadow: 0 6px 16px rgba(18, 128, 92, .35);
+}
+
+.whatsapp-float { right: 24px; }
+.whatsapp-float-en { left: 24px; }
+
+.whatsapp-float:hover,
+.whatsapp-float-en:hover {
+    background-color: #1ebe5b;
+    color: #fff !important;
+}
+
+@media (max-width: 991px) {
+    .whatsapp-float,
+    .whatsapp-float-en {
+        bottom: calc(80px + env(safe-area-inset-bottom));
+        width: 46px;
+        height: 46px;
+        font-size: 25px;
+    }
+
+    .whatsapp-float { right: 12px; }
+    .whatsapp-float-en { left: 12px; }
+}
+
+/* ------------------------------------------------------------------ */
+/* Mini cart toast                                                    */
+/* ------------------------------------------------------------------ */
+.mini-cart-toast {
+    position: fixed;
+    top: 75px;
+    z-index: 99999;
+    width: min(380px, 92vw);
+    padding: 16px;
+    background: #fff;
+    border: 1px solid var(--kn-line);
+    border-radius: var(--kn-radius);
+    box-shadow: 0 16px 36px rgba(11, 27, 58, .16);
+    opacity: 0;
+    transition: opacity .3s ease;
+}
+
+.mini-cart-toast.rtl { right: 16px; left: auto; }
+.mini-cart-toast.ltr { left: 16px; right: auto; }
+.mini-cart-toast.show { opacity: 1; }
+
+.mct-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--kn-steel);
+    color: var(--kn-green);
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.mct-close {
+    border: 0;
+    background: transparent;
+    color: #94a3b8;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.mct-close:hover { color: var(--kn-ink); }
+
+.mct-body {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.mct-thumb {
+    flex-shrink: 0;
+    width: 60px;
+    height: 60px;
+    padding: 4px;
+    object-fit: contain;
+    background: var(--kn-steel);
+    border-radius: 10px;
+    mix-blend-mode: multiply;
+}
+
+.mct-title {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin: 0 0 3px;
+    color: var(--kn-ink);
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.35;
+    unicode-bidi: plaintext;
+}
+
+.mct-meta {
+    color: var(--kn-muted);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.mct-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid var(--kn-steel);
+}
+
+.mct-btn {
+    flex: 1;
+    padding: 10px 12px;
+    border: 1px solid var(--kn-line);
+    border-radius: 8px;
+    background: #fff;
+    color: #334155;
+    font-size: 12.5px;
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none !important;
+}
+
+.mct-btn:hover { background: var(--kn-steel); }
+
+.mct-btn.primary,
+.mct-btn.go-cart-btn {
+    background: var(--kn-blue);
+    border-color: var(--kn-blue);
+    color: #fff !important;
+}
+
+.mct-btn.primary:hover,
+.mct-btn.go-cart-btn:hover {
+    background: var(--kn-blue-dark);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .kn-banner img,
+    .kn-tile img,
+    .kn-card-media .kn-plinth img,
+    .swiper-pagination-bullet {
+        transition: none !important;
+    }
+}

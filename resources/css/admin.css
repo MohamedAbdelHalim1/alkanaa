@@ -1,0 +1,7 @@
+@import "tailwindcss";
+@import "./theme.css";
+@import "./fonts.css";
+
+body {
+    @apply bg-neutral-50 text-neutral-900 font-sans text-base leading-normal;
+}

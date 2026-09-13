@@ -1,202 +1,96 @@
 @extends('frontend.layouts.app')
 
-@section('style')
-    <style>
-        :root {
-            --checkout-brand: #ae2025;
-        }
-
-        .checkout-card {
-            border: 1px solid #eef0f2 !important;
-            border-radius: 14px !important;
-            overflow: hidden;
-            box-shadow: 0 4px 16px rgba(17, 24, 39, .05);
-            margin-bottom: 1.25rem !important;
-        }
-
-        .checkout-card .card-header {
-            background: #fff;
-            cursor: pointer;
-            transition: background .2s ease;
-        }
-
-        .checkout-card .card-header:hover {
-            background: #fafafa;
-        }
-
-        .checkout-card .card-header svg {
-            flex: 0 0 auto;
-        }
-
-        .checkout-card .card-header .las {
-            transition: transform .2s ease;
-        }
-
-        .checkout-card .card-header[aria-expanded="true"] .las {
-            transform: rotate(180deg);
-        }
-
-        #submitOrderBtn {
-            background-color: var(--checkout-brand);
-            border-color: var(--checkout-brand);
-            border-radius: 999px !important;
-            transition: filter .2s ease, transform .15s ease;
-        }
-
-        #submitOrderBtn:hover:not(:disabled) {
-            filter: brightness(1.08);
-        }
-
-        #submitOrderBtn:active:not(:disabled) {
-            transform: scale(.98);
-        }
-
-        .checkout-actions-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .checkout-actions-row .return-to-shop {
-            order: 2;
-        }
-
-        .checkout-actions-row .complete-order-wrap {
-            order: 1;
-            width: 100%;
-        }
-
-        .checkout-actions-row .complete-order-wrap .btn {
-            width: 100%;
-        }
-
-        @media (min-width: 576px) {
-            .checkout-actions-row .return-to-shop {
-                order: 1;
-            }
-
-            .checkout-actions-row .complete-order-wrap {
-                order: 2;
-                width: auto;
-            }
-
-            .checkout-actions-row .complete-order-wrap .btn {
-                width: auto;
-            }
-        }
-
-        #cart_summary {
-            position: sticky;
-            top: 16px;
-        }
-
-        @media (max-width: 991px) {
-            #cart_summary {
-                position: static;
-            }
-        }
-    </style>
-@endsection
-
 @section('content')
-    <section class="my-4 gry-bg">
-        <div class="container">
-            <div class="row cols-xs-space cols-sm-space cols-md-space">
-                <div class="col-lg-8 mx-auto">
+    @php
+        $knIsAr = in_array(app()->getLocale(), ['sa', 'ar', 'eg']);
+        $kt = fn ($ar, $en) => $knIsAr ? $ar : $en;
+    @endphp
+    <section class="kn-co-page has-sumbar">
+        <div class="kn-wrap">
+            <div class="kn-co-head">
+                <h1 class="kn-co-title">{{ $kt('إتمام الطلب', 'Checkout') }}</h1>
+                <a href="{{ route('cart') }}" class="kn-link">{{ $kt('العودة إلى السلة', 'Back to cart') }}</a>
+            </div>
+
+            @include('frontend.partials.cart.checkout_steps', [
+                'current' => 2,
+                'currentEnd' => 4,
+                'anchors' => [2 => '#kn-step-shipping', 3 => '#kn-step-delivery', 4 => '#kn-step-payment'],
+            ])
+
+            <div class="kn-co-layout">
+                <div class="kn-co-main">
                     <form class="form-default" data-toggle="validator" action="{{ route('payment.checkout') }}" role="form"
-                        method="POST" id="checkout-form">
+                        method="POST" id="checkout-form" enctype="multipart/form-data">
                         @csrf
 
-                        <div class="accordion" id="accordioncCheckoutInfo">
+                        <div class="kn-co-sections" id="accordioncCheckoutInfo">
 
                             <!-- Shipping Info -->
-                            <div class="card checkout-card border shadow-none">
-                                <div class="card-header border-bottom-0 py-3 py-xl-4" id="headingShippingInfo"
-                                    type="button" data-toggle="collapse" data-target="#collapseShippingInfo"
-                                    aria-expanded="true" aria-controls="collapseShippingInfo">
-                                    <div class="d-flex align-items-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                            viewBox="0 0 20 20">
-                                            <path id="Path_42357" data-name="Path 42357"
-                                                d="M58,48A10,10,0,1,0,68,58,10,10,0,0,0,58,48ZM56.457,61.543a.663.663,0,0,1-.423.212.693.693,0,0,1-.428-.216l-2.692-2.692.856-.856,2.269,2.269,6-6.043.841.87Z"
-                                                transform="translate(-48 -48)" fill="#9d9da6" />
-                                        </svg>
-                                        <span class="m-2 fs-19 fw-700">{{ translate('Shipping Info') }}</span>
-                                    </div>
-                                    <i class="las la-angle-down fs-18"></i>
+                            <section class="kn-co-section" id="kn-step-shipping" aria-labelledby="kn-step-shipping-title">
+                                <div class="kn-co-section-head" id="headingShippingInfo">
+                                    <span class="kn-co-section-num" aria-hidden="true">2</span>
+                                    <h2 class="kn-co-section-title" id="kn-step-shipping-title">{{ translate('Shipping Info') }}</h2>
+                                    <svg class="kn-co-section-check" xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                                        viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                                        <path
+                                            d="M58,48A10,10,0,1,0,68,58,10,10,0,0,0,58,48ZM56.457,61.543a.663.663,0,0,1-.423.212.693.693,0,0,1-.428-.216l-2.692-2.692.856-.856,2.269,2.269,6-6.043.841.87Z"
+                                            transform="translate(-48 -48)" fill="#9d9da6" />
+                                    </svg>
                                 </div>
-                                <div id="collapseShippingInfo" class="collapse show" aria-labelledby="headingShippingInfo"
-                                    data-parent="#accordioncCheckoutInfo">
-                                    <div class="card-body" id="shipping_info">
+                                <div id="collapseShippingInfo" aria-labelledby="headingShippingInfo">
+                                    <div class="kn-co-section-body" id="shipping_info">
                                         @include('frontend.partials.cart.shipping_info', [
                                             'address_id' => $address_id,
                                         ])
                                     </div>
                                 </div>
-                            </div>
+                            </section>
 
                             @if ($service_request)
-                                <!-- Shipping Info -->
-                                <div class="card checkout-card border shadow-none">
-                                    <div class="card-header border-bottom-0 py-3 py-xl-4" id="headingServiceInfo"
-                                        type="button" data-toggle="collapse" data-target="#collapseServiceInfo"
-                                        aria-expanded="true" aria-controls="collapseServiceInfo">
-                                        <div class="d-flex align-items-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                                viewBox="0 0 20 20">
-                                                <path id="Path_42357" data-name="Path 42357"
-                                                    d="M58,48A10,10,0,1,0,68,58,10,10,0,0,0,58,48ZM56.457,61.543a.663.663,0,0,1-.423.212.693.693,0,0,1-.428-.216l-2.692-2.692.856-.856,2.269,2.269,6-6.043.841.87Z"
-                                                    transform="translate(-48 -48)" fill="#9d9da6" />
-                                            </svg>
-                                            <span class="m-2 fs-19 fw-700">{{ translate('Service Info') }}</span>
-                                        </div>
-                                        <i class="las la-angle-down fs-18"></i>
+                                <!-- Service Info -->
+                                <section class="kn-co-section" aria-labelledby="kn-step-service-title">
+                                    <div class="kn-co-section-head" id="headingServiceInfo">
+                                        <span class="kn-co-section-num is-icon" aria-hidden="true"><i class="las la-tools"></i></span>
+                                        <h2 class="kn-co-section-title" id="kn-step-service-title">{{ translate('Service Info') }}</h2>
+                                        <svg class="kn-co-section-check" xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                                            viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                                            <path
+                                                d="M58,48A10,10,0,1,0,68,58,10,10,0,0,0,58,48ZM56.457,61.543a.663.663,0,0,1-.423.212.693.693,0,0,1-.428-.216l-2.692-2.692.856-.856,2.269,2.269,6-6.043.841.87Z"
+                                                transform="translate(-48 -48)" fill="#9d9da6" />
+                                        </svg>
                                     </div>
 
-                                    <div id="collapseServiceInfo" class="collapse show" aria-labelledby="headingServiceInfo"
-                                        data-parent="#accordioncCheckoutInfo">
-                                        <div class="card-body" id="service_info">
-                                            <div class="form-group">
-                                                <label for="file" class="text-danger fw-bold">
-                                                    @if (app()->getLocale() == 'sa')
-                                                        ارفع ملف (صورة أو PDF):
-                                                    @elseif(app()->getLocale() == 'cn')
-                                                        上传文件 (图片或 PDF):
-                                                    @elseif(app()->getLocale() == 'en')
-                                                        Upload File (Image or PDF):
-                                                    @endif
+                                    <div id="collapseServiceInfo" aria-labelledby="headingServiceInfo">
+                                        <div class="kn-co-section-body" id="service_info">
+                                            <div class="kn-co-field">
+                                                <label for="file">
+                                                    {{ app()->getLocale() == 'cn' ? '上传文件（图片或 PDF）' : $kt('ارفع ملف (صورة أو PDF)', 'Upload file (image or PDF)') }}
+                                                    <span class="kn-co-req" aria-hidden="true">*</span>
                                                 </label>
                                                 <input type="hidden" name="service_request" value="1">
-                                                <input type="file" id="file" name="service_file"
+                                                <input type="file" id="file" name="service_file" class="form-control kn-co-file"
                                                     accept=".pdf,image/*" required>
                                             </div>
                                         </div>
                                     </div>
-
-                                </div>
+                                </section>
                             @endif
 
                             <!-- Delivery Info -->
-                            <div class="card checkout-card border shadow-none" style="overflow: visible !important;">
-                                <div class="card-header border-bottom-0 py-3 py-xl-4" id="headingDeliveryInfo"
-                                    type="button" data-toggle="collapse" data-target="#collapseDeliveryInfo"
-                                    aria-expanded="true" aria-controls="collapseDeliveryInfo">
-                                    <div class="d-flex align-items-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                            viewBox="0 0 20 20">
-                                            <path id="Path_42357" data-name="Path 42357"
-                                                d="M58,48A10,10,0,1,0,68,58,10,10,0,0,0,58,48ZM56.457,61.543a.663.663,0,0,1-.423.212.693.693,0,0,1-.428-.216l-2.692-2.692.856-.856,2.269,2.269,6-6.043.841.87Z"
-                                                transform="translate(-48 -48)" fill="#9d9da6" />
-                                        </svg>
-                                        <span class="m-2 fs-19 fw-700">{{ translate('Delivery Info') }}</span>
-                                    </div>
-                                    <i class="las la-angle-down fs-18"></i>
+                            <section class="kn-co-section" id="kn-step-delivery" aria-labelledby="kn-step-delivery-title">
+                                <div class="kn-co-section-head" id="headingDeliveryInfo">
+                                    <span class="kn-co-section-num" aria-hidden="true">3</span>
+                                    <h2 class="kn-co-section-title" id="kn-step-delivery-title">{{ translate('Delivery Info') }}</h2>
+                                    <svg class="kn-co-section-check" xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                                        viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                                        <path
+                                            d="M58,48A10,10,0,1,0,68,58,10,10,0,0,0,58,48ZM56.457,61.543a.663.663,0,0,1-.423.212.693.693,0,0,1-.428-.216l-2.692-2.692.856-.856,2.269,2.269,6-6.043.841.87Z"
+                                            transform="translate(-48 -48)" fill="#9d9da6" />
+                                    </svg>
                                 </div>
-                                <div id="collapseDeliveryInfo" class="collapse show" aria-labelledby="headingDeliveryInfo"
-                                    data-parent="#accordioncCheckoutInfo">
-                                    <div class="card-body" id="delivery_info">
+                                <div id="collapseDeliveryInfo" aria-labelledby="headingDeliveryInfo">
+                                    <div class="kn-co-section-body" id="delivery_info">
                                         @include('frontend.partials.cart.delivery_info', [
                                             'carts' => $carts,
                                             'carrier_list' => $carrier_list,
@@ -204,76 +98,67 @@
                                         ])
                                     </div>
                                 </div>
-                            </div>
-
+                            </section>
 
                             <!-- Payment Info -->
-                            <div class="card checkout-card mb-0 border shadow-none">
-                                <div class="card-header border-bottom-0 py-3 py-xl-4" id="headingPaymentInfo"
-                                    type="button" data-toggle="collapse" data-target="#collapsePaymentInfo"
-                                    aria-expanded="true" aria-controls="collapsePaymentInfo">
-                                    <div class="d-flex align-items-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                            viewBox="0 0 20 20">
-                                            <path id="Path_42357" data-name="Path 42357"
-                                                d="M58,48A10,10,0,1,0,68,58,10,10,0,0,0,58,48ZM56.457,61.543a.663.663,0,0,1-.423.212.693.693,0,0,1-.428-.216l-2.692-2.692.856-.856,2.269,2.269,6-6.043.841.87Z"
-                                                transform="translate(-48 -48)" fill="#9d9da6" />
-                                        </svg>
-                                        <span class="m-2 fs-19 fw-700">{{ translate('Payment') }}</span>
-                                    </div>
-                                    <i class="las la-angle-down fs-18"></i>
+                            <section class="kn-co-section" id="kn-step-payment" aria-labelledby="kn-step-payment-title">
+                                <div class="kn-co-section-head" id="headingPaymentInfo">
+                                    <span class="kn-co-section-num" aria-hidden="true">4</span>
+                                    <h2 class="kn-co-section-title" id="kn-step-payment-title">{{ translate('Payment') }}</h2>
+                                    <svg class="kn-co-section-check" xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                                        viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                                        <path
+                                            d="M58,48A10,10,0,1,0,68,58,10,10,0,0,0,58,48ZM56.457,61.543a.663.663,0,0,1-.423.212.693.693,0,0,1-.428-.216l-2.692-2.692.856-.856,2.269,2.269,6-6.043.841.87Z"
+                                            transform="translate(-48 -48)" fill="#9d9da6" />
+                                    </svg>
                                 </div>
-                                <div id="collapsePaymentInfo" class="collapse show" aria-labelledby="headingPaymentInfo"
-                                    data-parent="#accordioncCheckoutInfo">
-                                    <div class="card-body" id="payment_info">
+                                <div id="collapsePaymentInfo" aria-labelledby="headingPaymentInfo">
+                                    <div class="kn-co-section-body" id="payment_info">
                                         @include('frontend.partials.cart.payment_info', [
                                             'carts' => $carts,
                                             'total' => $total,
                                         ])
 
-                                        <!-- Agree Box -->
-                                        <div class="pt-2rem fs-14">
-                                            <label class="aiz-checkbox">
-                                                <input type="checkbox" required id="agree_checkbox"
-                                                    onchange="stepCompletionPaymentInfo()">
-                                                <span class="aiz-square-check"></span>
-                                                <span>{{ translate('I agree to the') }}</span>
-                                            </label>
-                                            <a href="{{ route('terms') }}"
-                                                class="fw-700">{{ translate('terms and conditions') }}</a>,
-                                            <a href="{{ route('returnpolicy') }}"
-                                                class="fw-700">{{ translate('return policy') }}</a> &
-                                            <a href="{{ route('privacypolicy') }}"
-                                                class="fw-700">{{ translate('privacy policy') }}</a>
-                                        </div>
+                                        <div class="kn-co-place" id="kn-place-order">
+                                            <!-- Agree Box -->
+                                            <div class="kn-co-agree">
+                                                <label class="aiz-checkbox">
+                                                    <input type="checkbox" required id="agree_checkbox"
+                                                        onchange="stepCompletionPaymentInfo()">
+                                                    <span class="aiz-square-check"></span>
+                                                    <span>{{ translate('I agree to the') }}</span>
+                                                </label>
+                                                <a href="{{ route('terms') }}">{{ translate('terms and conditions') }}</a>,
+                                                <a href="{{ route('returnpolicy') }}">{{ translate('return policy') }}</a> &amp;
+                                                <a href="{{ route('privacypolicy') }}">{{ translate('privacy policy') }}</a>
+                                            </div>
 
-                                        <div class="checkout-actions-row pt-3 mb-4">
-                                            <!-- Return to shop -->
-                                            <div class="return-to-shop">
-                                                <a href="{{ route('home') }}" class="btn btn-link fs-14 fw-700 px-0">
-                                                    <i class="las la-arrow-left fs-16"></i>
-                                                    {{ translate('Return to shop') }}
+                                            <div class="kn-co-actions">
+                                                <!-- Back to cart -->
+                                                <a href="{{ route('cart') }}" class="kn-btn kn-co-back">
+                                                    <i class="las la-arrow-left kn-co-flip" aria-hidden="true"></i>
+                                                    {{ $kt('العودة إلى السلة', 'Back to cart') }}
                                                 </a>
-                                            </div>
-                                            <!-- Complete Ordert -->
-                                            <div class="complete-order-wrap">
+                                                <!-- Complete Order -->
                                                 <button type="button" onclick="submitOrder(this)" id="submitOrderBtn"
-                                                    class="btn btn-primary fs-14 fw-700 px-4 submitOrderBtn">{{ translate('Complete Order') }}</button>
+                                                    class="kn-btn kn-btn-primary kn-co-btn-lg submitOrderBtn">
+                                                    <i class="fa-solid fa-lock" aria-hidden="true"></i>
+                                                    {{ translate('Complete Order') }}
+                                                </button>
                                             </div>
-
                                         </div>
-
                                     </div>
                                 </div>
-                            </div>
+                            </section>
 
                         </div>
                     </form>
                 </div>
+
                 <!-- Cart Summary -->
-                <div class="col-lg-4 mt-4 mt-lg-0" id="cart_summary">
+                <aside class="kn-co-aside" id="cart_summary">
                     @include('frontend.partials.cart.cart_summary', ['proceed' => 0, 'carts' => $carts])
-                </div>
+                </aside>
             </div>
         </div>
     </section>

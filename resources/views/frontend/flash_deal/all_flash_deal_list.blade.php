@@ -1,67 +1,67 @@
 @extends('frontend.layouts.app')
 
 @section('content')
-    <div class="position-relative">
-        <div class="position-absolute" id="particles-js"></div>
-        <div class="position-relative container">
-            <!-- Breadcrumb -->
-            <section class="pt-4 mb-4">
-                    <div class="row">
-                        <div class="col-lg-6 text-center text-lg-left">
-                            <h1 class="fw-700 fs-20 fs-md-24 text-dark">{{ translate('Flash Deals')}}</h1>
-                        </div>
-                        <div class="col-lg-6">
-                            <ul class="breadcrumb bg-transparent p-0 justify-content-center justify-content-lg-end">
-                                <li class="breadcrumb-item has-transition opacity-60 hov-opacity-100">
-                                    <a class="text-reset" href="{{ route('home') }}">
-                                        {{ translate('Home')}}
-                                    </a>
-                                </li>
-                                <li class="text-dark fw-600 breadcrumb-item">
-                                    "{{ translate('Flash Deals') }}"
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-            </section>
-            <!-- Banner -->
-            @if (get_setting('flash_deal_banner') != null || get_setting('flash_deal_banner_small') != null)
-                <div class="mb-3 overflow-hidden hov-scale-img d-none d-md-block">
-                    <img src="{{ static_asset('assets/img/placeholder-rect.jpg') }}" 
-                        data-src="{{ uploaded_asset(get_setting('flash_deal_banner')) }}" 
-                        alt="{{ env('APP_NAME') }} promo" class="lazyload img-fit h-100 has-transition" 
-                        onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder-rect.jpg') }}';">
-                </div>
-                <div class="mb-3 overflow-hidden hov-scale-img d-md-none">
-                    <img src="{{ static_asset('assets/img/placeholder-rect.jpg') }}" 
-                        data-src="{{ get_setting('flash_deal_banner_small') != null ? uploaded_asset(get_setting('flash_deal_banner_small')) : uploaded_asset(get_setting('flash_deal_banner')) }}" 
-                        alt="{{ env('APP_NAME') }} promo" class="lazyload img-fit h-100 has-transition" 
-                        onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder-rect.jpg') }}';">
-                </div>
-            @endif
-            <!-- All flash deals -->
-            <section class="mb-4">
-                <div class="row row-cols-1 row-cols-lg-2 row-cols-xl-3 gutters-16">
-                    @foreach($all_flash_deals as $single)
-                    <div class="col py-3 h-400px h-xl-475px">
-                        <a href="{{ route('flash-deal-details', $single->slug) }}" target="_blank" rel="noopener noreferrer">
-                            <div class="h-100 w-100 position-relative hov-scale-img">
-                                <div class="position-absolute overflow-hidden h-100 w-100">
-                                    <img src="{{ uploaded_asset($single->banner) }}" class="img-fit h-100 has-transition"  
-                                                        onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
-                                </div>
-                                <div class="py-5 px-2 px-lg-3 px-xl-5 absolute-top-left w-100">
-                                    <div class="bg-white">
-                                        <div class="aiz-count-down-circle" end-date="{{ date('Y/m/d H:i:s', $single->end_date) }}"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                    @endforeach
-                </div>
-            </section>
+    @php
+        $isAr = in_array(app()->getLocale(), ['sa', 'ar', 'eg']);
+        $t = fn ($ar, $en) => $isAr ? $ar : $en;
+    @endphp
+
+    <div class="kn-wrap kn-page">
+        {{-- Kept for AIZ.plugins.particles(); hidden by listing.css --}}
+        <div id="particles-js"></div>
+
+        <!-- Page header -->
+        <div class="kn-page-head">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{{ route('home') }}">{{ translate('Home') }}</a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ translate('Flash Deals') }}</li>
+                </ol>
+            </nav>
+            <h1 class="kn-page-title">{{ translate('Flash Deals') }}</h1>
         </div>
+
+        <!-- Banner -->
+        @if (get_setting('flash_deal_banner') != null || get_setting('flash_deal_banner_small') != null)
+            <div class="kn-page-banner d-none d-md-block">
+                <img src="{{ static_asset('assets/img/placeholder-rect.jpg') }}"
+                    data-src="{{ uploaded_asset(get_setting('flash_deal_banner')) }}"
+                    alt="{{ env('APP_NAME') }} promo" class="lazyload"
+                    onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder-rect.jpg') }}';">
+            </div>
+            <div class="kn-page-banner d-md-none">
+                <img src="{{ static_asset('assets/img/placeholder-rect.jpg') }}"
+                    data-src="{{ get_setting('flash_deal_banner_small') != null ? uploaded_asset(get_setting('flash_deal_banner_small')) : uploaded_asset(get_setting('flash_deal_banner')) }}"
+                    alt="{{ env('APP_NAME') }} promo" class="lazyload"
+                    onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder-rect.jpg') }}';">
+            </div>
+        @endif
+
+        <!-- All flash deals -->
+        @if (count($all_flash_deals) > 0)
+            <div class="kn-deals">
+                @foreach ($all_flash_deals as $single)
+                    <a href="{{ route('flash-deal-details', $single->slug) }}" class="kn-deal">
+                        <span class="kn-deal-img">
+                            <img src="{{ uploaded_asset($single->banner) }}" alt="" loading="lazy"
+                                onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
+                        </span>
+                        <span class="kn-deal-body">
+                            <span class="kn-deal-title">{{ $single->title }}</span>
+                            <div class="aiz-count-down-circle" end-date="{{ date('Y/m/d H:i:s', $single->end_date) }}"></div>
+                        </span>
+                    </a>
+                @endforeach
+            </div>
+        @else
+            <div class="kn-empty">
+                <span class="kn-empty-icon" aria-hidden="true"><i class="las la-bolt"></i></span>
+                <h2 class="kn-empty-title">{{ $t('لا توجد عروض فلاش حاليًا', 'No flash deals right now') }}</h2>
+                <a href="{{ route('categories.all') }}" class="kn-btn kn-btn-primary">{{ translate('All Categories') }}</a>
+            </div>
+        @endif
     </div>
 @endsection
 

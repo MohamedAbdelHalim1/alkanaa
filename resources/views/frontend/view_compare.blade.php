@@ -1,87 +1,127 @@
 @extends('frontend.layouts.app')
 
 @section('content')
+    @php
+        $isAr = in_array(app()->getLocale(), ['sa', 'ar', 'eg']);
+        $t = fn ($ar, $en) => $isAr ? $ar : $en;
+        $compareRows = collect(Session::has('compare') ? Session::get('compare') : [])
+            ->map(fn ($item) => ['item' => $item, 'product' => get_single_product($item)])
+            ->filter(fn ($row) => $row['product'] != null)
+            ->values();
+    @endphp
 
-    <section class="mb-4 mt-3">
-        <div class="container text-left">
-            <div class="bg-white shadow-sm rounded">
-                <div class="py-3 d-flex justify-content-between align-items-center">
-                    <div class="fs-16 fs-md-20 fw-700 text-dark">{{ translate('Compare Products')}}</div>
-                    <a href="{{ route('compare.reset') }}" style="text-decoration: none;border-radius: 25px;" class="btn btn-soft-primary btn-sm fs-12 fw-600">{{ translate('Reset Compare List')}}</a>
-                </div>
-                @if(Session::has('compare'))
-                    @if(count(Session::get('compare')) > 0)
-                        <div class="py-3">
-                            <div class="row gutters-16 mb-4">
-                                @foreach (Session::get('compare') as $key => $item)
-                                    @php
-                                        $product = get_single_product($item);
-                                    @endphp
-                                    <div class="col-xl-3 col-lg-4 col-md-6 py-3">
-                                        <div class="border">
-                                            <!-- Product Name -->
-                                            <div class="p-4 border-bottom">
-                                                <span class="fs-12 text-gray">{{ translate('Name')}}</span>
-                                                <h5 class="mb-0 text-dark h-45px text-truncate-2 mt-1">
-                                                    <a class="text-reset fs-14 fw-700 hov-text-primary" href="{{ route('product', get_single_product($item)->slug) }}" title="{{ get_single_product($item)->getTranslation('name') }}">
-                                                        {{ get_single_product($item)->getTranslation('name') }}
-                                                    </a>
-                                                </h5>
-                                            </div>
-                                            <!-- Product Image -->
-                                            <div class="p-4 border-bottom">
-                                                <span class="fs-12 text-gray">{{ translate('Image')}}</span>
-                                                <div>
-                                                    <img loading="lazy" src="{{ uploaded_asset(get_single_product($item)->thumbnail_img) }}" alt="{{ translate('Product Image') }}" class="img-fluid py-4 h-180px h-sm-220px">
-                                                </div>
-                                            </div>
-                                            <!-- Price -->
-                                            <div class="p-4 border-bottom">
-                                                <span class="fs-12 text-gray">{{ translate('Price')}}</span>
-                                                <h5 class="mb-0 fs-14 mt-1">
-                                                    @if(home_base_price($product) != home_discounted_base_price($product))
-                                                        <del class="fw-400 opacity-50 mr-1">{{ home_base_price($product) }}</del>
-                                                    @endif
-                                                    <span class="fw-700 text-primary">{{ home_discounted_base_price($product) }}</span>
-                                                </h5>
-                                            </div>
-                                            <!-- Category -->
-                                            <div class="p-4 border-bottom">
-                                                <span class="fs-12 text-gray">{{ translate('Category')}}</span>
-                                                <h5 class="mb-0 fs-14 text-dark mt-1">
-                                                    @if (get_single_product($item)->main_category != null)
-                                                        {{ get_single_product($item)->main_category->getTranslation('name') }}
-                                                    @endif
-                                                </h5>
-                                            </div>
-                                            <!-- Brand -->
-                                            <div class="p-4 border-bottom">
-                                                <span class="fs-12 text-gray">{{ translate('Brand')}}</span>
-                                                <h5 class="mb-0 fs-14 text-dark mt-1">
-                                                    @if (get_single_product($item)->brand != null)
-                                                        {{ get_single_product($item)->brand->getTranslation('name') }}
-                                                    @endif
-                                                </h5>
-                                            </div>
-                                            <!-- Add to cart -->
-                                            <div class="p-4">
-                                                <button type="button" class="btn btn-block btn-dark rounded-0 fs-13 fw-700 has-transition opacity-80 hov-opacity-100" onclick="showAddToCartModal({{ $item }})">
-                                                    {{ translate('Add to cart')}}
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
-                    @endif
-                @else
-                    <div class="text-center p-4">
-                        <p class="fs-17">{{ translate('Your comparison list is empty')}}</p>
-                    </div>
-                @endif
+    <div class="kn-wrap kn-page">
+        <!-- Page header -->
+        <div class="kn-page-head kn-page-head-row">
+            <div>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="{{ route('home') }}">{{ translate('Home') }}</a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">{{ translate('Compare Products') }}</li>
+                    </ol>
+                </nav>
+                <h1 class="kn-page-title">{{ translate('Compare Products') }}</h1>
             </div>
+            <a href="{{ route('compare.reset') }}" class="kn-btn kn-btn-line">
+                <i class="las la-redo-alt" aria-hidden="true"></i>
+                {{ translate('Reset Compare List') }}
+            </a>
         </div>
-    </section>
+
+        @if ($compareRows->count() > 0)
+            <div class="kn-compare-scroll" role="region" tabindex="0"
+                aria-label="{{ translate('Compare Products') }}">
+                <table class="table kn-compare-table">
+                    <tbody>
+                        <!-- Product Image -->
+                        <tr>
+                            <th scope="row">{{ translate('Image') }}</th>
+                            @foreach ($compareRows as $row)
+                                <td>
+                                    <a href="{{ route('product', $row['product']->slug) }}" class="kn-plinth kn-compare-img" tabindex="-1" aria-hidden="true">
+                                        <img loading="lazy" src="{{ uploaded_asset($row['product']->thumbnail_img) }}"
+                                            alt="{{ translate('Product Image') }}"
+                                            onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
+                                    </a>
+                                </td>
+                            @endforeach
+                        </tr>
+                        <!-- Product Name -->
+                        <tr>
+                            <th scope="row">{{ translate('Name') }}</th>
+                            @foreach ($compareRows as $row)
+                                <td>
+                                    <a class="kn-compare-name" href="{{ route('product', $row['product']->slug) }}"
+                                        title="{{ $row['product']->getTranslation('name') }}">
+                                        {{ $row['product']->getTranslation('name') }}
+                                    </a>
+                                </td>
+                            @endforeach
+                        </tr>
+                        <!-- Price -->
+                        <tr>
+                            <th scope="row">{{ translate('Price') }}</th>
+                            @foreach ($compareRows as $row)
+                                @php $product = $row['product']; @endphp
+                                <td class="kn-compare-price">
+                                    @if (home_base_price($product) != home_discounted_base_price($product))
+                                        <del>{{ home_base_price($product) }}</del>
+                                    @endif
+                                    <span>{{ home_discounted_base_price($product) }}</span>
+                                </td>
+                            @endforeach
+                        </tr>
+                        <!-- Category -->
+                        <tr>
+                            <th scope="row">{{ translate('Category') }}</th>
+                            @foreach ($compareRows as $row)
+                                <td>
+                                    @if ($row['product']->main_category != null)
+                                        {{ $row['product']->main_category->getTranslation('name') }}
+                                    @else
+                                        <span class="text-muted">—</span>
+                                    @endif
+                                </td>
+                            @endforeach
+                        </tr>
+                        <!-- Brand -->
+                        <tr>
+                            <th scope="row">{{ translate('Brand') }}</th>
+                            @foreach ($compareRows as $row)
+                                <td>
+                                    @if ($row['product']->brand != null)
+                                        {{ $row['product']->brand->getTranslation('name') }}
+                                    @else
+                                        <span class="text-muted">—</span>
+                                    @endif
+                                </td>
+                            @endforeach
+                        </tr>
+                        <!-- Add to cart -->
+                        <tr>
+                            <th scope="row"><span class="kn-sr-only">{{ translate('Add to cart') }}</span></th>
+                            @foreach ($compareRows as $row)
+                                <td>
+                                    <button type="button" class="kn-btn kn-btn-primary"
+                                        onclick="showAddToCartModal({{ $row['item'] }})">
+                                        <i class="fa-solid fa-cart-shopping" aria-hidden="true"></i>
+                                        {{ translate('Add to cart') }}
+                                    </button>
+                                </td>
+                            @endforeach
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        @else
+            <div class="kn-empty">
+                <span class="kn-empty-icon" aria-hidden="true"><i class="las la-sync"></i></span>
+                <h2 class="kn-empty-title">{{ translate('Your comparison list is empty') }}</h2>
+                <a href="{{ route('categories.all') }}" class="kn-btn kn-btn-primary">{{ translate('All Categories') }}</a>
+            </div>
+        @endif
+    </div>
 
 @endsection

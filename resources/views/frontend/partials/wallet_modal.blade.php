@@ -18,7 +18,7 @@
                                 <select class="form-control selectpicker rounded-0"
                                     data-minimum-results-for-search="Infinity" name="payment_option"
                                     data-live-search="true">
-                                    @include('partials.online_payment_options')
+                                    @includeIf('partials.online_payment_options')
                                 </select>
                             </div>
                         </div>

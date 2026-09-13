@@ -1,581 +1,209 @@
-@if (App::getLocale() == 'eg' || App::getLocale() == 'sa')
-    <footer class="bg-dark text-white pt-5 pb-4 rtl">
-        <div class="container">
-            <div class="row justify-content-center">
-                <!-- عن القناعة -->
-                <div class="col-xl-3 col-md-6 mb-4">
-                    <h5 class="fw-bold mb-3">{{ get_setting('footer_title', null, App::getLocale()) ?? 'عن القناعة' }}
-                    </h5>
-                    <ul class="list-unstyled">
-                        @php
-                            $widget_one_labels = json_decode(
-                                get_setting('widget_one_labels', null, App::getLocale()),
-                                true,
-                            );
-                            $widget_one_links = json_decode(get_setting('widget_one_links'), true);
-                        @endphp
-                        @if ($widget_one_labels && count($widget_one_labels))
-                            @foreach ($widget_one_labels as $key => $label)
-                                @php
-                                    $link = $widget_one_links[$key] ?? '#';
-                                @endphp
-                                <li>
-                                    <a href="{{ $link }}" class="text-white text-decoration-none d-block mb-2">
-                                        {{ $label }}
-                                    </a>
-                                </li>
-                            @endforeach
-                        @else
-                            <li><a href="{{ route('about.us') }}" class="text-white text-decoration-none d-block mb-2">عن
-                                    متجر القناعة</a>
-                            </li>
-                            <li><a href="{{ route('contact.us') }}"
-                                    class="text-white text-decoration-none d-block mb-2">تواصل معنا</a>
-                            </li>
-                            <li>
-                                <a href="{{ route('faq') }}" class="text-white text-decoration-none d-block mb-2">
-                                    @if (app()->getLocale() == 'sa')
-                                        الأسئلة الشائعة
-                                    @elseif(app()->getLocale() == 'cn')
-                                        常见问题
-                                    @else
-                                        FAQs
-                                    @endif
-                                </a>
-                            </li>
+@php
+    $fLocale = App::getLocale();
+    $fIsAr = in_array($fLocale, ['sa', 'ar', 'eg']);
+    $fIsCn = $fLocale == 'cn';
+    // Three-way copy: Arabic / English / Chinese.
+    $ft = fn ($ar, $en, $cn = null) => $fIsAr ? $ar : ($fIsCn && $cn ? $cn : $en);
 
-                        @endif
-                    </ul>
-                </div>
+    $footerLogo = get_setting('footer_logo') ?: get_setting('header_logo');
+    $siteName = get_setting('website_name') ?? 'AlKanaa';
+    $footerPhone = get_setting('contact_phone') ?? '966565124444';
+    $footerEmail = get_setting('contact_email');
+    $whatsapp = get_setting('whatsapp_number') ?: '966565124444';
 
-                <!-- بيانات الحساب -->
-                <div class="col-xl-3 col-md-6 mb-4">
-                    <h5 class="fw-bold mb-3"> صفحات مهمة</h5>
-                    <ul class="list-unstyled">
-                        @auth
-                            <li><a href="{{ route('dashboard') }}"
-                                    class="text-white text-decoration-none d-block mb-2">حسابي</a></li>
-                        @else
-                            <li><a href="{{ route('user.login') }}"
-                                    class="text-white text-decoration-none d-block mb-2">تسجيل الدخول</a></li>
-                        @endauth
-                        <li><a href="{{ route('cart') }}" class="text-white text-decoration-none d-block mb-2">سلة
-                                التسوق</a></li>
-                        <li><a href="{{ route('purchase_history.index') }}"
-                                class="text-white text-decoration-none d-block mb-2">طلباتي</a></li>
-                        <li><a href="{{ route('contact.us') }}"
-                                class="text-white text-decoration-none d-block mb-2">عنـاويني</a></li>
-                        <li>
-                            <a href="{{ route('orders.track') }}" class="text-white text-decoration-none d-block mb-2">
-                                @if (app()->getLocale() == 'sa')
-                                    تتبع طلبك
-                                @elseif(app()->getLocale() == 'cn')
-                                    订单追踪
-                                @else
-                                    Track Your Order
-                                @endif
-                            </a>
-                        </li>
-                    </ul>
-                </div>
+    $widget_one_labels = json_decode(get_setting('widget_one_labels', null, $fLocale), true);
+    $widget_one_links = json_decode(get_setting('widget_one_links'), true);
 
-                <!-- السياسات -->
-                <div class="col-xl-3 col-md-6 mb-4">
-                    <h5 class="fw-bold mb-3">السياسات والأحكام</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="{{ route('terms') }}" class="text-white text-decoration-none d-block mb-2">سياسات
-                                الشحن</a></li>
-                        <li><a href="{{ route('privacypolicy') }}"
-                                class="text-white text-decoration-none d-block mb-2">سياسات الخصوصية</a></li>
-                        <li><a href="{{ route('supportpolicy') }}"
-                                class="text-white text-decoration-none d-block mb-2">سياسات الضمان</a></li>
-                        <li><a href="{{ route('returnpolicy') }}"
-                                class="text-white text-decoration-none d-block mb-2">سياسات الاسترجاع والاستبدال</a>
-                        </li>
-                        <li><a href="{{ route('sellerpolicy') }}"
-                                class="text-white text-decoration-none d-block mb-2">سياسات التعامل مع العملاء</a></li>
-                    </ul>
-                </div>
+    $aboutLinks = [];
+    if ($widget_one_labels && count($widget_one_labels)) {
+        foreach ($widget_one_labels as $key => $label) {
+            $aboutLinks[] = ['label' => $label, 'url' => $widget_one_links[$key] ?? '#'];
+        }
+    } else {
+        $aboutLinks = [
+            ['label' => $ft('عن متجر القناعة', 'About AlKanaa Store', '关于 AlKanaa 商店'), 'url' => route('about.us')],
+            ['label' => $ft('المدونة', 'Blog', '博客'), 'url' => route('blog')],
+            ['label' => $ft('تواصل معنا', 'Contact us', '联系我们'), 'url' => route('contact.us')],
+            ['label' => $ft('الأسئلة الشائعة', 'FAQs', '常见问题'), 'url' => route('faq')],
+        ];
+    }
 
-                <!-- سجل كبائع الآن -->
-                <div class="col-xl-3 col-md-6 mb-4">
-                    <h5 class="fw-bold mb-3">سجّل كبائع وابدأ في بيع منتجاتك معنا اليوم!</h5>
-                    {{-- @if (get_setting('newsletter_activation')) --}}
-                    <a href="{{ route('seller.login') }}" class="btn w-75"
-                        style="background-color: #ae2025; color: #fff;">
+    $accountLinks = [
+        auth()->check()
+            ? ['label' => $ft('حسابي', 'My account', '我的账户'), 'url' => route('dashboard')]
+            : ['label' => $ft('تسجيل الدخول', 'Log in', '登录'), 'url' => route('user.login')],
+        ['label' => $ft('سلة التسوق', 'Shopping cart', '购物车'), 'url' => route('cart')],
+        ['label' => $ft('طلباتي', 'My orders', '我的订单'), 'url' => route('purchase_history.index')],
+        ['label' => $ft('تتبع طلبك', 'Track your order', '订单追踪'), 'url' => route('orders.track')],
+    ];
 
-                        {{ translate('Register Now') }}
+    $serviceLinks = [
+        ['label' => $ft('طلب عرض سعر', 'Request a quote', '询价'), 'url' => route('get-a-quote')],
+        ['label' => $ft('الخدمات الهندسية', 'Engineering services', '工程服务'), 'url' => route('service-request')],
+        ['label' => $ft('خدمات الصيانة', 'Maintenance services', '维修服务'), 'url' => route('maintainence-request')],
+        ['label' => $ft('شركاء النجاح', 'Our partners', '合作伙伴'), 'url' => route('all-our-partners')],
+    ];
+
+    $policyLinks = [
+        ['label' => $ft('سياسة الشحن', 'Shipping policy', '运输政策'), 'url' => route('terms')],
+        ['label' => $ft('سياسة الخصوصية', 'Privacy policy', '隐私政策'), 'url' => route('privacypolicy')],
+        ['label' => $ft('سياسة الضمان', 'Warranty policy', '保修政策'), 'url' => route('supportpolicy')],
+        ['label' => $ft('الاسترجاع والاستبدال', 'Returns & exchanges', '退换政策'), 'url' => route('returnpolicy')],
+        ['label' => $ft('سياسة التعامل مع العملاء', 'Customer service policy', '客户服务政策'), 'url' => route('sellerpolicy')],
+    ];
+
+    $columns = [
+        ['title' => get_setting('footer_title', null, $fLocale) ?? $ft('عن القناعة', 'About AlKanaa', '关于 AlKanaa'), 'links' => $aboutLinks],
+        ['title' => $ft('حسابك', 'Your account', '您的账户'), 'links' => $accountLinks],
+        ['title' => $ft('خدماتنا', 'Our services', '我们的服务'), 'links' => $serviceLinks],
+        ['title' => $ft('السياسات والأحكام', 'Policies & terms', '政策'), 'links' => $policyLinks],
+    ];
+
+    $socials = [
+        ['setting' => 'facebook_link', 'icon' => 'fa-brands fa-facebook-f', 'name' => 'Facebook'],
+        ['setting' => 'instagram_link', 'icon' => 'fa-brands fa-instagram', 'name' => 'Instagram'],
+        ['setting' => 'twitter_link', 'icon' => 'fa-brands fa-x-twitter', 'name' => 'X'],
+        ['setting' => 'snapchat_link', 'icon' => 'fa-brands fa-snapchat', 'name' => 'Snapchat'],
+        ['setting' => 'linkedin_link', 'icon' => 'fa-brands fa-linkedin-in', 'name' => 'LinkedIn'],
+        ['setting' => 'youtube_link', 'icon' => 'fa-brands fa-youtube', 'name' => 'YouTube'],
+        ['setting' => 'threads_link', 'icon' => 'fa-brands fa-threads', 'name' => 'Threads'],
+    ];
+    $activeSocials = array_filter($socials, fn ($s) => get_setting($s['setting']));
+    $whatsappUrl = 'https://wa.me/' . preg_replace('/\D/', '', $whatsapp);
+@endphp
+
+<footer class="site-footer {{ $fIsAr ? 'rtl' : 'ltr' }}">
+    <div class="kn-waves" aria-hidden="true"></div>
+    <div class="kn-wrap">
+        {{-- Brand + direct contact: the first thing a buyer of big equipment needs --}}
+        <div class="kn-foot-top">
+            <div class="kn-foot-brand">
+                <a href="{{ route('home') }}" class="kn-foot-logo" aria-label="{{ $siteName }}">
+                    @if ($footerLogo)
+                        {{-- Full-colour mark on a white tile: the blue and red waves are the brand. --}}
+                        <span class="kn-foot-mark"><img src="{{ uploaded_asset($footerLogo) }}" alt="" loading="lazy"></span>
+                    @endif
+                    <span class="kn-foot-name">
+                        <strong>{{ $ft('القناعة', 'AlKanaa', 'AlKanaa') }}</strong>
+                        <small>{{ $ft('مصانع القناعة المحدودة', "Al Qana'a Factories Co. Ltd.", "Al Qana'a Factories Co. Ltd.") }}</small>
+                    </span>
+                </a>
+                <p class="kn-foot-about">
+                    {{ $ft('القناعة مصنع سعودي لمعدات المطابخ التجارية والمطاعم والمقاهي، بخبرة تمتد لأكثر من 60 عامًا.', 'AlKanaa is a Saudi manufacturer of commercial kitchen, restaurant and café equipment with more than 60 years of experience.', 'AlKanaa 是沙特商用厨房、餐厅和咖啡馆设备制造商，拥有 60 多年经验。') }}
+                </p>
+            </div>
+
+            <ul class="kn-foot-contact">
+                <li>
+                    <a href="tel:{{ $footerPhone }}" class="kn-foot-chip">
+                        <i class="fa-solid fa-phone" aria-hidden="true"></i>
+                        <span>
+                            <small>{{ $ft('اتصل بنا', 'Call us', '致电我们') }}</small>
+                            <bdi dir="ltr">{{ $footerPhone }}</bdi>
+                        </span>
                     </a>
-                    {{-- @endif --}}
-
-                    <div class="mt-4">
-                        <h6 class="fw-bold">تواصل معنا</h6>
-                        <div class="d-flex flex-wrap justify-content-start mt-3 gap-2">
-                            @if (get_setting('facebook_link'))
-                                <a href="{{ get_setting('facebook_link') }}" target="_blank">
-                                    <img src="{{ static_asset('assets/front_img/facebook.png') }}" alt="Facebook"
-                                        width="30" height="30">
-                                </a>
-                            @endif
-                            @if (get_setting('linkedin_link'))
-                                <a href="{{ get_setting('linkedin_link') }}" target="_blank">
-                                    <img src="{{ static_asset('assets/front_img/linkedin.png') }}" alt="LinkedIn"
-                                        width="30" height="30">
-                                </a>
-                            @endif
-
-
-                            @if (get_setting('instagram_link'))
-                                <a href="{{ get_setting('instagram_link') }}" target="_blank">
-                                    <img src="{{ static_asset('assets/front_img/instagram.png') }}" alt="Instagram"
-                                        width="32" height="32">
-                                </a>
-                            @endif
-
-
-
-
-
-                            @if (get_setting('snapchat_link'))
-                                <a href="{{ get_setting('snapchat_link') }}" target="_blank">
-                                    <img src="{{ static_asset('assets/front_img/snapchat.png') }}" alt="Snapchat"
-                                        width="30" height="30">
-                                </a>
-                            @endif
-
-                            @if (get_setting('threads_link'))
-                                <a href="{{ get_setting('threads_link') }}" target="_blank">
-                                    <img src="{{ static_asset('assets/front_img/threads.png') }}" alt="Threads"
-                                        width="32" height="32">
-                                </a>
-                            @endif
-                            @if (get_setting('twitter_link'))
-                                <a href="{{ get_setting('twitter_link') }}" target="_blank">
-                                    <img src="{{ static_asset('assets/front_img/twitter.png') }}" alt="Twitter"
-                                        width="32" height="32">
-                                </a>
-                            @endif
-                            @if (get_setting('youtube_link'))
-                                <a href="{{ get_setting('youtube_link') }}" target="_blank">
-                                    <img src="{{ static_asset('assets/front_img/youtube.png') }}" alt="YouTube"
-                                        width="32" height="32">
-                                </a>
-                            @endif
-                        </div>
-
-                    </div>
-
-                </div>
-            </div>
-            <hr class="border-secondary" />
-            <div class="text-center" style="overflow-y: hidden !important;">
-                الرقم الضريبي: {{ get_setting('tax_number') ?? '300036125800003' }} | رقم السجل التجاري:
-                {{ get_setting('commercial_registration_number') ?? '700318115' }}
-                <br />
-                حقوق النشر © {{ date('Y') }} متجر القناعة
-            </div>
-        </div>
-
-        <!-- زر واتساب -->
-        @if (get_setting('whatsapp_number'))
-            <a href="https://wa.me/{{ get_setting('whatsapp_number') }}" target="_blank"
-                class="@if (app()->getLocale() == 'sa') whatsapp-float @else whatsapp-float-en @endif text-decoration-none">
-                <i class="fab fa-whatsapp"></i>
-            </a>
-        @else
-            <a href="https://wa.me/966565124444" target="_blank" class="@if (app()->getLocale() == 'sa') whatsapp-float @else whatsapp-float-en @endif">
-                <i class="fab fa-whatsapp"></i>
-            </a>
-        @endif
-
-    </footer>
-@elseif(App::getLocale() == 'cn')
-    <footer class="bg-dark text-white pt-5 pb-4 ltr">
-        <div class="container">
-            <div class="row justify-content-center">
-                <!-- About -->
-                <div class="col-xl-3 col-md-6 mb-4">
-                    <h5 class="fw-bold mb-3">{{ get_setting('footer_title', null, App::getLocale()) ?? '关于 AlKanaa' }}
-                    </h5>
-                    <ul class="list-unstyled">
-                        @php
-                            $widget_one_labels = json_decode(
-                                get_setting('widget_one_labels', null, App::getLocale()),
-                                true,
-                            );
-                            $widget_one_links = json_decode(get_setting('widget_one_links'), true);
-                        @endphp
-                        @if ($widget_one_labels && count($widget_one_labels))
-                            @foreach ($widget_one_labels as $key => $label)
-                                @php
-                                    $link = $widget_one_links[$key] ?? '#';
-                                @endphp
-                                <li>
-                                    <a href="{{ $link }}"
-                                        class="text-white text-decoration-none d-block mb-2">
-                                        {{ $label }}
-                                    </a>
-                                </li>
-                            @endforeach
-                        @else
-                            <li><a href="{{ route('about.us') }}" class="text-white text-decoration-none d-block mb-2">关于 AlKanaa
-                                    商店</a></li>
-                            <li><a href="{{ route('blog') }}" class="text-white text-decoration-none d-block mb-2">博客</a></li>
-                            <li><a href="{{ route('contact.us') }}" class="text-white text-decoration-none d-block mb-2">联系我们</a></li>
-                            <li>
-                                <a href="{{ route('faq') }}" class="text-white text-decoration-none d-block mb-2">
-                                    @if (app()->getLocale() == 'sa')
-                                        الأسئلة الشائعة
-                                    @elseif(app()->getLocale() == 'cn')
-                                        常见问题
-                                    @else
-                                        FAQs
-                                    @endif
-                                </a>
-                            </li>
-                        @endif
-                    </ul>
-                </div>
-
-                <!-- Account Info -->
-                <div class="col-xl-3 col-md-6 mb-4">
-                    <h5 class="fw-bold mb-3">账户信息</h5>
-                    <ul class="list-unstyled">
-                        @auth
-                            <li><a href="{{ route('dashboard') }}"
-                                    class="text-white text-decoration-none d-block mb-2">我的账户</a></li>
-                        @else
-                            <li><a href="{{ route('user.login') }}"
-                                    class="text-white text-decoration-none d-block mb-2">登录</a></li>
-                        @endauth
-                        <li><a href="{{ route('cart') }}"
-                                class="text-white text-decoration-none d-block mb-2">购物车</a></li>
-                        <li><a href="{{ route('purchase_history.index') }}"
-                                class="text-white text-decoration-none d-block mb-2">我的订单</a></li>
-                        <li><a href="{{ route('contact.us') }}" class="text-white text-decoration-none d-block mb-2">我的地址</a></li>
-                        <li>
-                            <a href="{{ route('orders.track') }}"
-                                class="text-white text-decoration-none d-block mb-2">
-                                @if (app()->getLocale() == 'sa')
-                                    تتبع طلبك
-                                @elseif(app()->getLocale() == 'cn')
-                                    订单追踪
-                                @else
-                                    Track Your Order
-                                @endif
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- Policies -->
-                <div class="col-xl-3 col-md-6 mb-4">
-                    <h5 class="fw-bold mb-3">政策</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="{{ route('terms') }}"
-                                class="text-white text-decoration-none d-block mb-2">运输政策</a></li>
-                        <li><a href="{{ route('privacypolicy') }}"
-                                class="text-white text-decoration-none d-block mb-2">隐私政策</a></li>
-                        <li><a href="{{ route('supportpolicy') }}"
-                                class="text-white text-decoration-none d-block mb-2">保修政策</a></li>
-                        <li><a href="{{ route('returnpolicy') }}"
-                                class="text-white text-decoration-none d-block mb-2">退换政策</a></li>
-                        <li><a href="{{ route('supportpolicy') }}"
-                                class="text-white text-decoration-none d-block mb-2">客户服务政策</a></li>
-                    </ul>
-                </div>
-
-                <!-- Subscribe & Social -->
-                <div class="col-xl-3 col-md-6 mb-4">
-                    <h5 class="fw-bold mb-3">注册为卖家</h5>
-                    @if (get_setting('newsletter_activation'))
-                        <a href="{{ route('seller.login') }}" class="btn w-75"
-                            style="background-color: #ae2025; color: #fff;">
-
-                            {{ translate('Register Now') }}
+                </li>
+                <li>
+                    <a href="{{ $whatsappUrl }}" target="_blank" rel="noopener" class="kn-foot-chip">
+                        <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
+                        <span>
+                            <small>{{ $ft('واتساب', 'WhatsApp', 'WhatsApp') }}</small>
+                            <bdi>{{ $ft('راسلنا الآن', 'Message us', '给我们留言') }}</bdi>
+                        </span>
+                    </a>
+                </li>
+                @if ($footerEmail)
+                    <li>
+                        <a href="mailto:{{ $footerEmail }}" class="kn-foot-chip">
+                            <i class="fa-regular fa-envelope" aria-hidden="true"></i>
+                            <span>
+                                <small>{{ $ft('البريد الإلكتروني', 'Email', '电子邮件') }}</small>
+                                <bdi dir="ltr">{{ $footerEmail }}</bdi>
+                            </span>
                         </a>
-                    @else
-                        <div class="input-group">
-                            <input type="email" class="form-control mb-0 rounded-start-2 rounded-end-0"
-                                placeholder="请输入您的邮箱地址">
-                            <button class="btn btn-danger rounded-end-2 rounded-start-0"><i
-                                    class="fa fa-arrow-left"></i></button>
-                        </div>
-                    @endif
-
-                    <div class="mt-4">
-                        <h6 class="fw-bold">关注我们</h6>
-                        <div class="d-flex flex-wrap justify-content-start mt-3 gap-2">
-                            @if (get_setting('facebook_link'))
-                                <a href="{{ get_setting('facebook_link') }}" target="_blank">
-                                    <img src="{{ static_asset('assets/front_img/facebook.png') }}" alt="Facebook"
-                                        width="30" height="30">
-                                </a>
-                            @endif
-                            @if (get_setting('linkedin_link'))
-                                <a href="{{ get_setting('linkedin_link') }}" target="_blank">
-                                    <img src="{{ static_asset('assets/front_img/linkedin.png') }}" alt="LinkedIn"
-                                        width="30" height="30">
-                                </a>
-                            @endif
-
-
-                            @if (get_setting('instagram_link'))
-                                <a href="{{ get_setting('instagram_link') }}" target="_blank">
-                                    <img src="{{ static_asset('assets/front_img/instagram.png') }}" alt="Instagram"
-                                        width="32" height="32">
-                                </a>
-                            @endif
-
-
-
-
-
-                            @if (get_setting('snapchat_link'))
-                                <a href="{{ get_setting('snapchat_link') }}" target="_blank">
-                                    <img src="{{ static_asset('assets/front_img/snapchat.png') }}" alt="Snapchat"
-                                        width="30" height="30">
-                                </a>
-                            @endif
-
-                            @if (get_setting('threads_link'))
-                                <a href="{{ get_setting('threads_link') }}" target="_blank">
-                                    <img src="{{ static_asset('assets/front_img/threads.png') }}" alt="Threads"
-                                        width="32" height="32">
-                                </a>
-                            @endif
-                            @if (get_setting('twitter_link'))
-                                <a href="{{ get_setting('twitter_link') }}" target="_blank">
-                                    <img src="{{ static_asset('assets/front_img/twitter.png') }}" alt="Twitter"
-                                        width="32" height="32">
-                                </a>
-                            @endif
-                            @if (get_setting('youtube_link'))
-                                <a href="{{ get_setting('youtube_link') }}" target="_blank">
-                                    <img src="{{ static_asset('assets/front_img/youtube.png') }}" alt="YouTube"
-                                        width="32" height="32">
-                                </a>
-                            @endif
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-
-            <hr class="border-secondary" />
-            <div class="text-center" style="overflow-y: hidden !important;">
-                税号: {{ get_setting('tax_number') ?? '300036125800003' }} | 商业注册号:
-                {{ get_setting('commercial_registration_number') ?? '700318115' }}
-                <br />
-                © {{ date('Y') }} AlKanaa 商店 版权所有.
-            </div>
+                    </li>
+                @endif
+            </ul>
         </div>
 
-        @if (get_setting('whatsapp_number'))
-            <a href="https://wa.me/{{ get_setting('whatsapp_number') }}" target="_blank"
-                class="@if (app()->getLocale() == 'sa') whatsapp-float @else whatsapp-float-en @endif text-decoration-none">
-                <i class="fab fa-whatsapp"></i>
-            </a>
-        @else
-            <a href="https://wa.me/966565124444" target="_blank" class="@if (app()->getLocale() == 'sa') whatsapp-float @else whatsapp-float-en @endif">
-                <i class="fab fa-whatsapp"></i>
-            </a>
-        @endif
-    </footer>
-@else
-    <footer class="bg-dark text-white pt-5 pb-4 ltr">
-        <div class="container">
-            <div class="row justify-content-center">
-                <!-- About -->
-                <div class="col-xl-3 col-md-6 mb-4">
-                    <h5 class="fw-bold mb-3">
-                        {{ get_setting('footer_title', null, App::getLocale()) ?? 'About AlKanaa' }}</h5>
-                    <ul class="list-unstyled">
-                        @php
-                            $widget_one_labels = json_decode(
-                                get_setting('widget_one_labels', null, App::getLocale()),
-                                true,
-                            );
-                            $widget_one_links = json_decode(get_setting('widget_one_links'), true);
-                        @endphp
-                        @if ($widget_one_labels && count($widget_one_labels))
-                            @foreach ($widget_one_labels as $key => $label)
-                                @php
-                                    $link = $widget_one_links[$key] ?? '#';
-                                @endphp
-                                <li>
-                                    <a href="{{ $link }}"
-                                        class="text-white text-decoration-none d-block mb-2">
-                                        {{ $label }}
-                                    </a>
-                                </li>
-                            @endforeach
-                        @else
-                            <li><a href="{{ route('about.us') }}" class="text-white text-decoration-none d-block mb-2">About AlKanaa
-                                    Store</a></li>
-                            <li><a href="{{ route('blog.index') }}" class="text-white text-decoration-none d-block mb-2">Blog</a></li>
-                            <li><a href="{{ route('contact.us') }}" class="text-white text-decoration-none d-block mb-2">Contact Us</a>
-                            </li>
+        {{-- Link groups: columns on desktop, collapsible sections on phones --}}
+        <div class="kn-foot-cols">
+            @foreach ($columns as $column)
+                <details class="kn-foot-group" @if ($loop->first) data-open-mobile @endif>
+                    <summary class="kn-foot-title">
+                        <span>{{ $column['title'] }}</span>
+                        <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+                    </summary>
+                    <ul class="kn-foot-links">
+                        @foreach ($column['links'] as $link)
+                            <li><a href="{{ $link['url'] }}">{{ $link['label'] }}</a></li>
+                        @endforeach
+                    </ul>
+                </details>
+            @endforeach
+
+            <div class="kn-foot-group kn-foot-seller">
+                <h2 class="kn-foot-title is-static">{{ $ft('بِع منتجاتك معنا', 'Sell with us', '与我们一起销售') }}</h2>
+                <p class="kn-foot-note">{{ $ft('سجّل كبائع وابدأ في بيع منتجاتك اليوم.', 'Register as a seller and start selling today.', '注册成为卖家，今天就开始销售。') }}</p>
+                <a href="{{ route('seller.login') }}" class="kn-btn kn-btn-primary kn-foot-cta">{{ $ft('سجّل كبائع', 'Register as a seller', '注册成为卖家') }}</a>
+
+                @if (count($activeSocials))
+                    <p class="kn-foot-follow">{{ $ft('تابعنا', 'Follow us', '关注我们') }}</p>
+                    <ul class="kn-foot-social">
+                        @foreach ($activeSocials as $social)
                             <li>
-                                <a href="{{ route('faq') }}" class="text-white text-decoration-none d-block mb-2">
-                                    @if (app()->getLocale() == 'sa')
-                                        FAQ
-                                    @elseif(app()->getLocale() == 'cn')
-                                        常见问题
-                                    @else
-                                        FAQs
-                                    @endif
+                                <a href="{{ get_setting($social['setting']) }}" target="_blank" rel="noopener" aria-label="{{ $social['name'] }}">
+                                    <i class="{{ $social['icon'] }}" aria-hidden="true"></i>
                                 </a>
                             </li>
-                        @endif
+                        @endforeach
                     </ul>
-                </div>
-
-                <!-- Account Info -->
-                <div class="col-xl-3 col-md-6 mb-4">
-                    <h5 class="fw-bold mb-3">Important Pages</h5>
-                    <ul class="list-unstyled">
-                        @auth
-                            <li><a href="{{ route('dashboard') }}"
-                                    class="text-white text-decoration-none d-block mb-2">My Account</a></li>
-                        @else
-                            <li><a href="{{ route('user.login') }}"
-                                    class="text-white text-decoration-none d-block mb-2">Login</a></li>
-                        @endauth
-                        <li><a href="{{ route('cart') }}"
-                                class="text-white text-decoration-none d-block mb-2">Shopping Cart</a></li>
-                        <li><a href="{{ route('purchase_history.index') }}"
-                                class="text-white text-decoration-none d-block mb-2">My Orders</a></li>
-                        <li><a href="{{ route('contact.us') }}" class="text-white text-decoration-none d-block mb-2">My Addresses</a>
-                        </li>
-                        <li>
-                            <a href="{{ route('orders.track') }}" class="text-white text-decoration-none d-block mb-2">
-                                @if (app()->getLocale() == 'sa')
-                                    تتبع طلبك
-                                @elseif(app()->getLocale() == 'cn')
-                                    订单追踪
-                                @else
-                                    Track Your Order
-                                @endif
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- Policies -->
-                <div class="col-xl-3 col-md-6 mb-4">
-                    <h5 class="fw-bold mb-3">Policies and Terms</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="{{ route('terms') }}"
-                                class="text-white text-decoration-none d-block mb-2">Shipping Policy</a></li>
-                        <li><a href="{{ route('privacypolicy') }}"
-                                class="text-white text-decoration-none d-block mb-2">Privacy Policy</a></li>
-                        <li><a href="{{ route('supportpolicy') }}"
-                                class="text-white text-decoration-none d-block mb-2">Warranty Policy</a></li>
-                        <li><a href="{{ route('returnpolicy') }}"
-                                class="text-white text-decoration-none d-block mb-2">Return & Exchange</a></li>
-                        <li><a href="{{ route('supportpolicy') }}"
-                                class="text-white text-decoration-none d-block mb-2">Customer Service Policy</a></li>
-                    </ul>
-                </div>
-
-                <!-- Subscribe & Social -->
-                <div class="col-xl-3 col-md-6 mb-4">
-                    <h5 class="fw-bold mb-3">Register as a Seller</h5>
-                    @if (get_setting('newsletter_activation'))
-                        <a href="{{ route('seller.login') }}" class="btn w-75"
-                            style="background-color: #ae2025; color: #fff;">
-
-                            {{ translate('Register Now') }}
-                        </a>
-                    @else
-                        <div class="input-group">
-                            <input type="email" class="form-control mb-0 rounded-start-2 rounded-end-0"
-                                placeholder="Enter your email address">
-                            <button class="btn btn-danger rounded-end-2 rounded-start-0"><i
-                                    class="fa fa-arrow-left"></i></button>
-                        </div>
-                    @endif
-
-                    <div class="mt-4">
-                        <h6 class="fw-bold">Connect with us</h6>
-                        <div class="d-flex flex-wrap justify-content-start mt-3 gap-2">
-                            @if (get_setting('facebook_link'))
-                                <a href="{{ get_setting('facebook_link') }}" target="_blank">
-                                    <img src="{{ static_asset('assets/front_img/facebook.png') }}" alt="Facebook"
-                                        width="30" height="30">
-                                </a>
-                            @endif
-                            @if (get_setting('linkedin_link'))
-                                <a href="{{ get_setting('linkedin_link') }}" target="_blank">
-                                    <img src="{{ static_asset('assets/front_img/linkedin.png') }}" alt="LinkedIn"
-                                        width="30" height="30">
-                                </a>
-                            @endif
-
-
-                            @if (get_setting('instagram_link'))
-                                <a href="{{ get_setting('instagram_link') }}" target="_blank">
-                                    <img src="{{ static_asset('assets/front_img/instagram.png') }}" alt="Instagram"
-                                        width="32" height="32">
-                                </a>
-                            @endif
-
-
-
-
-
-                            @if (get_setting('snapchat_link'))
-                                <a href="{{ get_setting('snapchat_link') }}" target="_blank">
-                                    <img src="{{ static_asset('assets/front_img/snapchat.png') }}" alt="Snapchat"
-                                        width="30" height="30">
-                                </a>
-                            @endif
-
-                            @if (get_setting('threads_link'))
-                                <a href="{{ get_setting('threads_link') }}" target="_blank">
-                                    <img src="{{ static_asset('assets/front_img/threads.png') }}" alt="Threads"
-                                        width="32" height="32">
-                                </a>
-                            @endif
-                            @if (get_setting('twitter_link'))
-                                <a href="{{ get_setting('twitter_link') }}" target="_blank">
-                                    <img src="{{ static_asset('assets/front_img/twitter.png') }}" alt="Twitter"
-                                        width="32" height="32">
-                                </a>
-                            @endif
-                            @if (get_setting('youtube_link'))
-                                <a href="{{ get_setting('youtube_link') }}" target="_blank">
-                                    <img src="{{ static_asset('assets/front_img/youtube.png') }}" alt="YouTube"
-                                        width="32" height="32">
-                                </a>
-                            @endif
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-
-            <hr class="border-secondary" />
-            <div class="text-center" style="overflow-y: hidden !important;">
-                Tax Number: {{ get_setting('tax_number') ?? '300036125800003' }} | Commercial Registration:
-                {{ get_setting('commercial_registration_number') ?? '700318115' }}
-                <br />
-                © {{ date('Y') }} AlKanaa Store. All rights reserved.
+                @endif
             </div>
         </div>
 
-        @if (get_setting('whatsapp_number'))
-            <a href="https://wa.me/{{ get_setting('whatsapp_number') }}" target="_blank"
-                class="@if (app()->getLocale() == 'sa') whatsapp-float @else whatsapp-float-en @endif text-decoration-none">
-                <i class="fab fa-whatsapp"></i>
-            </a>
-        @else
-            <a href="https://wa.me/966565124444" target="_blank" class="@if (app()->getLocale() == 'sa') whatsapp-float @else whatsapp-float-en @endif">
-                <i class="fab fa-whatsapp"></i>
-            </a>
-        @endif
+        <div class="kn-foot-legal">
+            <p>
+                <span>{{ $ft('الرقم الضريبي', 'VAT number', '税号') }}: <bdi dir="ltr">{{ get_setting('tax_number') ?? '300036125800003' }}</bdi></span>
+                <span>{{ $ft('السجل التجاري', 'Commercial registration', '商业注册号') }}: <bdi dir="ltr">{{ get_setting('commercial_registration_number') ?? '700318115' }}</bdi></span>
+            </p>
+            <p>© {{ date('Y') }} {{ $ft('متجر القناعة. جميع الحقوق محفوظة.', 'AlKanaa Store. All rights reserved.', 'AlKanaa 商店 版权所有。') }}</p>
+        </div>
+    </div>
 
-    </footer>
+    <a href="{{ $whatsappUrl }}" target="_blank" rel="noopener"
+        class="{{ $fIsAr ? 'whatsapp-float' : 'whatsapp-float-en' }}" aria-label="{{ $ft('تواصل عبر واتساب', 'Chat on WhatsApp', '通过 WhatsApp 联系') }}">
+        <i class="fab fa-whatsapp" aria-hidden="true"></i>
+    </a>
+</footer>
 
-@endif
+<script>
+    // Footer link groups: plain open columns on tablet/desktop; on phones they
+    // collapse (except the first) so the footer stays short and scannable.
+    (function () {
+        var groups = document.querySelectorAll('details.kn-foot-group');
+        var mq = window.matchMedia('(min-width: 768px)');
+
+        function sync() {
+            groups.forEach(function (g) {
+                if (mq.matches || g.hasAttribute('data-open-mobile')) {
+                    g.setAttribute('open', '');
+                } else {
+                    g.removeAttribute('open');
+                }
+            });
+        }
+
+        sync();
+        if (mq.addEventListener) {
+            mq.addEventListener('change', sync);
+        }
+        groups.forEach(function (g) {
+            g.addEventListener('toggle', function () {
+                if (mq.matches && !g.open) {
+                    g.open = true;
+                }
+            });
+        });
+    })();
+</script>

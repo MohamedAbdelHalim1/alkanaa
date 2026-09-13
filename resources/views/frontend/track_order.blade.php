@@ -1,140 +1,190 @@
 @extends('frontend.layouts.app')
 
 @section('content')
-    <section class="pt-4 mb-4">
-        <div class="container text-center">
-            <div class="row">
-                <div class="col-lg-6 text-center text-lg-left">
-                    <h1 class="fw-700 fs-20 fs-md-24 text-dark">{{ translate('Track Order') }}</h1>
-                </div>
-                <div class="col-lg-6">
-                    <ul class="breadcrumb bg-transparent p-0 justify-content-center justify-content-lg-end">
-                        <li class="breadcrumb-item has-transition opacity-50 hov-opacity-100">
-                            <a class="text-reset" href="{{ route('home') }}">{{ translate('Home') }}</a>
-                        </li>
-                        <li class="text-dark fw-600 breadcrumb-item">
-                            "{{ translate('Track Order') }}"
-                        </li>
-                    </ul>
-                </div>
+    @php
+        $knIsAr = in_array(app()->getLocale(), ['sa', 'ar', 'eg']);
+        $kt = fn ($ar, $en) => $knIsAr ? $ar : $en;
+    @endphp
+    <section class="kn-co-page">
+        <div class="kn-wrap">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb bg-transparent p-0 kn-trk-crumbs">
+                    <li class="breadcrumb-item">
+                        <a href="{{ route('home') }}">{{ translate('Home') }}</a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ translate('Track Order') }}</li>
+                </ol>
+            </nav>
+
+            <div class="kn-trk-card">
+                <h1 class="kn-co-title">{{ translate('Track Order') }}</h1>
+                <p class="kn-trk-lead">{{ translate('Check Your Order Status') }}</p>
+                <form class="kn-trk-form" action="{{ route('orders.track') }}" method="GET" enctype="multipart/form-data">
+                    <label for="kn-trk-code">{{ translate('Order Code') }}</label>
+                    <div class="kn-trk-field">
+                        <input type="text" id="kn-trk-code" class="form-control" placeholder="{{ translate('Order Code')}}"
+                            name="order_code" value="{{ request('order_code') }}" autocomplete="off" required>
+                        <button type="submit" class="kn-btn kn-btn-primary">{{ translate('Track Order')}}</button>
+                    </div>
+                </form>
             </div>
-        </div>
-    </section>
-    <section class="mb-5">
-        <div class="container text-left">
-            <div class="row">
-                <div class="col-xxl-5 col-xl-6 col-lg-8 mx-auto">
-                    <form class="" action="{{ route('orders.track') }}" method="GET" enctype="multipart/form-data">
-                        <div class="bg-white border rounded-0">
-                            <div class="fs-15 fw-600 p-3 border-bottom text-center">
-                                {{ translate('Check Your Order Status')}}
-                            </div>
-                            <div class="form-box-content p-3">
-                                <div class="form-group">
-                                    <input type="text" class="form-control rounded-0 mb-3" placeholder="{{ translate('Order Code')}}" name="order_code" required>
-                                </div>
-                                <div class="text-right">
-                                    <button type="submit" class="btn btn-primary rounded-0 w-150px">{{ translate('Track Order')}}</button>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
+
+            @if (request()->filled('order_code') && !isset($order))
+                <div class="alert alert-warning kn-trk-msg" role="status">
+                    {{ $kt('لم نعثر على طلب بهذا الرمز. تأكد من الرمز وحاول مرة أخرى.', 'No order found with this code. Please check the code and try again.') }}
                 </div>
-            </div>
+            @endif
 
             @isset($order)
-                <div class="bg-white border rounded-0 mt-5">
-                    <div class="fs-15 fw-600 p-3">
-                        {{ translate('Order Summary')}}
-                    </div>
-                    <div class="p-3">
-                        <div class="row">
-                            <div class="col-lg-6">
-                                <table class="table table-borderless">
-                                    <tr>
-                                        <td class="w-50 fw-600">{{ translate('Order Code')}}:</td>
-                                        <td>{{ $order->code }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="w-50 fw-600">{{ translate('Customer')}}:</td>
-                                        <td>{{ json_decode($order->shipping_address)->name }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="w-50 fw-600">{{ translate('Email')}}:</td>
+                @php
+                    $knShip = json_decode($order->shipping_address);
+                    $status = $order->delivery_status;
+                    $knFlow = [
+                        'pending' => translate('Pending'),
+                        'confirmed' => translate('Confirmed'),
+                        'picked_up' => translate('Picked Up'),
+                        'on_the_way' => translate('On The Way'),
+                        'delivered' => translate('Delivered'),
+                    ];
+                    $knPos = array_search($status, array_keys($knFlow), true);
+                @endphp
+
+                <div class="kn-trk-result">
+                    <!-- Status timeline -->
+                    <section class="kn-co-card" aria-labelledby="kn-trk-status-title">
+                        <header class="kn-co-card-head">
+                            <h2 class="kn-co-card-title" id="kn-trk-status-title">{{ translate('Delivery Status') }}</h2>
+                            <span class="kn-oc-code">{{ translate('Order Code') }}: <strong>{{ $order->code }}</strong></span>
+                        </header>
+                        <div class="kn-co-card-body">
+                            @if ($status == 'cancelled')
+                                <div class="alert alert-danger mb-0" role="status">
+                                    {{ translate(ucfirst(str_replace('_', ' ', $status))) }}
+                                </div>
+                            @else
+                                <ol class="kn-trk-timeline">
+                                    @foreach ($knFlow as $knKey => $knLabel)
+                                        @php
+                                            $knIdx = $loop->index;
+                                            if ($knPos === false) {
+                                                $knState = 'is-todo';
+                                            } elseif ($knIdx < $knPos || ($status == 'delivered' && $knIdx == $knPos)) {
+                                                $knState = 'is-done';
+                                            } elseif ($knIdx === $knPos) {
+                                                $knState = 'is-current';
+                                            } else {
+                                                $knState = 'is-todo';
+                                            }
+                                        @endphp
+                                        <li class="kn-trk-tl-item {{ $knState }}" @if ($knIdx === $knPos) aria-current="step" @endif>
+                                            <span class="kn-trk-tl-dot" aria-hidden="true">
+                                                @if ($knState === 'is-done')
+                                                    <i class="fa-solid fa-check"></i>
+                                                @else
+                                                    {{ $knIdx + 1 }}
+                                                @endif
+                                            </span>
+                                            <span class="kn-trk-tl-label">{{ $knLabel }}</span>
+                                        </li>
+                                    @endforeach
+                                </ol>
+                                @if ($knPos === false)
+                                    <p class="kn-trk-lead mb-0">{{ translate('Delivery Status') }}: {{ translate(ucfirst(str_replace('_', ' ', $status))) }}</p>
+                                @endif
+                            @endif
+                        </div>
+                    </section>
+
+                    <!-- Order Summary -->
+                    <section class="kn-co-card" aria-labelledby="kn-trk-summary-title">
+                        <header class="kn-co-card-head">
+                            <h2 class="kn-co-card-title" id="kn-trk-summary-title">{{ translate('Order Summary') }}</h2>
+                        </header>
+                        <div class="kn-co-card-body">
+                            <dl class="kn-oc-facts">
+                                <div class="kn-oc-fact">
+                                    <dt>{{ translate('Order Code') }}</dt>
+                                    <dd>{{ $order->code }}</dd>
+                                </div>
+                                <div class="kn-oc-fact">
+                                    <dt>{{ translate('Order date') }}</dt>
+                                    <dd>{{ date('d-m-Y H:i A', $order->date) }}</dd>
+                                </div>
+                                <div class="kn-oc-fact">
+                                    <dt>{{ translate('Customer') }}</dt>
+                                    <dd>{{ $knShip->name ?? '' }}</dd>
+                                </div>
+                                <div class="kn-oc-fact">
+                                    <dt>{{ translate('Total order amount') }}</dt>
+                                    <dd>{{ single_price($order->orderDetails->sum('price') + $order->orderDetails->sum('tax')) }}</dd>
+                                </div>
+                                <div class="kn-oc-fact">
+                                    <dt>{{ translate('Email') }}</dt>
+                                    <dd>
                                         @if ($order->user_id != null)
-                                            <td>{{ $order->user->email }}</td>
+                                            {{ optional($order->user)->email }}
                                         @endif
-                                    </tr>
-                                    <tr>
-                                        <td class="w-50 fw-600">{{ translate('Shipping address')}}:</td>
-                                        <td>{{ json_decode($order->shipping_address)->address }}, {{ json_decode($order->shipping_address)->city }}, {{ json_decode($order->shipping_address)->country }}</td>
-                                    </tr>
-                                </table>
-                            </div>
-                            <div class="col-lg-6">
-                                <table class="table table-borderless">
-                                    <tr>
-                                        <td class="w-50 fw-600">{{ translate('Order date')}}:</td>
-                                        <td>{{ date('d-m-Y H:i A', $order->date) }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="w-50 fw-600">{{ translate('Total order amount')}}:</td>
-                                        <td>{{ single_price($order->orderDetails->sum('price') + $order->orderDetails->sum('tax')) }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="w-50 fw-600">{{ translate('Shipping method')}}:</td>
-                                        <td>{{ translate('Flat shipping rate')}}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="w-50 fw-600">{{ translate('Payment method')}}:</td>
-                                        <td>{{ translate(ucfirst(str_replace('_', ' ', $order->payment_type))) }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="w-50 fw-600">{{ translate('Delivery Status')}}:</td>
-                                        <td>{{ translate(ucfirst(str_replace('_', ' ', $order->delivery_status))) }}</td>
-                                    </tr>
-                                    @if ($order->tracking_code)
+                                    </dd>
+                                </div>
+                                <div class="kn-oc-fact">
+                                    <dt>{{ translate('Shipping method') }}</dt>
+                                    <dd>{{ translate('Flat shipping rate') }}</dd>
+                                </div>
+                                <div class="kn-oc-fact">
+                                    <dt>{{ translate('Shipping address') }}</dt>
+                                    <dd>{{ $knShip->address ?? '' }}, {{ $knShip->city ?? '' }}, {{ $knShip->country ?? '' }}</dd>
+                                </div>
+                                <div class="kn-oc-fact">
+                                    <dt>{{ translate('Payment method') }}</dt>
+                                    <dd>{{ translate(ucfirst(str_replace('_', ' ', $order->payment_type))) }}</dd>
+                                </div>
+                                <div class="kn-oc-fact">
+                                    <dt>{{ translate('Delivery Status') }}</dt>
+                                    <dd>{{ translate(ucfirst(str_replace('_', ' ', $order->delivery_status))) }}</dd>
+                                </div>
+                                @if ($order->tracking_code)
+                                    <div class="kn-oc-fact">
+                                        <dt>{{ translate('Tracking code') }}</dt>
+                                        <dd>{{ $order->tracking_code }}</dd>
+                                    </div>
+                                @endif
+                            </dl>
+                        </div>
+                    </section>
+
+                    <!-- Items -->
+                    <section class="kn-co-card" aria-label="{{ translate('Product Name') }}">
+                        <div class="kn-co-card-body">
+                            <div class="kn-co-table-scroll" role="region" tabindex="0" aria-label="{{ translate('Order Code') }} {{ $order->code }}">
+                                <table class="table kn-co-table">
+                                    <thead>
                                         <tr>
-                                            <td class="w-50 fw-600">{{ translate('Tracking code')}}:</td>
-                                            <td>{{ $order->tracking_code }}</td>
+                                            <th>{{ translate('Product Name') }}</th>
+                                            <th>{{ translate('Quantity') }}</th>
+                                            <th>{{ translate('Shipped By') }}</th>
                                         </tr>
-                                    @endif
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($order->orderDetails as $key => $orderDetail)
+                                            @if ($orderDetail->product != null)
+                                                <tr>
+                                                    <td class="is-name">
+                                                        {{ $orderDetail->product->getTranslation('name') }}
+                                                        @if ($orderDetail->variation)
+                                                            ({{ $orderDetail->variation }})
+                                                        @endif
+                                                    </td>
+                                                    <td>{{ $orderDetail->quantity }}</td>
+                                                    <td>{{ $orderDetail->product->user->name }}</td>
+                                                </tr>
+                                            @endif
+                                        @endforeach
+                                    </tbody>
                                 </table>
                             </div>
                         </div>
-                    </div>
+                    </section>
                 </div>
-
-
-                @foreach ($order->orderDetails as $key => $orderDetail)
-                    @php
-                        $status = $order->delivery_status;
-                    @endphp
-                    <div class="bg-white border rounded-0 mt-4">
-                        
-                        @if($orderDetail->product != null)
-                        <div class="p-3">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th class="border-0">{{ translate('Product Name')}}</th>
-                                        <th class="border-0">{{ translate('Quantity')}}</th>
-                                        <th class="border-0">{{ translate('Shipped By')}}</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                    <td>{{ $orderDetail->product->getTranslation('name') }} ({{ $orderDetail->variation }})</td>
-                                        <td>{{ $orderDetail->quantity }}</td>
-                                        <td>{{ $orderDetail->product->user->name }}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        @endif
-                    </div>
-                @endforeach
-
             @endisset
         </div>
     </section>

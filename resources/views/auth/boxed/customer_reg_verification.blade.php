@@ -1,94 +1,89 @@
 @extends('auth.layouts.authentication')
 
+@section('css')
+    @vite(['resources/css/storefront-compat.css'])
+@endsection
+
 @section('content')
-    @php $isOtpSystemActivated = addon_is_activated('otp_system'); @endphp
-    <!-- aiz-main-wrapper -->
-    <div class="aiz-main-wrapper d-flex flex-column justify-content-md-center bg-white">
-        <section class="bg-white overflow-hidden">
-            <div class="row">
-                <div class="col-xxl-6 col-xl-9 col-lg-10 col-md-7 mx-auto py-lg-4">
-                    <div class="card shadow-none rounded-0 border-0">
-                        <div class="row no-gutters">
-                            <!-- Left Side Image-->
-                            <div class="col-lg-6">
-                                    <img src="{{ uploaded_asset(get_setting('customer_register_page_image')) }}" alt="" class="img-fit h-100">
-                                </div>
-                                    
-                                <!-- Right Side -->
-                                <div class="col-lg-6 p-4 p-lg-5 d-flex flex-column justify-content-center border right-content" style="height: auto;">
-                                    <!-- Site Icon -->
-                                    <div class="size-48px mb-3 mx-auto mx-lg-0">
-                                        <img src="{{ uploaded_asset(get_setting('site_icon')) }}" alt="{{ translate('Site Icon')}}" class="img-fit h-100">
-                                    </div>
-
-                                    <!-- Titles -->
-                                    <div class="text-center text-lg-left">
-                                        <h1 class="fs-20 fs-md-24 fw-700 text-primary" style="text-transform: uppercase;">
-                                            {{ !$isOtpSystemActivated ? translate('Verify Your Email') : translate('Verify Your Email/Phone') }}
-                                        </h1>
-                                    </div>
-                                    <!-- Register form -->
-                                    <div class="pt-3 pt-lg-4">
-                                        <form id="reg-form" class="form-default" role="form" action="{{ route('customer-reg.verification_code_send') }}" method="POST">
-                                            @csrf
-                                            <input type="hidden" name="type" value="{{$type}}">
-                                            <!-- Email or Phone -->
-                                            @if (addon_is_activated('otp_system'))
-                                                <div class="form-group phone-form-group mb-1">
-                                                    <label for="phone" class="fs-12 fw-700 text-soft-dark">{{  translate('Phone') }}</label>
-                                                    <input type="tel" id="phone-code" class="form-control rounded-0{{ $errors->has('phone') ? ' is-invalid' : '' }}" value="{{ old('phone') }}" placeholder="" name="phone" autocomplete="off">
-                                                </div>
-
-                                                <input type="hidden" name="country_code" value="">
-
-                                                <div class="form-group email-form-group mb-1 d-none">
-                                                    <label for="email" class="fs-12 fw-700 text-soft-dark">{{  translate('Email') }}</label>
-                                                    <input type="email" class="form-control rounded-0 {{ $errors->has('email') ? ' is-invalid' : '' }}" value="{{ old('email') }}" placeholder="{{  translate('Email') }}" name="email"  autocomplete="off">
-                                                    @if ($errors->has('email'))
-                                                        <span class="invalid-feedback" role="alert">
-                                                            <strong>{{ $errors->first('email') }}</strong>
-                                                        </span>
-                                                    @endif
-                                                </div>
-
-                                                <div class="form-group text-right">
-                                                    <button class="btn btn-link p-0 text-primary" type="button" onclick="toggleEmailPhone(this)"><i>*{{ translate('Use Email Instead') }}</i></button>
-                                                </div>
-                                            @else
-                                                <div class="form-group">
-                                                    <label for="email" class="fs-12 fw-700 text-soft-dark">{{  translate('Email') }}</label>
-                                                    <input type="email" class="form-control rounded-0{{ $errors->has('email') ? ' is-invalid' : '' }}" value="{{ old('email') }}" placeholder="{{  translate('Email') }}" name="email" required>
-                                                    @if ($errors->has('email'))
-                                                        <span class="invalid-feedback" role="alert">
-                                                            <strong>{{ $errors->first('email') }}</strong>
-                                                        </span>
-                                                    @endif
-                                                </div>
-                                            @endif
-
-                                            <!-- Submit Button -->
-                                            <div class="mb-4 mt-4">
-                                                <button type="submit" class="btn btn-primary btn-block fw-600 rounded-0">{{  translate('Verify') }}</button>
-                                            </div>
-                                        </form>
-                                        <!-- Log In -->
-                                        <p class="fs-12 text-gray mb-0">
-                                            {{ translate('Already have an account?')}}
-                                            <a href="{{ route('seller.login') }}" class="ml-2 fs-14 fw-700 animate-underline-primary">{{ translate('Log In')}}</a>
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Go Back -->
-                        <div class="mt-3 mr-4 mr-md-0">
-                            <a href="{{ url()->previous() }}" class="ml-auto fs-14 fw-700 d-flex align-items-center text-primary" style="max-width: fit-content;">
-                                <i class="las la-arrow-left fs-20 mr-1"></i>
-                                {{ translate('Back to Previous Page')}}
-                            </a>
-                        </div>
-                    </div>
+    @php
+        $isOtpSystemActivated = addon_is_activated('otp_system');
+        $isAr = in_array(app()->getLocale(), ['sa', 'ar', 'eg']);
+        $t = fn($ar, $en) => $isAr ? $ar : $en;
+    @endphp
+    <div class="kn-auth">
+        <div class="kn-auth-shell has-media">
+            <div class="kn-auth-split">
+                <div class="kn-auth-media">
+                    <img src="{{ uploaded_asset(get_setting('customer_register_page_image')) }}" alt="">
                 </div>
-        </section>
+
+                <div class="kn-auth-card">
+                    <img src="{{ uploaded_asset(get_setting('site_icon')) }}" alt="{{ get_setting('website_name') }}"
+                        class="kn-auth-logo">
+
+                    <h1 class="kn-auth-title">
+                        {{ !$isOtpSystemActivated ? translate('Verify Your Email') : translate('Verify Your Email/Phone') }}
+                    </h1>
+                    <p class="kn-auth-sub">{{ $t('سنرسل لك رمز تحقق لإكمال إنشاء حسابك.', 'We will send you a verification code to finish creating your account.') }}</p>
+
+                    <form id="reg-form" class="form-default" role="form"
+                        action="{{ route('customer-reg.verification_code_send') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="type" value="{{ $type }}">
+                        <!-- Email or Phone -->
+                        @if (addon_is_activated('otp_system'))
+                            <div class="kn-field phone-form-group">
+                                <label for="phone-code">{{ translate('Phone') }}</label>
+                                <input type="tel" id="phone-code"
+                                    class="form-control{{ $errors->has('phone') ? ' is-invalid' : '' }}"
+                                    value="{{ old('phone') }}" placeholder="" name="phone" autocomplete="off">
+                            </div>
+
+                            <input type="hidden" name="country_code" value="">
+
+                            <div class="kn-field email-form-group d-none">
+                                <label for="email">{{ translate('Email') }}</label>
+                                <input type="email" id="email"
+                                    class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}"
+                                    value="{{ old('email') }}" placeholder="{{ translate('Email') }}" name="email"
+                                    autocomplete="off">
+                                @if ($errors->has('email'))
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $errors->first('email') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+
+                            <button class="btn btn-link kn-toggle-link" type="button"
+                                onclick="toggleEmailPhone(this)"><i>*{{ translate('Use Email Instead') }}</i></button>
+                        @else
+                            <div class="kn-field">
+                                <label for="email">{{ translate('Email') }}</label>
+                                <input type="email" id="email"
+                                    class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}"
+                                    value="{{ old('email') }}" placeholder="{{ translate('Email') }}" name="email"
+                                    required>
+                                @if ($errors->has('email'))
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $errors->first('email') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+                        @endif
+
+                        <button type="submit" class="kn-btn kn-btn-primary kn-auth-submit">{{ translate('Verify') }}</button>
+                    </form>
+
+                    <p class="kn-auth-alt">
+                        {{ translate('Already have an account?') }}
+                        <a href="{{ route('user.login') }}">{{ translate('Log In') }}</a>
+                    </p>
+                </div>
+            </div>
+
+            <a href="{{ url()->previous() }}" class="kn-auth-back">
+                <i class="las la-arrow-left" aria-hidden="true"></i> {{ translate('Back to Previous Page') }}
+            </a>
+        </div>
     </div>
 @endsection

@@ -27,10 +27,11 @@
 @endsection
 
 @section('content')
-    <section class="mb-4 pt-3">
-        <div class="container">
-            <div class="bg-white py-3">
-                <div class="row ">
+    <div class="kn-pd-legacy">
+    <section class="kn-pd-main">
+        <div class="kn-wrap">
+            <div class="kn-pd-panel-box">
+                <div class="row">
                     <div class="col-xl-5 col-lg-6 mb-4">
                         <div class="sticky-top z-3 row gutters-10">
                             @if ($customer_product->photos != null)
@@ -70,62 +71,41 @@
                     <div class="col-xl-7 col-lg-6">
                         <div class="text-left">
                             <!-- Product Name -->
-                            <h1 class="mb-4 fs-16 fw-700 text-dark">
+                            <h1 class="kn-pd-title mb-3">
                                 {{ $customer_product->getTranslation('name') }}
                             </h1>
 
                             <!-- Price -->
-                            <div class="row no-gutters mt-3">
-                                <div class="col-sm-2">
-                                    <div class="text-secondary fs-14 fw-400">{{ translate('Price') }}:</div>
-                                </div>
-                                <div class="col-sm-10">
-                                    <div class="">
-                                        <strong class="fs-16 fw-700 text-primary">
-                                            {{ single_price($customer_product->unit_price) }}
-                                        </strong>
-                                        @if ($customer_product->unit != null || $customer_product->unit != '')
-                                            <span class="opacity-70 ml-1">/{{ $customer_product->getTranslation('unit') }}</span>
-                                        @endif
-                                    </div>
+                            <div class="kn-pd-price">
+                                <div class="kn-pd-price-row">
+                                    <strong class="kn-pd-price-now">
+                                        {{ single_price($customer_product->unit_price) }}
+                                    </strong>
+                                    @if ($customer_product->unit != null || $customer_product->unit != '')
+                                        <span class="kn-pd-vat">/{{ $customer_product->getTranslation('unit') }}</span>
+                                    @endif
                                 </div>
                             </div>
 
                             <!-- Customer Info -->
-                            <ul class="list-group rounded mt-5">
-                                <li class="list-group-item">
-                                    <div class="d-flex">
-                                        <span class="d-flex align-items-center justify-content-center rounded-circle size-30px bg-soft-secondary mr-2">
-                                            <i class="la la-user fs-18"></i>
-                                        </span>
-                                        <div class="flex-grow-1 fs-16 fw-700 text-dark">
-                                            {{ $customer_product->user->name }}
-                                        </div>
-                                    </div>
+                            <ul class="kn-pd-contact">
+                                <li>
+                                    <i class="la la-user" aria-hidden="true"></i>
+                                    <span>{{ $customer_product->user->name }}</span>
                                 </li>
-                                <li class="list-group-item">
-                                    <div class="d-flex">
-                                        <span class="d-flex align-items-center justify-content-center rounded-circle size-30px bg-soft-secondary mr-2">
-                                            <i class="la la-map-marker fs-18"></i>
-                                        </span>
-                                        <div class="flex-grow-1 fs-16 fw-700 text-dark">
-                                            {{ $customer_product->location }}
-                                        </div>
-                                    </div>
+                                <li>
+                                    <i class="la la-map-marker" aria-hidden="true"></i>
+                                    <span>{{ $customer_product->location }}</span>
                                 </li>
-                                <li class="list-group-item c-pointer" onclick="show_number(this)">
-                                    <div class="d-flex">
-                                        <span class="d-flex align-items-center justify-content-center rounded-circle size-30px bg-primary text-white mr-2">
-                                            <i class="la la-phone fs-18"></i>
+                                <li>
+                                    <button type="button" onclick="show_number(this)">
+                                        <i class="la la-phone" aria-hidden="true"></i>
+                                        <span>
+                                            <bdi class="dummy">{{ str_replace(substr($customer_product->user->phone, 3), 'XXXXXXXX', $customer_product->user->phone) }}</bdi>
+                                            <bdi class="real d-none">{{ $customer_product->user->phone }}</bdi>
+                                            <small>{{ translate('Click to show phone number') }}</small>
                                         </span>
-                                        <div class="flex-grow-1">
-                                            <h3 class="fs-16 fw-700 text-dark mb-0">
-                                                <span class="dummy">{{ str_replace(substr($customer_product->user->phone, 3), 'XXXXXXXX', $customer_product->user->phone) }}</span>
-                                                <span class="real d-none">{{ $customer_product->user->phone }}</span>
-                                            </h3>
-                                            <p class="mb-0 opacity-70">{{ translate('Click to show phone number') }}</p>
-                                        </div>
-                                    </div>
+                                    </button>
                                 </li>
                             </ul>
 
@@ -146,9 +126,9 @@
     </section>
 
     <!-- Description, Video & Downloads -->
-    <section class="mb-4">
-        <div class="container">
-            <div class="bg-white mb-4 border p-4">
+    <section class="kn-section">
+        <div class="kn-wrap">
+            <div class="kn-pd-panel-box">
                 <!-- Tabs -->
                 <div class="nav aiz-nav-tabs">
                     <a href="#tab_default_1" data-toggle="tab" class="mr-5 pb-2 fs-16 fw-700 text-reset active show">{{ translate('Description') }}</a>
@@ -164,7 +144,7 @@
                     <!-- Description -->
                     <div class="tab-pane active show" id="tab_default_1">
                         <div class="p-4">
-                            <div class="mw-100 overflow-hidden text-left">
+                            <div class="mw-100 overflow-hidden text-left kn-pd-prose">
                                 <?php echo $customer_product->getTranslation('description'); ?>
                             </div>
                         </div>
@@ -195,14 +175,14 @@
     </section>
 
     <!-- Other products -->
-    <section class="mb-4">
-        <div class="container">
-           <div class="bg-white border p-4">
-                <div class="d-flex mb-3 align-items-baseline border-bottom py-3">
-                    <h3 class="fs-16 fw-600 mb-0">
+    <section class="kn-section">
+        <div class="kn-wrap">
+           <div>
+                <div class="kn-section-head">
+                    <h2 class="kn-section-title">
                         {{ translate('Other Ads of') }} {{ $customer_product->category->getTranslation('name') }}
-                    </h3>
-                    <a class="ml-auto mr-0 text-blue fs-12 fw-700 hov-text-primary" href="{{ route('customer_products.category', $customer_product->category->slug) }}">{{ translate('View More') }}</a>
+                    </h2>
+                    <a class="kn-link" href="{{ route('customer_products.category', $customer_product->category->slug) }}">{{ translate('View More') }}</a>
                 </div>
                 <div class="p-3">
                     <div class="aiz-carousel gutters-16 half-outside-arrow" data-items="6" data-xl-items="5" data-lg-items="4"  data-md-items="3" data-sm-items="2" data-xs-items="2" data-arrows='true' data-infinite='true'>
@@ -244,6 +224,7 @@
             </div>
         </div>
     </section>
+    </div>
 @endsection
 
 @section('script')

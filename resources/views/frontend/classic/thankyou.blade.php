@@ -1,70 +1,26 @@
 @extends('frontend.layouts.app')
 
-@section('style')
-    <style>
-        .thank-you-box {
-            background-color: #fff;
-            padding: 40px;
-            border-radius: 12px;
-            text-align: center;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-            max-width: 500px;
-            width: 100%;
-        }
+@php
+    $locale = app()->getLocale();
+    $isAr = in_array($locale, ['sa', 'ar', 'eg']);
+    $isCn = in_array($locale, ['cn', 'zh']);
+    $tr = fn ($ar, $en, $cn = null) => $isAr ? $ar : ($isCn && $cn !== null ? $cn : $en);
+@endphp
 
-        .thank-you-icon {
-            font-size: 64px;
-            color: #28a745;
-            margin-bottom: 20px;
-        }
-
-        h1 {
-            font-size: 24px;
-            margin-bottom: 15px;
-        }
-
-        p {
-            font-size: 16px;
-            color: #555;
-        }
-    </style>
-@endsection
 @section('content')
-    @if (app()->getLocale() == 'sa')
-        <div class="container" style=" margin-top: 5%; margin-bottom: 5%; width: 100%;">
-            <div class="row justify-content-center">
-                <div class="thank-you-box">
-                    <div class="thank-you-icon">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <h1>شكراً لك!</h1>
-                    <p>تم إرسال طلب عرض السعر إلى البريد الإلكتروني المسجل لدينا.</p>
+    <div class="kn-page">
+        <div class="kn-wrap">
+            <div class="kn-result" role="status">
+                <span class="kn-result-icon" aria-hidden="true"><i class="fas fa-check"></i></span>
+                <h1 class="kn-page-title">{{ $tr('شكراً لك!', 'Thank You!', '谢谢您！') }}</h1>
+                <p class="kn-lead">
+                    {{ $tr('تم إرسال طلب عرض السعر إلى البريد الإلكتروني المسجل لدينا.', 'The quotation request has been sent to the email registered with us.', '报价请求已发送至您在我们系统中注册的电子邮箱。') }}
+                </p>
+                <div class="kn-actions">
+                    <a href="{{ route('home') }}" class="kn-btn kn-btn-primary kn-btn-lg">{{ $tr('متابعة التسوق', 'Continue shopping', '继续购物') }}</a>
+                    <a href="{{ route('contact.us') }}" class="kn-btn kn-btn-ghost kn-btn-lg">{{ $tr('تواصل معنا', 'Contact us', '联系我们') }}</a>
                 </div>
             </div>
         </div>
-    @elseif(app()->getLocale() == 'cn')
-        <div class="container" style=" margin-top: 5%; margin-bottom: 5%; width: 100%;">
-            <div class="row justify-content-center">
-                <div class="thank-you-box">
-                    <div class="thank-you-icon">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <h1>谢谢您！</h1>
-                    <p>报价请求已发送至您在我们系统中注册的电子邮箱。</p>
-                </div>
-            </div>
-        </div>
-    @else
-        <div class="container" style=" margin-top: 5%; margin-bottom: 5%; width: 100%;">
-            <div class="row justify-content-center">
-                <div class="thank-you-box">
-                    <div class="thank-you-icon">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <h1>Thank You!</h1>
-                    <p>The quotation request has been sent to the email registered with us.</p>
-                </div>
-            </div>
-        </div>
-    @endif
+    </div>
 @endsection

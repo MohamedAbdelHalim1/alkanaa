@@ -2,7 +2,7 @@
 
 @section('content')
     <!-- Cart Details -->
-    <section class="my-4" id="cart-details">
+    <section class="kn-co-page has-sumbar" id="cart-details">
         @include('frontend.partials.cart.cart_details', ['carts' => $carts])
     </section>
 

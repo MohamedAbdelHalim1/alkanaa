@@ -1,63 +1,54 @@
-<div class="mb-4">
-    <h3 class="fs-16 fw-700 text-dark">
-        {{ translate('Any additional info') }}
-    </h3>
-    <textarea name="additional_info" rows="5" class="form-control rounded-0"
+@php
+    $kpIsAr = in_array(app()->getLocale(), ['sa', 'ar', 'eg']);
+    $kpt = fn ($ar, $en) => $kpIsAr ? $ar : $en;
+@endphp
+<div class="kn-co-field kn-co-pay-note">
+    <label for="kn-additional-info" class="kn-co-sub">{{ translate('Any additional info') }}</label>
+    <textarea id="kn-additional-info" name="additional_info" rows="3" class="form-control"
         placeholder="{{ translate('Type your text') }}"></textarea>
 </div>
-<div>
-    <h3 class="fs-16 fw-700 text-dark">
-        {{ translate('Select a payment option') }}
-    </h3>
-    <div class="row gutters-10">
+
+<fieldset class="kn-co-fieldset">
+    <legend class="kn-co-sub">{{ translate('Select a payment option') }}</legend>
+
+    <div class="kn-co-pay-grid">
         @foreach (get_activate_payment_methods() as $payment_method)
-            <div class="col-xl-4 col-md-6">
-                <label class="aiz-megabox d-block mb-3">
-                    <input value="{{ $payment_method->name }}" class="online_payment" type="radio"
-                        name="payment_option">
-                    <span class="d-flex align-items-center justify-content-between aiz-megabox-elem rounded-0 p-3">
-                        <span class="d-block fw-400 fs-14">{{ ucfirst(translate($payment_method->name)) }}</span>
-                        <span class="rounded-1 h-40px overflow-hidden">
-                            <img src="{{ static_asset('assets/img/cards/' . $payment_method->name . '.png') }}"
-                                class="img-fit h-100">
-                        </span>
+            <label class="aiz-megabox kn-co-pay-option">
+                <input value="{{ $payment_method->name }}" class="online_payment" type="radio"
+                    name="payment_option">
+                <span class="aiz-megabox-elem kn-co-pay-tile">
+                    <span class="aiz-rounded-check flex-shrink-0" aria-hidden="true"></span>
+                    <span class="kn-co-pay-name">{{ ucfirst(translate($payment_method->name)) }}</span>
+                    <span class="kn-co-pay-logo" aria-hidden="true">
+                        <img src="{{ static_asset('assets/img/cards/' . $payment_method->name . '.png') }}" alt="" loading="lazy">
                     </span>
-                </label>
-            </div>
+                </span>
+            </label>
         @endforeach
 
         {{-- Moyasar Online Payment --}}
-        <div class="col-xl-4 col-md-6">
-            <label class="aiz-megabox d-block mb-3">
-                <input value="moyasar" class="online_payment" type="radio" name="payment_option">
-                <span class="d-flex align-items-center justify-content-between aiz-megabox-elem rounded-0 p-3">
-                    <span class="d-block fw-400 fs-14">Moyasar (Online)</span>
-                    <span class="rounded-1 h-40px w-70px overflow-hidden">
-                        <img src="{{ static_asset('assets/img/cards/moyasar.svg') }}" class="img-fit h-100">
-                    </span>
+        <label class="aiz-megabox kn-co-pay-option">
+            <input value="moyasar" class="online_payment" type="radio" name="payment_option">
+            <span class="aiz-megabox-elem kn-co-pay-tile">
+                <span class="aiz-rounded-check flex-shrink-0" aria-hidden="true"></span>
+                <span class="kn-co-pay-name">{{ $kpt('ميسر (دفع إلكتروني)', 'Moyasar (Online)') }}</span>
+                <span class="kn-co-pay-logo" aria-hidden="true">
+                    <img src="{{ static_asset('assets/img/cards/moyasar.svg') }}" alt="" loading="lazy">
                 </span>
-            </label>
-        </div>
+            </span>
+        </label>
 
         {{-- Tabby Online Payment --}}
-        <div class="col-xl-4 col-md-6">
-            <label class="aiz-megabox d-block mb-3">
-                <input value="tabby" class="online_payment" type="radio" name="payment_option">
-                <span class="d-flex align-items-center justify-content-between aiz-megabox-elem rounded-0 p-3">
-                    <span class="d-block fw-400 fs-14">
-                        {{-- علي حسب اللفه بقا هنكتب --}}
-                        @if (app()->getLocale() == 'en')
-                            Tabby (Installments)
-                        @else
-                            Tabby (التقسيط)
-                        @endif
-                    </span>
-                    <span class="rounded-1 h-40px w-70px overflow-hidden">
-                        <img src="{{ static_asset('assets/img/cards/tabby.png') }}" class="img-fit h-100">
-                    </span>
+        <label class="aiz-megabox kn-co-pay-option">
+            <input value="tabby" class="online_payment" type="radio" name="payment_option">
+            <span class="aiz-megabox-elem kn-co-pay-tile">
+                <span class="aiz-rounded-check flex-shrink-0" aria-hidden="true"></span>
+                <span class="kn-co-pay-name">{{ $kpt('Tabby (التقسيط)', 'Tabby (Installments)') }}</span>
+                <span class="kn-co-pay-logo" aria-hidden="true">
+                    <img src="{{ static_asset('assets/img/cards/tabby.png') }}" alt="" loading="lazy">
                 </span>
-            </label>
-        </div>
+            </span>
+        </label>
 
         <!-- Cash Payment -->
         @if (get_setting('cash_payment') == 1)
@@ -75,18 +66,17 @@
                 }
             @endphp
             @if ($digital != 1 && $cod_on == 1)
-                <div class="col-xl-4 col-md-6">
-                    <label class="aiz-megabox d-block mb-3">
-                        <input value="cash_on_delivery" class="online_payment" type="radio" name="payment_option"
-                            checked>
-                        <span class="d-flex align-items-center justify-content-between aiz-megabox-elem rounded-0 p-3">
-                            <span class="d-block fw-400 fs-14">{{ translate('Cash on Delivery') }}</span>
-                            <span class="rounded-1 h-40px w-70px overflow-hidden">
-                                <img src="{{ static_asset('assets/img/cards/cod.png') }}" class="img-fit h-100">
-                            </span>
+                <label class="aiz-megabox kn-co-pay-option">
+                    <input value="cash_on_delivery" class="online_payment" type="radio" name="payment_option"
+                        checked>
+                    <span class="aiz-megabox-elem kn-co-pay-tile">
+                        <span class="aiz-rounded-check flex-shrink-0" aria-hidden="true"></span>
+                        <span class="kn-co-pay-name">{{ translate('Cash on Delivery') }}</span>
+                        <span class="kn-co-pay-logo" aria-hidden="true">
+                            <img src="{{ static_asset('assets/img/cards/cod.png') }}" alt="" loading="lazy">
                         </span>
-                    </label>
-                </div>
+                    </span>
+                </label>
             @endif
         @endif
 
@@ -94,65 +84,60 @@
             <!-- Offline Payment -->
             @if (addon_is_activated('offline_payment'))
                 @foreach (get_all_manual_payment_methods() as $method)
-                    <div class="col-xl-4 col-md-6">
-                        <label class="aiz-megabox d-block mb-3">
-                            <input value="{{ $method->heading }}" type="radio" name="payment_option"
-                                class="offline_payment_option" onchange="toggleManualPaymentData({{ $method->id }})"
-                                data-id="{{ $method->id }}">
-                            <span
-                                class="d-flex align-items-center justify-content-between aiz-megabox-elem rounded-0 p-3">
-                                <span class="d-block fw-400 fs-14">{{ $method->heading }}</span>
-                                <span class="rounded-1 h-40px w-70px overflow-hidden">
-                                    <img src="{{ uploaded_asset($method->photo) }}" class="img-fit h-100">
-                                </span>
+                    <label class="aiz-megabox kn-co-pay-option">
+                        <input value="{{ $method->heading }}" type="radio" name="payment_option"
+                            class="offline_payment_option" onchange="toggleManualPaymentData({{ $method->id }})"
+                            data-id="{{ $method->id }}">
+                        <span class="aiz-megabox-elem kn-co-pay-tile">
+                            <span class="aiz-rounded-check flex-shrink-0" aria-hidden="true"></span>
+                            <span class="kn-co-pay-name">{{ $method->heading }}</span>
+                            <span class="kn-co-pay-logo" aria-hidden="true">
+                                <img src="{{ uploaded_asset($method->photo) }}" alt="" loading="lazy">
                             </span>
-                        </label>
-                    </div>
-                @endforeach
-
-                @foreach (get_all_manual_payment_methods() as $method)
-                    <div id="manual_payment_info_{{ $method->id }}" class="d-none">
-                        @php echo $method->description @endphp
-                        @if ($method->bank_info != null)
-                            <ul>
-                                @foreach (json_decode($method->bank_info) as $key => $info)
-                                    <li>{{ translate('Bank Name') }} -
-                                        {{ $info->bank_name }},
-                                        {{ translate('Account Name') }} -
-                                        {{ $info->account_name }},
-                                        {{ translate('Account Number') }} -
-                                        {{ $info->account_number }},
-                                        {{ translate('Routing Number') }} -
-                                        {{ $info->routing_number }}</li>
-                                @endforeach
-                            </ul>
-                        @endif
-                    </div>
+                        </span>
+                    </label>
                 @endforeach
             @endif
         @endif
     </div>
 
+    @if (Auth::check() && addon_is_activated('offline_payment'))
+        @foreach (get_all_manual_payment_methods() as $method)
+            <div id="manual_payment_info_{{ $method->id }}" class="d-none">
+                @php echo $method->description @endphp
+                @if ($method->bank_info != null)
+                    <ul>
+                        @foreach (json_decode($method->bank_info) as $key => $info)
+                            <li>{{ translate('Bank Name') }} -
+                                {{ $info->bank_name }},
+                                {{ translate('Account Name') }} -
+                                {{ $info->account_name }},
+                                {{ translate('Account Number') }} -
+                                {{ $info->account_number }},
+                                {{ translate('Routing Number') }} -
+                                {{ $info->routing_number }}</li>
+                        @endforeach
+                    </ul>
+                @endif
+            </div>
+        @endforeach
+    @endif
+
     <!-- Offline Payment Fields -->
     @if (addon_is_activated('offline_payment') && count(get_all_manual_payment_methods()) > 0)
-        <div class="d-none mb-3 rounded border bg-white p-3 text-left">
+        <div class="d-none kn-co-manual">
             <div id="manual_payment_description">
 
             </div>
-            <br>
-            <div class="row">
-                <div class="col-md-3">
-                    <label>{{ translate('Transaction ID') }} <span class="text-danger">*</span></label>
-                </div>
-                <div class="col-md-9">
-                    <input type="text" class="form-control mb-3" name="trx_id"
+            <div class="kn-co-fields">
+                <div class="kn-co-field">
+                    <label for="trx_id">{{ translate('Transaction ID') }} <span class="kn-co-req" aria-hidden="true">*</span></label>
+                    <input type="text" class="form-control" name="trx_id"
                         onchange="stepCompletionPaymentInfo()" id="trx_id"
                         placeholder="{{ translate('Transaction ID') }}" required>
                 </div>
-            </div>
-            <div class="form-group row">
-                <label class="col-md-3 col-form-label">{{ translate('Photo') }}</label>
-                <div class="col-md-9">
+                <div class="kn-co-field">
+                    <label>{{ translate('Photo') }}</label>
                     <div class="input-group" data-toggle="aizuploader" data-type="image">
                         <div class="input-group-prepend">
                             <div class="input-group-text bg-soft-secondary font-weight-medium">
@@ -171,20 +156,21 @@
 
     <!-- Wallet Payment -->
     @if (Auth::check() && get_setting('wallet_system') == 1)
-        <div class="py-4 px-4 text-center bg-soft-secondary-base mt-4">
-            <div class="fs-14 mb-3">
-                <span class="opacity-80">{{ translate('Or, Your wallet balance :') }}</span>
-                <span class="fw-700">{{ single_price(Auth::user()->balance) }}</span>
-            </div>
+        <div class="kn-co-wallet">
+            <p class="kn-co-wallet-text">
+                <span>{{ translate('Or, Your wallet balance :') }}</span>
+                <strong>{{ single_price(Auth::user()->balance) }}</strong>
+            </p>
             @if (Auth::user()->balance < $total)
-                <button type="button" class="btn btn-secondary" disabled>
+                <button type="button" class="kn-btn kn-co-btn-outline" disabled>
                     {{ translate('Insufficient balance') }}
                 </button>
             @else
-                <button type="button" onclick="use_wallet()" class="btn btn-primary fs-14 fw-700 px-5 rounded-0">
+                <button type="button" onclick="use_wallet()" class="kn-btn kn-btn-primary">
+                    <i class="las la-wallet" aria-hidden="true"></i>
                     {{ translate('Pay with wallet') }}
                 </button>
             @endif
         </div>
     @endif
-</div>
+</fieldset>

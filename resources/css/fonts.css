@@ -1,0 +1,46 @@
+/*
+ * Single font family for the whole storefront: IBM Plex Sans Arabic
+ * Full weight range: 100, 200, 300, 400, 500, 600, 700
+ */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@100;200;300;400;500;600;700&display=swap');
+
+:root {
+    --font-sans: 'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-family: 'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+html,
+body {
+    font-family: 'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+p, h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6,
+input, select, textarea,
+.form-control, .form-select,
+.nav, .navbar, .nav-link, .dropdown-item,
+table, th, td, label {
+    font-family: 'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Ensure LineAwesome & FontAwesome Icons are Never Overwritten */
+.la, .las, .lar, .lab,
+[class^="la-"], [class*=" la-"],
+[class^="las-"], [class*=" las-"],
+[class^="lar-"], [class*=" lar-"],
+[class^="lab-"], [class*=" lab-"] {
+    font-family: "Line Awesome Free" !important;
+}
+
+.lab, [class^="lab-"], [class*=" lab-"] {
+    font-family: "Line Awesome Brands" !important;
+}
+
+.fa, .fas, .far, .fab, .fa-solid, .fa-regular, .fa-brands,
+[class^="fa-"], [class*=" fa-"] {
+    font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", "FontAwesome" !important;
+}
+
+.fa-brands, .fab {
+    font-family: "Font Awesome 6 Brands", "Font Awesome 5 Brands" !important;
+}

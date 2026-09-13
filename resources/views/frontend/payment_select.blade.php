@@ -2,57 +2,15 @@
 
 @section('content')
 
-    <!-- Steps -->
-    <section class="pt-5 mb-4">
-        <div class="container">
-            <div class="row">
-                <div class="col-xl-8 mx-auto">
-                    <div class="row gutters-5 sm-gutters-10">
-                        <div class="col done">
-                            <div class="text-center border border-bottom-6px p-2 text-success">
-                                <i class="la-3x mb-2 las la-shopping-cart"></i>
-                                <h3 class="fs-14 fw-600 d-none d-lg-block">{{ translate('1. My Cart') }}</h3>
-                            </div>
-                        </div>
-                        <div class="col done">
-                            <div class="text-center border border-bottom-6px p-2 text-success">
-                                <i class="la-3x mb-2 las la-map"></i>
-                                <h3 class="fs-14 fw-600 d-none d-lg-block">{{ translate('2. Shipping info') }}
-                                </h3>
-                            </div>
-                        </div>
-                        <div class="col done">
-                            <div class="text-center border border-bottom-6px p-2 text-success">
-                                <i class="la-3x mb-2 las la-truck"></i>
-                                <h3 class="fs-14 fw-600 d-none d-lg-block">{{ translate('3. Delivery info') }}
-                                </h3>
-                            </div>
-                        </div>
-                        <div class="col active">
-                            <div class="text-center border border-bottom-6px p-2 text-primary">
-                                <i class="la-3x mb-2 las la-credit-card cart-animate"
-                                    style="margin-right: -100px; transition: 2s;"></i>
-                                <h3 class="fs-14 fw-600 d-none d-lg-block">{{ translate('4. Payment') }}</h3>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="text-center border border-bottom-6px p-2">
-                                <i class="la-3x mb-2 opacity-50 las la-check-circle"></i>
-                                <h3 class="fs-14 fw-600 d-none d-lg-block opacity-50">{{ translate('5. Confirmation') }}
-                                </h3>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <!-- Payment Info (legacy multi-step checkout) -->
+    <section class="kn-co-page">
+        <div class="kn-wrap">
+            <div class="kn-co-head">
+                <h1 class="kn-co-title">{{ translate('Payment') }}</h1>
             </div>
-        </div>
-    </section>
-
-    <!-- Payment Info -->
-    <section class="mb-4">
-        <div class="container text-left">
-            <div class="row">
-                <div class="col-lg-8">
+            @include('frontend.partials.cart.checkout_steps', ['current' => 4])
+            <div class="kn-co-layout">
+                <div class="kn-co-main">
                     <form action="{{ route('payment.checkout') }}" class="form-default" role="form" method="POST"
                         id="checkout-form">
                         @csrf
@@ -77,7 +35,7 @@
                             </div>
                             <!-- Payment Options -->
                             <div class="card-body text-center px-4 pt-0">
-                                <div class="row gutters-10">
+                                <div class="row gutters-10 kn-co-legacy-pay">
                                     <!-- Paypal -->
                                     @if (get_setting('paypal_payment') == 1)
                                         <div class="col-6 col-xl-3 col-md-4">
@@ -638,28 +596,24 @@
                                     class="fw-700">{{ translate('privacy policy') }}</a>
                             </div>
 
-                            <div class="row align-items-center pt-3 px-4 mb-4">
+                            <div class="kn-co-actions px-4 pb-4">
                                 <!-- Return to shop -->
-                                <div class="col-6">
-                                    <a href="{{ route('home') }}" class="btn btn-link fs-14 fw-700 px-0">
-                                        <i class="las la-arrow-left fs-16"></i>
-                                        {{ translate('Return to shop') }}
-                                    </a>
-                                </div>
-                                <!-- Complete Ordert -->
-                                <div class="col-6 text-right">
-                                    <button type="button" onclick="submitOrder(this)"
-                                        class="btn btn-primary fs-14 fw-700 rounded-0 px-4">{{ translate('Complete Order') }}</button>
-                                </div>
+                                <a href="{{ route('home') }}" class="kn-btn kn-co-back">
+                                    <i class="las la-arrow-left kn-co-flip" aria-hidden="true"></i>
+                                    {{ translate('Return to shop') }}
+                                </a>
+                                <!-- Complete Order -->
+                                <button type="button" onclick="submitOrder(this)"
+                                    class="kn-btn kn-btn-primary kn-co-btn-lg">{{ translate('Complete Order') }}</button>
                             </div>
                         </div>
                     </form>
                 </div>
 
                 <!-- Cart Summary -->
-                <div class="col-lg-4 mt-lg-0 mt-4" id="cart_summary">
+                <aside class="kn-co-aside" id="cart_summary">
                     @include('frontend.partials.cart_summary')
-                </div>
+                </aside>
             </div>
         </div>
     </section>

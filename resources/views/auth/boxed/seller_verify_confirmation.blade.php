@@ -1,82 +1,60 @@
 @extends('frontend.layouts.app')
 
 @section('content')
-    @php $isOtpSystemActivated = addon_is_activated('otp_system'); @endphp
-    <!-- aiz-main-wrapper -->
-    <div class="aiz-main-wrapper d-flex flex-column justify-content-md-center bg-white">
-        <section class="bg-white overflow-hidden">
-            <div class="container py-5">
-                <div class="row justify-content-center">
-                    <div class="col-xxl-6 col-xl-8 col-lg-9 col-md-10">
-                        <!-- Wrapper with border & shadow -->
-                        <div class="bg-white border rounded shadow p-4 p-lg-5">
+    @php
+        $isOtpSystemActivated = addon_is_activated('otp_system');
+        $isAr = in_array(app()->getLocale(), ['sa', 'ar', 'eg']);
+        $t = fn($ar, $en) => $isAr ? $ar : $en;
+    @endphp
+    <div class="kn-auth">
+        <div class="kn-auth-shell">
+            <div class="kn-auth-card">
+                <img src="{{ uploaded_asset(get_setting('site_icon')) }}" alt="{{ get_setting('website_name') }}"
+                    class="kn-auth-logo">
 
-                            <!-- Logo in center -->
-                            <div class="text-center mb-3">
-                                <img src="{{ uploaded_asset(get_setting('site_icon')) }}" alt="{{ translate('Site Icon') }}"
-                                    style="height: 50px;">
-                            </div>
+                <h1 class="kn-auth-title">
+                    {{ !$isOtpSystemActivated ? translate('Verify Your Email') : translate('Verify Your Email/Phone') }}
+                </h1>
+                <p class="kn-auth-sub">{{ $t('أدخل رمز التحقق الذي أرسلناه إليك.', 'Enter the verification code we sent you.') }}</p>
 
-                            <!-- Title -->
-                            <h2 class="text-center text-primary fw-bold mb-4" style="text-transform: uppercase;">
-                                {{ !$isOtpSystemActivated ? translate('Verify Your Email') : translate('Verify Your Email/Phone') }}
-                            </h2>
+                <form id="reg-form" class="form-default" role="form"
+                    action="{{ route('shop-reg.verify_code_confirmation') }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="seller_verification_id" value="{{ $sellerVerification->id }}">
 
-                            <!-- Form -->
-                            <form id="reg-form" class="form-default" role="form"
-                                action="{{ route('shop-reg.verify_code_confirmation') }}" method="POST">
-                                @csrf
-                                <input type="hidden" name="seller_verification_id" value="{{ $sellerVerification->id }}">
-
-                                @if ($sellerVerification->email != null)
-                                    <div class="form-group mb-3">
-                                        <label class="fs-14 fw-600 text-soft-dark">{{ translate('Email') }}</label>
-                                        <input type="text" name="email" class="form-control rounded-0"
-                                            value="{{ $sellerVerification->email }}" readonly>
-                                    </div>
-                                @else
-                                    <div class="form-group mb-3">
-                                        <label class="fs-14 fw-600 text-soft-dark">{{ translate('Phone') }}</label>
-                                        <input type="text" name="phone" class="form-control rounded-0"
-                                            value="{{ $sellerVerification->phone }}" readonly>
-                                    </div>
-                                @endif
-
-                                <div class="form-group mb-4">
-                                    <label class="fs-14 fw-600 text-soft-dark">{{ translate('Verification Code') }}</label>
-                                    <input type="number" name="verification_code" class="form-control rounded-0">
-                                </div>
-
-                                <!-- Submit -->
-                                <button type="submit" class="btn btn-primary w-100 fw-600 rounded-0 mb-3">
-                                    {{ translate('Submit') }}
-                                </button>
-
-                                <!-- Login link -->
-                                <p class="text-center fs-13 text-muted mb-0">
-                                    {{ translate('Already have an account?') }}
-                                    <a href="{{ route('seller.login') }}"
-                                        class="fw-700 text-primary ms-2 text-decoration-underline">
-                                        {{ translate('Log In') }}
-                                    </a>
-                                </p>
-                            </form>
+                    @if ($sellerVerification->email != null)
+                        <div class="kn-field">
+                            <label for="verify-email">{{ translate('Email') }}</label>
+                            <input type="text" id="verify-email" name="email" class="form-control"
+                                value="{{ $sellerVerification->email }}" readonly>
                         </div>
-
-                        <!-- Go back -->
-                        <div class="text-end mt-3">
-                            <a href="{{ url()->previous() }}"
-                                class="fs-14 fw-700 text-primary d-inline-flex align-items-center">
-                                <i class="las la-arrow-left fs-20 ms-1"></i>
-                                {{ translate('Back to Previous Page') }}
-                            </a>
+                    @else
+                        <div class="kn-field">
+                            <label for="verify-phone">{{ translate('Phone') }}</label>
+                            <input type="text" id="verify-phone" name="phone" class="form-control"
+                                value="{{ $sellerVerification->phone }}" readonly>
                         </div>
+                    @endif
+
+                    <div class="kn-field">
+                        <label for="verification_code">{{ translate('Verification Code') }}</label>
+                        <input type="number" id="verification_code" name="verification_code" class="form-control"
+                            inputmode="numeric" autocomplete="one-time-code">
                     </div>
-                    
-                </div>
+
+                    <button type="submit" class="kn-btn kn-btn-primary kn-auth-submit">{{ translate('Submit') }}</button>
+                </form>
+
+                <p class="kn-auth-alt">
+                    {{ translate('Already have an account?') }}
+                    <a href="{{ route('seller.login') }}">{{ translate('Log In') }}</a>
+                </p>
             </div>
 
-        </section>
+            <a href="{{ url()->previous() }}" class="kn-auth-back">
+                <i class="las la-arrow-left" aria-hidden="true"></i> {{ translate('Back to Previous Page') }}
+            </a>
+        </div>
     </div>
     @include('auth.login_register_js')
 @endsection

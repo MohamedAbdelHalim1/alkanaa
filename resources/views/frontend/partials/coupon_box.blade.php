@@ -1,13 +1,14 @@
 @php
     $couponUserType = $coupon->user->user_type;
+    $knCpnVariant = 'is-admin';
 @endphp
 
 @if ($couponUserType == 'admin' && $coupon->type != 'welcome_base')
-    @php $bg = "linear-gradient(to right, #e2583e 0%, #bf1931 100%);"; @endphp
+    @php $knCpnVariant = 'is-admin'; @endphp
 @elseif ($couponUserType == 'seller')
-    @php $bg = "linear-gradient(to right, #7cc4c3 0%, #479493 100%);"; @endphp
+    @php $knCpnVariant = 'is-seller'; @endphp
 @elseif ($coupon->type == 'welcome_base')
-    @php $bg = "linear-gradient(to right, #98b3d1 0%, #5f4a8b 100%);"; @endphp
+    @php $knCpnVariant = 'is-welcome'; @endphp
 @endif
 
 
@@ -34,84 +35,80 @@
     }
 @endphp
 
-<div style="min-height: 232px; border-radius: 24px; background: {{ $bg }};" class="d-flex align-items-center position-relative">
+<article class="kn-cpn {{ $knCpnVariant }}">
 
-    <!-- Shop Name & discount -->
-    <div class="position-absolute" style="top:2rem; left:2rem;">
-        <h3 class="fs-13 text-white fw-500 px-3">{{ $name }}
-            @if (\Request::route()->getName() == 'coupons.all')
-                <a
-                    @if($coupon->user->user_type != 'admin')
-                        href="{{ route('shop.visit', $shop->slug) }}"
-                    @else
-                        href="{{ route('inhouse.all') }}"
-                    @endif
-                    class="ml-3 text-white hov-text-secondary-base fs-13" style="text-decoration: underline;"
-                >
-                    {{ translate('Visit Store') }}
-                </a>
-            @endif
-        </h3>
-        <div class="align-self-center px-3 flex-grow-1 text-white">
-            @if($coupon->discount_type == 'amount')
-                <p class="fs-16 fw-500 mb-1">{{ single_price($coupon->discount) }} {{ translate('OFF') }}</p>
-            @else
-                <p class="fs-16 fw-500 mb-1">{{ $coupon->discount }}% {{ translate('OFF') }}</p>
-            @endif
-        </div>
-    </div>
+    <!-- Shop Name -->
+    <header class="kn-cpn-head">
+        <p class="kn-cpn-shop">{{ $name }}</p>
+        @if (\Request::route()->getName() == 'coupons.all')
+            <a
+                @if($coupon->user->user_type != 'admin')
+                    href="{{ route('shop.visit', $shop->slug) }}"
+                @else
+                    href="{{ route('inhouse.all') }}"
+                @endif
+                class="kn-link kn-cpn-visit"
+            >
+                {{ translate('Visit Store') }}
+            </a>
+        @endif
+    </header>
 
-    <!-- Middle design -->
-    <div class="d-flex jystify-content-between align-items-center w-100 position-absolute">
-        <span class="bg-white rounded-content" style="min-height: 48px; min-width: 48px; margin-left: -24px;"></span>
-        <hr class="border border-dashed border-white opacity-40 w-100 mx-2">
-        <span class="bg-white rounded-content" style="min-height: 48px; min-width: 48px; margin-right: -24px;"></span>
-    </div>
+    <!-- Discount -->
+    @if($coupon->discount_type == 'amount')
+        <p class="kn-cpn-off">{{ single_price($coupon->discount) }} {{ translate('OFF') }}</p>
+    @else
+        <p class="kn-cpn-off">{{ $coupon->discount }}% {{ translate('OFF') }}</p>
+    @endif
+
+    <div class="kn-cpn-cut" aria-hidden="true"></div>
 
     <!-- Coupon Details -->
-    <div class="position-absolute" style="bottom:1rem; left:2rem; right:2rem">
-        <div class="px-4 mt-2">
-            @if($coupon->type == 'product_base')
-                <!-- Coupon Products -->
-                @php $products = get_multiple_products($coupon_products); @endphp
-                <div class="aiz-carousel slick-left gutters-16" data-items="6" data-lg-items="6"  data-md-items="4" data-sm-items="4" data-xs-items="4" data-arrows='false' data-infinite='true' data-autoplay="true">
-                    @foreach($products as $key => $product)
-                        <a href="{{ route('product', $product->slug) }}" title="{{ $product->name }}" class='p-1 border border-transparent hov-border' target="_blank">
-                            <img class="img-fit mx-auto h-48px w-48px"
-                                src="{{ uploaded_asset($product->thumbnail_img) }}"
-                                data-src="{{ uploaded_asset($product->thumbnail_img) }}"
-                                onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';"
-                                alt="">
-                        </a>
-                    @endforeach
-                </div>
-            @elseif($coupon->type == 'cart_base')
-                <!-- Coupon Discount range -->
-                <span class="fs-12 text-white pb-lg-3 d-block m-auto ">
-                    @if($coupon->discount_type == 'amount')
-                        {{ translate('Min Spend ') }} <strong>{{ single_price($coupon_discount->min_buy) }}</strong> {{ translate('from') }} <strong>{{ $name }}</strong> {{ translate('to get') }} <strong>{{ single_price($coupon->discount) }}</strong> {{ translate('OFF on total orders') }}
-                    @else
-                        {{ translate('Min Spend ') }} <strong>{{ single_price($coupon_discount->min_buy) }}</strong> {{ translate('from') }} <strong>{{ $name }}</strong> {{ translate('to get') }} <strong>{{ $coupon->discount }}%</strong> {{ translate('OFF on total orders') }}
-                    @endif
-                </span>
-            @else
-                <span class="fs-12 text-white pb-lg-3 d-block m-auto ">
-                    @if($coupon->discount_type == 'amount')
-                        <strong>{{ single_price($coupon->discount) }}</strong> {{ translate('OFF on total orders within').' '.$coupon_discount->validation_days.' '.translate('days of registration') }}
-                    @else
-                        <strong>{{ $coupon->discount }}%</strong> {{ translate('OFF on total orders within').' '.$coupon_discount->validation_days.' '.translate('days of registration') }}
-                    @endif
-                </span>
-            @endif
-        </div>
-
-        <!-- Coupon Code -->
-        <div class="text-right">
-            <span class="fs-13 d-block mb-0 text-white">
-                {{ translate('Code') }}:
-                <span class="fw-600">{{ $coupon->code }}</span>
-                <span class="ml-2 text-white fs-16" style="cursor:pointer;" onclick="copyCouponCode('{{ $coupon->code }}')" data-toggle="tooltip" data-title="{{ translate('Copy the Code') }}" data-placement="top"><i class="las la-copy"></i></span>
-            </span>
-        </div>
+    <div class="kn-cpn-details">
+        @if($coupon->type == 'product_base')
+            <!-- Coupon Products -->
+            @php $products = get_multiple_products($coupon_products); @endphp
+            <div class="aiz-carousel slick-left gutters-16" data-items="6" data-lg-items="6"  data-md-items="4" data-sm-items="4" data-xs-items="4" data-arrows='false' data-infinite='true' data-autoplay="true">
+                @foreach($products as $key => $product)
+                    <a href="{{ route('product', $product->slug) }}" title="{{ $product->name }}" class="kn-cpn-thumb" target="_blank">
+                        <img class="img-fit mx-auto h-48px w-48px"
+                            src="{{ uploaded_asset($product->thumbnail_img) }}"
+                            data-src="{{ uploaded_asset($product->thumbnail_img) }}"
+                            onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';"
+                            alt="{{ $product->name }}">
+                    </a>
+                @endforeach
+            </div>
+        @elseif($coupon->type == 'cart_base')
+            <!-- Coupon Discount range -->
+            <p class="mb-0">
+                @if($coupon->discount_type == 'amount')
+                    {{ translate('Min Spend ') }} <strong>{{ single_price($coupon_discount->min_buy) }}</strong> {{ translate('from') }} <strong>{{ $name }}</strong> {{ translate('to get') }} <strong>{{ single_price($coupon->discount) }}</strong> {{ translate('OFF on total orders') }}
+                @else
+                    {{ translate('Min Spend ') }} <strong>{{ single_price($coupon_discount->min_buy) }}</strong> {{ translate('from') }} <strong>{{ $name }}</strong> {{ translate('to get') }} <strong>{{ $coupon->discount }}%</strong> {{ translate('OFF on total orders') }}
+                @endif
+            </p>
+        @else
+            <p class="mb-0">
+                @if($coupon->discount_type == 'amount')
+                    <strong>{{ single_price($coupon->discount) }}</strong> {{ translate('OFF on total orders within').' '.$coupon_discount->validation_days.' '.translate('days of registration') }}
+                @else
+                    <strong>{{ $coupon->discount }}%</strong> {{ translate('OFF on total orders within').' '.$coupon_discount->validation_days.' '.translate('days of registration') }}
+                @endif
+            </p>
+        @endif
     </div>
-</div>
+
+    <!-- Coupon Code -->
+    <footer class="kn-cpn-foot">
+        <span class="kn-cpn-code-wrap">
+            {{ translate('Code') }}:
+            <strong class="kn-cpn-code">{{ $coupon->code }}</strong>
+        </span>
+        <button type="button" class="kn-cpn-copy" onclick="copyCouponCode('{{ $coupon->code }}')"
+            data-toggle="tooltip" data-title="{{ translate('Copy the Code') }}" data-placement="top"
+            aria-label="{{ translate('Copy the Code') }}">
+            <i class="las la-copy" aria-hidden="true"></i>
+        </button>
+    </footer>
+</article>

@@ -1,25 +1,26 @@
 <!DOCTYPE html>
-<html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ in_array(app()->getLocale(), ['sa', 'ar', 'eg']) ? 'rtl' : 'ltr' }}">
 <head>
-    <title></title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ $page->getTranslation('title') }}</title>
     <link rel="stylesheet" href="{{ static_asset('assets/css/vendors.css') }}">
     <link rel="stylesheet" href="{{ static_asset('assets/css/aiz-core.css') }}">
     <link rel="stylesheet" href="{{ static_asset('assets/css/custom-style.css') }}">
+    @vite(['resources/css/storefront-compat.css'])
 </head>
 <body>
-    <section class="py-4 mb-4 bg-light">
-        <div class="container text-center">
-            <div class="row">
-                <div class="col-lg-6 text-center mx-auto">
-                    <h1 class="fw-600 h4">{{ $page->getTranslation('title') }}</h1>
+    <div class="kn-page">
+        <div class="kn-wrap">
+            <article class="kn-article">
+                <header class="kn-page-head">
+                    <h1 class="kn-page-title">{{ $page->getTranslation('title') }}</h1>
+                </header>
+                <div class="kn-prose">
+                    {!! $page->getTranslation('content') !!}
                 </div>
-            </div>
+            </article>
         </div>
-    </section>
-    <section class="mb-4">
-    	<div class="container-fluid">
-    		{!! $page->getTranslation('content') !!}
-    	</div>
-    </section>
+    </div>
 </body>
 </html>

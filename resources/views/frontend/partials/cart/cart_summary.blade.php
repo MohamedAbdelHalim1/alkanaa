@@ -1,5 +1,9 @@
-<div class="z-3 sticky-top-lg">
-    <div class="card rounded-0 border">
+@php
+    $knSumIsAr = in_array(app()->getLocale(), ['sa', 'ar', 'eg']);
+    $kst = fn ($ar, $en) => $knSumIsAr ? $ar : $en;
+@endphp
+<div class="kn-cart-sum-wrap">
+    <section class="kn-cart-sum" aria-labelledby="kn-cart-sum-title">
 
         @php
             $subtotal_for_min_order_amount = 0;
@@ -21,7 +25,6 @@
             }
         @endphp
 
-
         @foreach ($carts as $key => $cartItem)
             @php
                 $product = get_single_product($cartItem['product_id']);
@@ -41,175 +44,146 @@
             @endphp
         @endforeach
 
-        <div class="card-header pt-4 pb-1 border-bottom-0 justify-content-center text-center">
-            <h3 class="fs-16 fw-700 mb-0">{{ translate('Order Summary') }}</h3>
-            <div class="text-right">
-                <!-- Minimum Order Amount -->
-                @if (get_setting('minimum_order_amount_check') == 1 &&
-                        $subtotal_for_min_order_amount < get_setting('minimum_order_amount'))
-                    <span class="badge badge-inline badge-warning fs-12 rounded-0 px-2">
-                        {{ translate('Minimum Order Amount') . ' ' . single_price(get_setting('minimum_order_amount')) }}
-                    </span>
-                @endif
+        <header class="kn-cart-sum-head">
+            <h2 class="kn-cart-sum-title" id="kn-cart-sum-title">{{ translate('Order Summary') }}</h2>
+            <span class="kn-cart-sum-count">{{ count($carts) }} {{ translate('Products') }}</span>
+        </header>
+
+        <!-- Minimum Order Amount -->
+        @if (get_setting('minimum_order_amount_check') == 1 &&
+                $subtotal_for_min_order_amount < get_setting('minimum_order_amount'))
+            <p class="kn-cart-sum-alert">
+                {{ translate('Minimum Order Amount') . ' ' . single_price(get_setting('minimum_order_amount')) }}
+            </p>
+        @endif
+
+        <input type="hidden" id="sub_total" value="{{ $subtotal }}">
+
+        <dl class="kn-cart-sum-rows">
+            <!-- Subtotal -->
+            <div class="kn-cart-sum-row cart-subtotal">
+                <dt>{{ translate('Subtotal') }} ({{ sprintf('%02d', count($carts)) }} {{ translate('Products') }})</dt>
+                <dd>{{ single_price($subtotal) }}</dd>
             </div>
+            <!-- Tax -->
+            <div class="kn-cart-sum-row cart-tax">
+                <dt>{{ translate('Tax') }}</dt>
+                <dd>{{ single_price($tax) }}</dd>
+            </div>
+            @if ($proceed != 1)
+                <!-- Total Shipping -->
+                <div class="kn-cart-sum-row cart-shipping">
+                    <dt>{{ translate('Total Shipping') }}</dt>
+                    <dd>{{ single_price($shipping) }}</dd>
+                </div>
+            @else
+                <div class="kn-cart-sum-row is-muted">
+                    <dt>{{ translate('Shipping') }}</dt>
+                    <dd>{{ $kst('تُحسب عند إتمام الطلب', 'Calculated at checkout') }}</dd>
+                </div>
+            @endif
+            <!-- Redeem point -->
+            @if (Session::has('club_point'))
+                <div class="kn-cart-sum-row is-discount cart-club-point">
+                    <dt>{{ translate('Redeem point') }}</dt>
+                    <dd>{{ single_price(Session::get('club_point')) }}</dd>
+                </div>
+            @endif
+            <!-- Coupon Discount -->
+            @if ($coupon_discount > 0)
+                <div class="kn-cart-sum-row is-discount cart-coupon-discount">
+                    <dt>{{ translate('Coupon Discount') }}</dt>
+                    <dd>{{ single_price($coupon_discount) }}</dd>
+                </div>
+            @endif
+
+            @if ($service_total > 0)
+                <div class="kn-cart-sum-row cart-service-fee">
+                    <dt>{{ translate('Service Fee') }}</dt>
+                    <dd>{{ single_price($service_total) }}</dd>
+                </div>
+            @endif
+        </dl>
+
+        @php
+            $total = $subtotal + $tax + $shipping + $service_total;
+            if (Session::has('club_point')) {
+                $total -= Session::get('club_point');
+            }
+            if ($coupon_discount > 0) {
+                $total -= $coupon_discount;
+            }
+        @endphp
+        <!-- Total -->
+        <div class="kn-cart-sum-total cart-total">
+            <span>{{ translate('Total') }}</span>
+            <strong>{{ single_price($total) }}</strong>
         </div>
 
-        <div class="card-body pt-2 justify-content-center">
-
-            <div class="row gutters-5 justify-content-center">
-                <!-- Total Products -->
-                <div class="@if (addon_is_activated('club_point')) col-8 text-center @else col-12 @endif">
-                    <div class="d-flex align-items-center justify-content-center bg-primary p-2">
-                        <span class="fs-13 text-white">{{ translate('Total Products') }}</span>
-                        <span class="fs-13 fw-700 text-white"> ({{ sprintf('%2d', count($carts)) }})</span>
-                    </div>
-                </div>
-                {{-- @if (addon_is_activated('club_point'))
-                    <!-- Total Clubpoint -->
-                    <div class="col-6">
-                        <div class="d-flex align-items-center justify-content-between bg-secondary-base p-2">
-                            <span class="fs-13 text-white">{{ translate('Total Clubpoint') }}</span>
-                            <span class="fs-13 fw-700 text-white">{{ sprintf('%02d', $total_point) }}</span>
-                        </div>
-                    </div>
-                @endif --}}
-            </div>
-
-            <input type="hidden" id="sub_total" value="{{ $subtotal }}">
-
-            <table class="table my-3">
-                <tfoot>
-                    <!-- Subtotal -->
-                    <tr class="cart-subtotal">
-                        <th class="pl-0 fs-14 fw-400 pt-0 pb-2 text-dark border-top-0">{{ translate('Subtotal') }}
-                            ({{ sprintf('%02d', count($carts)) }} {{ translate('Products') }})</th>
-                        <td class="text-right pr-0 fs-14 pt-0 pb-2 text-dark border-top-0">
-                            {{ single_price($subtotal) }}</td>
-                    </tr>
-                    <!-- Tax -->
-                    <tr class="cart-tax">
-                        <th class="pl-0 fs-14 fw-400 pt-0 pb-2 text-dark border-top-0">{{ translate('Tax') }}</th>
-                        <td class="text-right pr-0 fs-14 pt-0 pb-2 text-dark border-top-0">{{ single_price($tax) }}
-                        </td>
-                    </tr>
-                    @if ($proceed != 1)
-                        <!-- Total Shipping -->
-                        <tr class="cart-shipping">
-                            <th class="pl-0 fs-14 fw-400 pt-0 pb-2 text-dark border-top-0">
-                                {{ translate('Total Shipping') }}</th>
-                            <td class="text-right pr-0 fs-14 pt-0 pb-2 text-dark border-top-0">
-                                {{ single_price($shipping) }}</td>
-                        </tr>
-                    @endif
-                    <!-- Redeem point -->
-                    @if (Session::has('club_point'))
-                        <tr class="cart-club-point">
-                            <th class="pl-0 fs-14 fw-400 pt-0 pb-2 text-dark border-top-0">
-                                {{ translate('Redeem point') }}</th>
-                            <td class="text-right pr-0 fs-14 pt-0 pb-2 text-dark border-top-0">
-                                {{ single_price(Session::get('club_point')) }}</td>
-                        </tr>
-                    @endif
-                    <!-- Coupon Discount -->
-                    @if ($coupon_discount > 0)
-                        <tr class="cart-coupon-discount">
-                            <th class="pl-0 fs-14 fw-400 pt-0 pb-2 text-dark border-top-0">
-                                {{ translate('Coupon Discount') }}</th>
-                            <td class="text-right pr-0 fs-14 pt-0 pb-2 text-dark border-top-0">
-                                {{ single_price($coupon_discount) }}</td>
-                        </tr>
-                    @endif
-
-                    @if ($service_total > 0)
-                        <tr class="cart-service-fee">
-                            <th class="pl-0 fs-14 fw-400 pt-0 pb-2 text-danger border-top-0">
-                                {{ translate('Service Fee') }}
-                            </th>
-                            <td class="text-right pr-0 fs-14 pt-0 pb-2 text-danger border-top-0">
-                                {{ single_price($service_total) }}
-                            </td>
-                        </tr>
-                    @endif
-
-
-                    @php
-                        $total = $subtotal + $tax + $shipping + $service_total;
-                        if (Session::has('club_point')) {
-                            $total -= Session::get('club_point');
-                        }
-                        if ($coupon_discount > 0) {
-                            $total -= $coupon_discount;
-                        }
-                    @endphp
-                    <!-- Total -->
-                    <tr class="cart-total">
-                        <th class="pl-0 fs-14 text-dark fw-700 border-top-0 pt-3 text-uppercase">
-                            {{ translate('Total') }}</th>
-                        <td class="text-right pr-0 fs-16 fw-700 text-primary border-top-0 pt-3">
-                            {{ single_price($total) }}</td>
-                    </tr>
-                </tfoot>
-            </table>
-
-            <!-- Coupon System -->
-            @if (get_setting('coupon_system') == 1)
+        <!-- Coupon System -->
+        @if (get_setting('coupon_system') == 1)
+            <div class="kn-cart-coupon">
                 @if ($coupon_discount > 0 && $coupon_code)
-                    <div class="mt-3">
-                        <form class="" id="remove-coupon-form" enctype="multipart/form-data">
-                            @csrf
-                            <input type="hidden" name="proceed" value="{{ $proceed }}">
-                            <div class="input-group">
-                                <div class="form-control">{{ $coupon_code }}</div>
-                                <div class="input-group-append">
-                                    <button type="button" id="coupon-remove"
-                                        class="btn btn-primary">{{ translate('Change Coupon') }}</button>
-                                </div>
+                    <form class="" id="remove-coupon-form" enctype="multipart/form-data">
+                        @csrf
+                        <input type="hidden" name="proceed" value="{{ $proceed }}">
+                        <span class="kn-cart-coupon-label">{{ $kst('كود الخصم المطبّق', 'Applied coupon') }}</span>
+                        <div class="kn-cart-coupon-row">
+                            <div class="kn-cart-coupon-applied">
+                                <i class="las la-ticket-alt" aria-hidden="true"></i>
+                                <span>{{ $coupon_code }}</span>
                             </div>
-                        </form>
-                    </div>
+                            <button type="button" id="coupon-remove"
+                                class="kn-btn kn-co-btn-outline">{{ translate('Change Coupon') }}</button>
+                        </div>
+                    </form>
                 @else
-                    <div class="mt-3">
-                        <form class="" id="apply-coupon-form" enctype="multipart/form-data">
-                            @csrf
-                            <input type="hidden" name="proceed" value="{{ $proceed }}">
-                            <div class="input-group">
-                                <input type="text" class="form-control rounded-0" name="code"
-                                    onkeydown="return event.key != 'Enter';"
-                                    placeholder="{{ translate('Have coupon code? Apply here') }}" required>
-                                <div class="input-group-append">
-                                    <button type="button" id="coupon-apply"
-                                        class="btn btn-primary rounded-0">{{ translate('Apply') }}</button>
-                                </div>
-                            </div>
-                            @if (!auth()->check())
-                                <small>{{ translate('You must Login as customer to apply coupon') }}</small>
-                            @endif
-
-                        </form>
-                    </div>
+                    <form class="" id="apply-coupon-form" enctype="multipart/form-data">
+                        @csrf
+                        <input type="hidden" name="proceed" value="{{ $proceed }}">
+                        <label for="kn-coupon-code" class="kn-cart-coupon-label">{{ $kst('كود الخصم', 'Coupon code') }}</label>
+                        <div class="kn-cart-coupon-row">
+                            <input type="text" id="kn-coupon-code" class="form-control" name="code"
+                                onkeydown="return event.key != 'Enter';"
+                                placeholder="{{ translate('Have coupon code? Apply here') }}" required>
+                            <button type="button" id="coupon-apply"
+                                class="kn-btn kn-co-btn-outline">{{ translate('Apply') }}</button>
+                        </div>
+                        @if (!auth()->check())
+                            <small class="kn-cart-coupon-hint">{{ translate('You must Login as customer to apply coupon') }}</small>
+                        @endif
+                    </form>
                 @endif
-            @endif
+            </div>
+        @endif
 
+        @if ($proceed == 1)
+            <!-- Continue to Checkout -->
+            <div class="kn-cart-sum-actions">
+                <a href="{{ route('checkout') }}" class="kn-btn kn-btn-primary kn-co-btn-lg kn-co-btn-block">
+                    {{ translate('Proceed to Checkout') }}
+                </a>
+                <span class="kn-cart-sum-or">{{ translate('OR') }}</span>
+                <a href="{{ route('quotation.post') }}" class="kn-btn kn-co-btn-outline kn-co-btn-block">
+                    <i class="fa-regular fa-file-lines" aria-hidden="true"></i>
+                    {{ translate('get_a_quote') }}
+                </a>
+            </div>
+        @endif
+    </section>
+
+    @if (count($carts) > 0)
+        <!-- Mobile: sticky total + primary action, sits above the bottom nav -->
+        <div class="kn-cart-sumbar d-lg-none">
+            <div class="kn-cart-sumbar-total">
+                <span>{{ translate('Total') }}</span>
+                <strong>{{ single_price($total) }}</strong>
+            </div>
             @if ($proceed == 1)
-                <!-- Continue to Shipping -->
-                <div class="row mt-4 justify-content-center">
-
-                    <div class="col-6" style="width: max-content">
-                        <a href="{{ route('checkout') }}"
-                            class="btn btn-primary btn-block fs-14 fw-700 rounded-0 px-4">
-                            {{ translate('Proceed to Checkout') }} 
-                        </a>
-                    </div>
-                    {{ translate("OR") }}
-                    <div class="col-6" style="width: max-content">
-                        <a href="{{ route('quotation.post') }}"
-                            class="btn btn-success btn-block fs-14 fw-700 rounded-0 px-4">
-                            {{ translate('get_a_quote') }} 
-                        </a>
-                    </div>
-                </div>
+                <a href="{{ route('checkout') }}" class="kn-btn kn-btn-primary">{{ translate('Proceed to Checkout') }}</a>
+            @else
+                <a href="#kn-place-order" class="kn-btn kn-btn-primary">{{ $kst('المتابعة للدفع', 'Continue to payment') }}</a>
             @endif
-
         </div>
-    </div>
+    @endif
 </div>

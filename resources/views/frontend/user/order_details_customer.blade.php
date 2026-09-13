@@ -1,117 +1,119 @@
 @extends('frontend.layouts.user_panel')
 
 @section('panel_content')
+    @php
+        $shipping = json_decode($order->shipping_address);
+    @endphp
+
     <!-- Order id -->
-    <div class="aiz-titlebar mb-4">
-        <div class="row align-items-center">
-            <div class="col-md-6">
-                <h1 class="fs-20 fw-700 text-dark">{{ translate('Order id') }}: {{ $order->code }}</h1>
-            </div>
+    <div class="kn-page-head">
+        <div>
+            <a href="{{ route('purchase_history.index') }}" class="kn-auth-back" style="margin-top:0;">
+                <i class="las la-arrow-left" aria-hidden="true"></i> {{ translate('Purchase History') }}
+            </a>
+            <h1 class="kn-page-title">{{ translate('Order id') }}: <bdi>{{ $order->code }}</bdi></h1>
         </div>
+        <a class="kn-btn kn-btn-outline" href="{{ route('invoice.download', $order->id) }}">
+            <i class="las la-download" aria-hidden="true"></i>
+            <span>{{ translate('Download Invoice') }}</span>
+        </a>
     </div>
 
     <!-- Order Summary -->
-    <div class="card rounded-0 shadow-none border mb-4">
-        <div class="card-header border-bottom-0">
-            <h5 class="fs-16 fw-700 text-dark mb-0">{{ translate('Order Summary') }}</h5>
+    <section class="kn-panel">
+        <div class="kn-panel-head">
+            <h2 class="kn-panel-title">{{ translate('Order Summary') }}</h2>
+            <span class="kn-status is-info">{{ translate(ucfirst(str_replace('_', ' ', $order->delivery_status))) }}</span>
         </div>
-        <div class="card-body">
-            <div class="row">
-
-                <div class="col-lg-6">
-                    <table class="table-borderless table">
-                        <tr>
-                            <td class="w-50 fw-600">{{ translate('Order Code') }}:</td>
-                            <td>{{ $order->code }}</td>
-                        </tr>
-                        <tr>
-                            <td class="w-50 fw-600">{{ translate('Customer') }}:</td>
-                            <td>{{ json_decode($order->shipping_address)->name }}</td>
-                        </tr>
-                        <tr>
-                            <td class="w-50 fw-600">{{ translate('Email') }}:</td>
-                            @if ($order->user_id != null)
-                                <td>{{ $order->user->email }}</td>
-                            @endif
-                        </tr>
-                        <tr>
-                            <td class="w-50 fw-600">{{ translate('Shipping address') }}:</td>
-                            <td>{{ json_decode($order->shipping_address)->address }},
-                                {{ json_decode($order->shipping_address)->city }},
-                                @if(isset(json_decode($order->shipping_address)->state)) {{ json_decode($order->shipping_address)->state }} - @endif
-                                {{ json_decode($order->shipping_address)->postal_code }},
-                                {{ json_decode($order->shipping_address)->country }}
-                            </td>
-                        </tr>
-                    </table>
+        <div class="kn-panel-body">
+            <dl class="kn-kv is-2col">
+                <div>
+                    <dt>{{ translate('Order Code') }}</dt>
+                    <dd><bdi>{{ $order->code }}</bdi></dd>
                 </div>
-                <div class="col-lg-6">
-                    <table class="table-borderless table">
-                        <tr>
-                            <td class="w-50 fw-600">{{ translate('Order date') }}:</td>
-                            <td>{{ date('d-m-Y H:i A', $order->date) }}</td>
-                        </tr>
-                        <tr>
-                            <td class="w-50 fw-600">{{ translate('Order status') }}:</td>
-                            <td>{{ translate(ucfirst(str_replace('_', ' ', $order->delivery_status))) }}</td>
-                        </tr>
-                        <tr>
-                            <td class="w-50 fw-600">{{ translate('Total order amount') }}:</td>
-                            <td>{{ single_price($order->orderDetails->sum('price') + $order->orderDetails->sum('tax')) }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="w-50 fw-600">{{ translate('Shipping method') }}:</td>
-                            <td>{{ translate('Flat shipping rate') }}</td>
-                        </tr>
-                        <tr>
-                            <td class="w-50 fw-600">{{ translate('Payment method') }}:</td>
-                            <td>{{ ucfirst(translate(str_replace('_', ' ', $order->payment_type))) }}</td>
-                        </tr>
-                        <tr>
-                            <td class="text-main text-bold">{{ translate('Additional Info') }}</td>
-                            <td class="">{{ $order->additional_info }}</td>
-                        </tr>
-                        @if ($order->tracking_code)
-                            <tr>
-                                <td class="w-50 fw-600">{{ translate('Tracking code') }}:</td>
-                                <td>{{ $order->tracking_code }}</td>
-                            </tr>
+                <div>
+                    <dt>{{ translate('Order date') }}</dt>
+                    <dd>{{ date('d-m-Y H:i A', $order->date) }}</dd>
+                </div>
+                <div>
+                    <dt>{{ translate('Customer') }}</dt>
+                    <dd>{{ $shipping->name }}</dd>
+                </div>
+                <div>
+                    <dt>{{ translate('Order status') }}</dt>
+                    <dd>{{ translate(ucfirst(str_replace('_', ' ', $order->delivery_status))) }}</dd>
+                </div>
+                <div>
+                    <dt>{{ translate('Email') }}</dt>
+                    <dd>
+                        @if ($order->user_id != null)
+                            {{ $order->user->email }}
                         @endif
-                    </table>
+                    </dd>
                 </div>
-            </div>
+                <div>
+                    <dt>{{ translate('Total order amount') }}</dt>
+                    <dd>{{ single_price($order->orderDetails->sum('price') + $order->orderDetails->sum('tax')) }}</dd>
+                </div>
+                <div>
+                    <dt>{{ translate('Shipping address') }}</dt>
+                    <dd>{{ $shipping->address }},
+                        {{ $shipping->city }},
+                        @if (isset($shipping->state)) {{ $shipping->state }} - @endif
+                        {{ $shipping->postal_code }},
+                        {{ $shipping->country }}
+                    </dd>
+                </div>
+                <div>
+                    <dt>{{ translate('Shipping method') }}</dt>
+                    <dd>{{ translate('Flat shipping rate') }}</dd>
+                </div>
+                <div>
+                    <dt>{{ translate('Payment method') }}</dt>
+                    <dd>{{ ucfirst(translate(str_replace('_', ' ', $order->payment_type))) }}</dd>
+                </div>
+                <div>
+                    <dt>{{ translate('Additional Info') }}</dt>
+                    <dd>{{ $order->additional_info }}</dd>
+                </div>
+                @if ($order->tracking_code)
+                    <div>
+                        <dt>{{ translate('Tracking code') }}</dt>
+                        <dd><bdi>{{ $order->tracking_code }}</bdi></dd>
+                    </div>
+                @endif
+            </dl>
         </div>
-    </div>
+    </section>
 
     <!-- Order Details -->
-    <div class="row gutters-16">
-        <div class="col-md-9">
-            <div class="card rounded-0 shadow-none border mt-2 mb-4">
-                <div class="card-header border-bottom-0">
-                    <h5 class="fs-16 fw-700 text-dark mb-0">{{ translate('Order Details') }}</h5>
-                </div>
-                <div class="card-body table-responsive">
+    <div class="kn-order-layout">
+        <section class="kn-panel">
+            <div class="kn-panel-head">
+                <h2 class="kn-panel-title">{{ translate('Order Details') }}</h2>
+            </div>
+            <div class="kn-panel-body is-flush">
+                <div class="kn-table-scroll">
                     <table class="aiz-table table">
-                        <thead class="text-gray fs-12">
+                        <thead>
                             <tr>
-                                <th class="pl-0">#</th>
-                                <th width="30%">{{ translate('Product') }}</th>
-                                <th data-breakpoints="md">{{ translate('Variation') }}</th>
+                                <th>#</th>
+                                <th>{{ translate('Product') }}</th>
+                                <th>{{ translate('Variation') }}</th>
                                 <th>{{ translate('Quantity') }}</th>
-                                <th data-breakpoints="md">{{ translate('Delivery Type') }}</th>
+                                <th>{{ translate('Delivery Type') }}</th>
                                 <th>{{ translate('Price') }}</th>
                                 @if (addon_is_activated('refund_request'))
-                                    <th data-breakpoints="md">{{ translate('Refund') }}</th>
+                                    <th>{{ translate('Refund') }}</th>
                                 @endif
-                                <th data-breakpoints="md" class="text-right pr-0">{{ translate('Review') }}</th>
+                                <th class="kn-td-end">{{ translate('Review') }}</th>
                             </tr>
                         </thead>
-                        <tbody class="fs-14">
+                        <tbody>
                             @foreach ($order->orderDetails as $key => $orderDetail)
                                 <tr>
-                                    <td class="pl-0">{{ sprintf('%02d', $key+1) }}</td>
-                                    <td>
+                                    <td>{{ sprintf('%02d', $key + 1) }}</td>
+                                    <td style="min-width: 180px;">
                                         @if ($orderDetail->product != null && $orderDetail->product->auction_product == 0)
                                             <a href="{{ route('product', $orderDetail->product->slug) }}"
                                                 target="_blank">{{ $orderDetail->product->getTranslation('name') }}</a>
@@ -156,7 +158,7 @@
                                         @endphp
                                         <td>
                                             @if ($orderDetail->product != null && $orderDetail->product->refundable != 0 && $orderDetail->refund_request == null && $today_date <= $last_refund_date && $order->payment_status == 'paid' && $order->delivery_status == 'delivered')
-                                                <a href="{{ route('refund_request_send_page', $orderDetail->id) }}" class="btn btn-primary btn-sm rounded-0">{{ translate('Send') }}</a>
+                                                <a href="{{ route('refund_request_send_page', $orderDetail->id) }}" class="btn btn-primary btn-sm">{{ translate('Send') }}</a>
                                             @elseif ($orderDetail->refund_request != null && $orderDetail->refund_request->refund_status == 0)
                                                 <b class="text-info">{{ translate('Pending') }}</b>
                                             @elseif ($orderDetail->refund_request != null && $orderDetail->refund_request->refund_status == 2)
@@ -170,13 +172,13 @@
                                             @endif
                                         </td>
                                     @endif
-                                    <td class="text-xl-right pr-0">
+                                    <td class="kn-td-end">
                                         @if ($orderDetail->delivery_status == 'delivered')
                                             <a href="javascript:void(0);"
                                                 onclick="product_review('{{ $orderDetail->product_id }}')"
-                                                class="btn btn-primary btn-sm rounded-0"> {{ translate('Review') }} </a>
+                                                class="btn btn-primary btn-sm"> {{ translate('Review') }} </a>
                                         @else
-                                            <span class="text-danger">{{ translate('Not Delivered Yet') }}</span>
+                                            <span class="text-muted">{{ translate('Not Delivered Yet') }}</span>
                                         @endif
                                     </td>
                                 </tr>
@@ -185,63 +187,51 @@
                     </table>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <!-- Order Ammount -->
-        <div class="col-md-3">
-            <div class="card rounded-0 shadow-none border mt-2">
-                <div class="card-header border-bottom-0">
-                    <b class="fs-16 fw-700 text-dark">{{ translate('Order Ammount') }}</b>
+        <!-- Order Amount -->
+        <aside class="kn-order-side">
+            <section class="kn-panel">
+                <div class="kn-panel-head">
+                    <h2 class="kn-panel-title">{{ translate('Order Ammount') }}</h2>
                 </div>
-                <div class="card-body pb-0">
-                    <table class="table-borderless table">
-                        <tbody>
-                            <tr>
-                                <td class="w-50 fw-600">{{ translate('Subtotal') }}</td>
-                                <td class="text-right">
-                                    <span class="strong-600">{{ single_price($order->orderDetails->sum('price')) }}</span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="w-50 fw-600">{{ translate('Shipping') }}</td>
-                                <td class="text-right">
-                                    <span class="text-italic">{{ single_price($order->orderDetails->sum('shipping_cost')) }}</span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="w-50 fw-600">{{ translate('Tax') }}</td>
-                                <td class="text-right">
-                                    <span class="text-italic">{{ single_price($order->orderDetails->sum('tax')) }}</span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="w-50 fw-600">{{ translate('Coupon') }}</td>
-                                <td class="text-right">
-                                    <span class="text-italic">{{ single_price($order->coupon_discount) }}</span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="w-50 fw-600">{{ translate('Total') }}</td>
-                                <td class="text-right">
-                                    <strong>{{ single_price($order->grand_total) }}</strong>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            @if ($order->payment_status == 'unpaid' && $order->delivery_status == 'pending' && $order->manual_payment == 0)
-                <button
-                    @if(addon_is_activated('offline_payment'))
-                        onclick="select_payment_type({{ $order->id }})"
-                    @else
-                        onclick="online_payment({{ $order->id }})"
+                <div class="kn-panel-body">
+                    <dl class="kn-kv">
+                        <div>
+                            <dt>{{ translate('Subtotal') }}</dt>
+                            <dd>{{ single_price($order->orderDetails->sum('price')) }}</dd>
+                        </div>
+                        <div>
+                            <dt>{{ translate('Shipping') }}</dt>
+                            <dd>{{ single_price($order->orderDetails->sum('shipping_cost')) }}</dd>
+                        </div>
+                        <div>
+                            <dt>{{ translate('Tax') }}</dt>
+                            <dd>{{ single_price($order->orderDetails->sum('tax')) }}</dd>
+                        </div>
+                        <div>
+                            <dt>{{ translate('Coupon') }}</dt>
+                            <dd>{{ single_price($order->coupon_discount) }}</dd>
+                        </div>
+                        <div class="is-total">
+                            <dt>{{ translate('Total') }}</dt>
+                            <dd>{{ single_price($order->grand_total) }}</dd>
+                        </div>
+                    </dl>
+                    @if ($order->payment_status == 'unpaid' && $order->delivery_status == 'pending' && $order->manual_payment == 0)
+                        <button type="button"
+                            @if (addon_is_activated('offline_payment'))
+                                onclick="select_payment_type({{ $order->id }})"
+                            @else
+                                onclick="online_payment({{ $order->id }})"
+                            @endif
+                            class="kn-btn kn-btn-primary">
+                            {{ translate('Make Payment') }}
+                        </button>
                     @endif
-                    class="btn btn-block btn-primary">
-                    {{ translate('Make Payment') }}
-                </button>
-            @endif
-        </div>
+                </div>
+            </section>
+        </aside>
     </div>
 @endsection
 
@@ -265,23 +255,17 @@
                 </div>
                 <div class="modal-body">
                     <input type="hidden" id="order_id" name="order_id" value="{{ $order->id }}">
-                    <div class="row">
-                        <div class="col-md-2">
-                            <label>{{ translate('Payment Type') }}</label>
-                        </div>
-                        <div class="col-md-10">
-                            <div class="mb-3">
-                                <select class="form-control aiz-selectpicker rounded-0" onchange="payment_modal(this.value)"
-                                    data-minimum-results-for-search="Infinity">
-                                    <option value="">{{ translate('Select One') }}</option>
-                                    <option value="online">{{ translate('Online payment') }}</option>
-                                    <option value="offline">{{ translate('Offline payment') }}</option>
-                                </select>
-                            </div>
-                        </div>
+                    <div class="kn-field">
+                        <label>{{ translate('Payment Type') }}</label>
+                        <select class="form-control aiz-selectpicker" onchange="payment_modal(this.value)"
+                            data-minimum-results-for-search="Infinity">
+                            <option value="">{{ translate('Select One') }}</option>
+                            <option value="online">{{ translate('Online payment') }}</option>
+                            <option value="offline">{{ translate('Offline payment') }}</option>
+                        </select>
                     </div>
                     <div class="form-group text-right">
-                        <button type="button" class="btn btn-sm btn-primary rounded-0 transition-3d-hover mr-1"
+                        <button type="button" class="btn btn-sm btn-light transition-3d-hover mr-1"
                             id="payment_select_type_modal_cancel" data-dismiss="modal">{{ translate('Cancel') }}</button>
                     </div>
                 </div>
@@ -302,27 +286,21 @@
                         method="post">
                         @csrf
                         <input type="hidden" name="order_id" value="{{ $order->id }}">
-                        <div class="row">
-                            <div class="col-md-2">
-                                <label>{{ translate('Payment Method') }}</label>
-                            </div>
-                            <div class="col-md-10">
-                            <div class="mb-3">
-                                <select class="form-control selectpicker rounded-0" data-live-search="true" name="payment_option" required>
-                                    @include('partials.online_payment_options')
-                                    @if (get_setting('wallet_system') == 1 && (auth()->user()->balance >= $order->grand_total))
-                                        <option value="wallet">{{ translate('Wallet') }}</option>
-                                    @endif
-                                </select>
-                            </div>
-                            </div>
+                        <div class="kn-field">
+                            <label>{{ translate('Payment Method') }}</label>
+                            <select class="form-control selectpicker" data-live-search="true" name="payment_option" required>
+                                @includeIf('partials.online_payment_options')
+                                @if (get_setting('wallet_system') == 1 && (auth()->user()->balance >= $order->grand_total))
+                                    <option value="wallet">{{ translate('Wallet') }}</option>
+                                @endif
+                            </select>
                         </div>
 
                         <div class="form-group text-right">
-                            <button type="button" class="btn btn-sm btn-secondary rounded-0 transition-3d-hover mr-1"
+                            <button type="button" class="btn btn-sm btn-light transition-3d-hover mr-1"
                                 data-dismiss="modal">{{ translate('cancel') }}</button>
                             <button type="submit"
-                                class="btn btn-sm btn-primary rounded-0 transition-3d-hover mr-1">{{ translate('Confirm') }}</button>
+                                class="btn btn-sm btn-primary transition-3d-hover mr-1">{{ translate('Confirm') }}</button>
                         </div>
                     </form>
                 </div>

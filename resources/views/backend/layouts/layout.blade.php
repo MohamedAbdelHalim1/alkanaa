@@ -18,7 +18,9 @@
 	<title>{{ get_setting('website_name').' | '.get_setting('site_motto') }}</title>
 
 	<!-- google font -->
-	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@100;200;300;400;500;600;700&display=swap" rel="stylesheet">
 
 	<!-- aiz core css -->
 	<link rel="stylesheet" href="{{ static_asset('assets/css/vendors.css') }}">
@@ -29,7 +31,8 @@
 
     <style>
         body {
-            font-size: 12px;
+            font-size: 13px;
+            font-family: 'IBM Plex Sans Arabic', sans-serif;
         }
     </style>
 	<script>

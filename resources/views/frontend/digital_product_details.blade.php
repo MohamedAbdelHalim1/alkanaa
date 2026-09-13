@@ -33,9 +33,10 @@
 @endsection
 
 @section('content')
-    <section class="mb-4 pt-3">
-        <div class="container">
-            <div class="bg-white shadow-sm rounded p-3">
+    <div class="kn-pd-legacy">
+    <section class="kn-pd-main">
+        <div class="kn-wrap">
+            <div class="kn-pd-panel-box">
                 <div class="row">
                     <!-- Product Photos -->
                     <div class="col-xl-5 col-lg-6 mb-4">
@@ -79,7 +80,7 @@
                     <div class="col-xl-7 col-lg-6">
                         <div class="text-left">
                             <!-- Product Name -->
-                            <h1 class="mb-4 fs-16 fw-700 text-dark">
+                            <h1 class="kn-pd-title mb-3">
                                 {{ $detailedProduct->getTranslation('name') }}
                             </h1>
 
@@ -201,7 +202,7 @@
                                     <div class="col-sm-10">
                                         <div class="d-flex align-items-center">
                                             <!-- Discount Price -->
-                                            <strong class="fs-16 fw-700 text-primary">
+                                            <strong class="kn-pd-price-now">
                                                 {{ home_discounted_price($detailedProduct) }}
                                             </strong>
                                             <!-- Home Price -->
@@ -243,7 +244,7 @@
                                     <div class="col-sm-10">
                                         <div class="">
                                             <!-- Discount Price -->
-                                            <strong class="fs-16 fw-700 text-primary">
+                                            <strong class="kn-pd-price-now">
                                                 {{ home_discounted_price($detailedProduct) }}
                                             </strong>
                                             <!-- Unit -->
@@ -293,12 +294,12 @@
                             </form>
 
                             <!-- Add to cart & Buy now Buttons -->
-                            <div class="mt-3">
-                                <button type="button" class="btn btn-secondary-base mr-2 add-to-cart fw-600 w-150px rounded-0 text-white" @if (Auth::check() || get_Setting('guest_checkout_activation') == 1) onclick="addToCart()" @else onclick="showLoginModal()" @endif>
+                            <div class="kn-pd-actions">
+                                <button type="button" class="btn btn-primary add-to-cart fw-600" @if (Auth::check() || get_Setting('guest_checkout_activation') == 1) onclick="addToCart()" @else onclick="showLoginModal()" @endif>
                                     <i class="las la-shopping-bag"></i>
-                                    <span class="d-none d-md-inline-block"> {{ translate('Add to cart')}}</span>
+                                    <span> {{ translate('Add to cart')}}</span>
                                 </button>
-                                <button type="button" class="btn btn-primary buy-now fw-600 add-to-cart w-150px rounded-0" onclick="buyNow()">
+                                <button type="button" class="btn btn-outline-primary buy-now fw-600 add-to-cart" onclick="buyNow()">
                                     <i class="la la-shopping-cart"></i> {{ translate('Buy Now')}}
                                 </button>
                             </div>
@@ -382,8 +383,8 @@
         </div>
     </section>
 
-    <section class="mb-4">
-        <div class="container">
+    <section class="kn-section">
+        <div class="kn-wrap">
             <div class="row gutters-16">
 
                 <!-- Left side -->
@@ -528,7 +529,7 @@
                 <div class="col-xl-9 order-0 order-xl-1">
 
                     <!-- Description, Video, Downloads -->
-                    <div class="bg-white mb-4 border p-4">
+                    <div class="kn-pd-panel-box mb-4">
                         <!-- Tabs -->
                         <div class="nav aiz-nav-tabs">
                             <a href="#tab_default_1" data-toggle="tab"
@@ -550,7 +551,7 @@
                             <!-- Description -->
                             <div class="tab-pane fade active show" id="tab_default_1">
                                 <div class="py-5">
-                                    <div class="mw-100 overflow-hidden text-left aiz-editor-data">
+                                    <div class="mw-100 overflow-hidden text-left aiz-editor-data kn-pd-prose">
                                         <?php echo $detailedProduct->getTranslation('description'); ?>
                                     </div>
                                 </div>
@@ -792,6 +793,7 @@
             </div>
         </div>
     </section>
+    </div>
 @endsection
 
 @section('modal')

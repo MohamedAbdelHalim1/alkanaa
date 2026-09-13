@@ -1,461 +1,400 @@
-<style>
-    :root {
-        --nav-brand: #ae2025;
-    }
+@php
+    $navLocale = app()->getLocale();
+    $navIsAr = in_array($navLocale, ['sa', 'ar', 'eg']);
+    $nt = fn ($ar, $en) => $navIsAr ? $ar : $en;
+    $header_logo = get_setting('header_logo');
+    $siteName = get_setting('website_name') ?? 'AlKanaa';
+    $phone = get_setting('contact_phone') ?? '966565124444';
+    $motto = $nt('الخيار الأول للمطابخ التجارية في السعودية', 'The first choice for commercial kitchens in Saudi Arabia');
+    $searchPlaceholder = $nt('ابحث عن منتج أو قسم', 'Search products or categories');
 
-    .top-bar a:hover {
-        color: var(--nav-brand) !important;
+    $wishlistCount = auth()->check() ? \App\Models\Wishlist::where('user_id', auth()->id())->count() : 0;
+    if (auth()->check()) {
+        $cartCount = \App\Models\Cart::where('user_id', auth()->id())->count();
+    } else {
+        $tempUserId = session()->get('temp_user_id');
+        $cartCount = $tempUserId ? \App\Models\Cart::where('temp_user_id', $tempUserId)->count() : 0;
     }
+@endphp
 
-    .nav-icon-btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background: #f6f7f9;
-        color: #1f2430 !important;
-        text-decoration: none !important;
-        transition: all .2s ease;
-        font-size: 16px;
-    }
-
-    .nav-icon-btn:hover {
-        background: var(--nav-brand);
-        color: #fff !important;
-    }
-
-    .nav-search-form .input-group {
-        border-radius: 999px;
-        overflow: hidden;
-        box-shadow: 0 2px 10px rgba(17, 24, 39, .06);
-    }
-
-    .nav-search-form .form-control {
-        border: 1px solid #eef0f2;
-        border-left: none;
-        padding-inline-start: 16px;
-    }
-
-    .nav-search-form .form-control:focus {
-        box-shadow: none;
-        border-color: #eef0f2;
-    }
-
-    .nav-search-form button[type="submit"] {
-        background-color: var(--nav-brand) !important;
-        border-radius: 0;
-        padding-inline: 18px;
-        font-weight: 600;
-    }
-
-    header.pc ul li > a {
-        transition: color .2s ease;
-    }
-
-    header.pc ul li > a:hover {
-        color: var(--nav-brand) !important;
-    }
-
-    .logo-header {
-        max-height: 48px;
-        width: auto;
-    }
-</style>
-
-<header class="bg-light border-bottom pc">
-    <!-- Top Bar -->
-    <div class="top-bar bg-light border-bottom py-1 px-3" style="font-size: 13px;">
-        <div class="container-fluid d-flex justify-content-between align-items-center">
-            <div class="text-end text-muted">
-                @if (app()->getLocale() == 'sa')
-                    متجرك الأفضل لكل معدات المطاعم والمقاهي
-                @elseif(app()->getLocale() == 'cn')
-                    您購買所有餐廳和咖啡館設備的一站式商店。
-                @else
-                    Your one-stop shop for all your restaurant and cafe equipment.
+<!-- Desktop Header -->
+<header class="kn-header d-none d-lg-block">
+    <div class="kn-header-bar">
+        <div class="kn-wrap">
+            <a href="{{ route('home') }}" class="kn-logo kn-logo-lockup" aria-label="{{ $siteName }}">
+                @if ($header_logo)
+                    <img src="{{ uploaded_asset($header_logo) }}" alt="">
                 @endif
-                <img src="https://flagcdn.com/sa.svg" width="20" alt="SA Flag" style="margin-right: 5px;">
+                <span class="kn-logo-text">{{ $nt('القناعة', 'AlKanaa') }}</span>
+            </a>
+
+            <div class="kn-search" role="search">
+                <form action="{{ route('search') }}" method="GET">
+                    <label for="kn-search-desktop" class="kn-sr-only">{{ $searchPlaceholder }}</label>
+                    <div class="kn-search-field">
+                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                        <input type="search" id="kn-search-desktop" name="keyword" value="{{ request('keyword') }}"
+                            placeholder="{{ $searchPlaceholder }}" autocomplete="off">
+                        <button type="submit" class="kn-search-submit">{{ $nt('بحث', 'Search') }}</button>
+                    </div>
+                </form>
             </div>
-            <div class="text-start d-flex align-items-center gap-2 flex-wrap" style="font-size: 13px;">
 
-                <a href="{{ route('seller.login') }}" class="text-decoration-none text-dark">
-                    @if (app()->getLocale() == 'sa')
-                        سجل كبائع
-                    @elseif(app()->getLocale() == 'cn')
-                        註冊成為賣家
-                    @else
-                        {{ translate('Register as a Seller') }}
-                    @endif
+            <div class="kn-header-actions">
+                <a href="tel:{{ $phone }}" class="header-icon-action" title="{{ $nt('اتصل بنا', 'Call us') }}"
+                    aria-label="{{ $nt('اتصل بنا', 'Call us') }}">
+                    <i class="fa-solid fa-phone" aria-hidden="true"></i>
                 </a>
-                <span class="mx-1">|</span>
-                <a href="{{ route('faq') }}" class="text-decoration-none text-dark">
-                    @if (app()->getLocale() == 'sa')
-                        الأسئلة الشائعة
-                    @elseif(app()->getLocale() == 'cn')
-                        常见问题
-                    @else
-                        FAQs
-                    @endif
-                </a>
-                <span class="mx-1">|</span>
 
-                <a href="{{ route('orders.track') }}" class="text-decoration-none text-dark">
-                    @if (app()->getLocale() == 'sa')
-                        تتبع طلبك
-                    @elseif(app()->getLocale() == 'cn')
-                        订单追踪
-                    @else
-                        Track Your Order
+                <a href="{{ route('wishlists.index') }}" class="header-icon-action" title="{{ $nt('المفضلة', 'Wishlist') }}"
+                    aria-label="{{ $nt('المفضلة', 'Wishlist') }}">
+                    <i class="fa-regular fa-heart" aria-hidden="true"></i>
+                    @if ($wishlistCount > 0)
+                        <span class="header-icon-badge">{{ $wishlistCount }}</span>
                     @endif
                 </a>
 
-                <span class="mx-1">|</span>
+                <a href="javascript:void(0);" class="header-icon-action" id="nav-cart-area" onclick="openCartOffcanvas()"
+                    title="{{ $nt('السلة', 'Cart') }}" aria-label="{{ $nt('السلة', 'Cart') }}">
+                    <i class="fa-solid fa-cart-shopping" aria-hidden="true"></i>
+                    <span class="header-icon-badge cart-count-span">{{ $cartCount }}</span>
+                </a>
 
-                <!-- Language Dropdown -->
+                @auth
+                    <a href="{{ route('dashboard') }}" class="header-icon-action" title="{{ $nt('حسابي', 'My account') }}"
+                        aria-label="{{ $nt('حسابي', 'My account') }}">
+                        <i class="fa-solid fa-user" aria-hidden="true"></i>
+                    </a>
+                @else
+                    <a href="{{ route('user.login') }}" class="header-icon-action" title="{{ $nt('تسجيل الدخول', 'Log in') }}"
+                        aria-label="{{ $nt('تسجيل الدخول', 'Log in') }}">
+                        <i class="fa-regular fa-user" aria-hidden="true"></i>
+                    </a>
+                @endauth
+
                 <div class="dropdown">
-                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
-                        id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                        🌐 {{ strtoupper(app()->getLocale()) }}
+                    <button class="kn-lang-btn" type="button" id="langDropdown" data-bs-toggle="dropdown"
+                        aria-expanded="false" aria-label="{{ $nt('اللغة', 'Language') }}">
+                        @if ($navLocale == 'sa')
+                            <img src="https://flagcdn.com/sa.svg" width="18" height="12" alt="">
+                        @elseif ($navLocale == 'cn')
+                            <img src="https://flagcdn.com/cn.svg" width="18" height="12" alt="">
+                        @else
+                            <img src="https://flagcdn.com/gb.svg" width="18" height="12" alt="">
+                        @endif
+                        <span>{{ strtoupper($navLocale == 'sa' ? 'ع' : $navLocale) }}</span>
+                        <i class="fa-solid fa-chevron-down" style="font-size: 9px;" aria-hidden="true"></i>
                     </button>
-                    <ul class="dropdown-menu" aria-labelledby="languageDropdown">
+                    <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 p-1" style="border-radius: 10px;"
+                        aria-labelledby="langDropdown">
                         @foreach (get_all_active_language() as $language)
                             <li>
-                                <a class="dropdown-item d-flex align-items-center gap-2"
+                                <a class="dropdown-item d-flex align-items-center gap-2 py-2 px-3 rounded"
                                     href="{{ url('language/' . $language->code) }}">
                                     @if ($language->code == 'sa')
-                                        <img src="https://flagcdn.com/sa.svg" width="20" alt="SA">
+                                        <img src="https://flagcdn.com/sa.svg" width="18" alt="">
                                     @elseif($language->code == 'en')
-                                        <img src="https://flagcdn.com/gb.svg" width="20" alt="EN">
+                                        <img src="https://flagcdn.com/gb.svg" width="18" alt="">
                                     @elseif($language->code == 'cn')
-                                        <img src="https://flagcdn.com/cn.svg" width="20" alt="CN">
-                                        {{-- i want to add turkish and france another two language --}}
-                                    @elseif($language->code == 'fr')
-                                        <img src="https://flagcdn.com/fr.svg" width="20" alt="FR">
-                                    @elseif($language->code == 'tr')
-                                        <img src="https://flagcdn.com/tr.svg" width="20" alt="TR">
+                                        <img src="https://flagcdn.com/cn.svg" width="18" alt="">
                                     @endif
-                                    {{ $language->name }}
+                                    <span>{{ $language->name }}</span>
                                 </a>
                             </li>
                         @endforeach
                     </ul>
                 </div>
             </div>
-
         </div>
     </div>
 
-    <!-- Middle Nav -->
-    <div class="container-fluid pe-5 ps-5">
-        <div class="row justify-content-between align-items-center py-2">
-            <div class="col-xl-2 col-lg-2 col-md-2 my-auto">
-                <a class="navbar-brand" href="{{ route('home') }}">
-                    @php $header_logo = get_setting('header_logo'); @endphp
-                    @if ($header_logo)
-                        <img src="{{ uploaded_asset($header_logo) }}" class="logo-header">
-                    @else
-                        <img src="{{ static_asset('assets/img/logo.png') }}" class="logo-header">
-                    @endif
-                </a>
-            </div>
-            <div class="col-xl-7 col-lg-7 col-md-7 my-auto">
-                <form action="{{ route('search') }}" method="GET" class="nav-search-form">
-                    <div class="input-group">
-                        <button class="btn text-white" type="submit">
-                            <i class="fa-solid fa-magnifying-glass m-1"></i> {{ translate('Search') }}
-                        </button>
-                        <input type="text" name="keyword" class="form-control mb-0"
-                            placeholder="{{ translate('Search...') }}">
-                    </div>
-                </form>
-            </div>
-            <div class="col-xl-3 col-lg-3 col-md-3">
-                <div class="d-flex w-100 align-items-center justify-content-end gap-2">
-                    @auth
-                        <a href="{{ route('dashboard') }}" class="nav-icon-btn"><i class="fa fa-user"></i></a>
-                    @else
-                        <a href="{{ route('user.login') }}"
-                            class="text-dark text-decoration-none small me-1">{{ translate('login') }}</a>
-                        <a href="{{ route('user.login') }}" class="nav-icon-btn"><i class="fa fa-user"></i></a>
-                    @endauth
-                    <a href="{{ route('wishlists.index') }}" class="nav-icon-btn position-relative">
-                        <i class="fa fa-heart"></i>
-                    </a>
-                    @php
-                        if (auth()->check()) {
-                            $cartCount = \App\Models\Cart::where('user_id', auth()->id())->count();
-                        } else {
-                            $tempUserId = session()->get('temp_user_id');
-                            $cartCount = $tempUserId
-                                ? \App\Models\Cart::where('temp_user_id', $tempUserId)->count()
-                                : 0;
-                        }
-                    @endphp
-
-                    <a href="javascript:void(0);" class="nav-icon-btn position-relative" id="nav-cart-area"
-                        onclick="openCartOffcanvas()">
-                        <i class="fa fa-shopping-cart"></i>
-                        <span
-                            class="cart-count-span position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark"
-                            style="font-size: 10px;">
-                            {{ $cartCount }}
-                        </span>
+    <nav class="kn-subnav" aria-label="{{ $nt('القائمة الرئيسية', 'Main menu') }}">
+        <div class="kn-wrap">
+            <div class="kn-subnav-links">
+                <div class="position-relative mega-category">
+                    <a href="{{ route('search') }}" class="kn-cat-trigger"
+                        onmouseover="showMegaMenu()" onmouseout="hideMegaMenu()" onfocus="showMegaMenu()">
+                        <i class="fa-solid fa-bars" aria-hidden="true"></i>
+                        <span>{{ $nt('جميع الأقسام', 'All categories') }}</span>
+                        <i class="fa-solid fa-chevron-down" style="font-size: 9px;" aria-hidden="true"></i>
                     </a>
 
-                </div>
-            </div>
-        </div>
-
-        <!-- Navigation Links -->
-        <div class="row justify-content-center text-center">
-
-            <div class="col-xl-8 col-lg-8 col-md-8 mb-2">
-                <ul
-                    style="display: flex; gap: 26px; list-style: none; padding: 0; margin: 0; font-size: 16px; justify-content: center;">
-                    <li><a href="{{ route('home') }}" class=" text-dark">{{ translate('Home') }}</a></li>
-                    <li><a href="{{ route('about.us') }}" class=" text-dark">{{ translate('About') }}</a></li>
-                    <li class="nav-item position-relative mega-category">
-                        <a href="{{ route('search') }}" class=" text-dark nav-link" style="font-size: 16px;"
-                            onmouseover="showMegaMenu()" onmouseout="hideMegaMenu()">
-                            {{ translate('All Products') }}
-                        </a>
-
-                        <!-- Mega Menu -->
-                        <div class="@if (App::getLocale() == 'en' || App::getLocale() == 'cn') mega-menu-ltr @else mega-menu @endif"
-                            id="megaMenu" onmouseover="cancelHide()" onmouseout="hideMegaMenu()">
-                            <ul class="category-list">
-                                @foreach ($categories->where('featured', 1) as $category)
-                                    <li data-sub="cat-{{ $category->id }}" onmouseover="showSub(this)">
-                                        <a href="{{ route('products.category', $category->slug) }}">
-                                            <div class="d-flex justify-content-between">
-                                                <div style="width: 15%; margin: 0 10px;">
-                                                    <img src="{{ uploaded_asset($category->icon) }}"
-                                                        style="width: 30px; height: 30px;">
-                                                </div>
-                                                <div style="width: 85%;">
-                                                    {{ $category->getTranslation('name') }}
-                                                </div>
-                                            </div>
-
-                                        </a>
-                                    </li>
-                                @endforeach
-                            </ul>
-                            <div class="subcategories-wrapper">
-                                <div class="sub-category-container" id="activeSubCategory"></div>
-                                @foreach ($categories as $category)
-                                    <template id="cat-{{ $category->id }}">
-                                        @if ($category->childrenCategories && $category->childrenCategories->count())
-                                            @foreach ($category->childrenCategories as $child)
-                                                <div class="sub-group">
-                                                    <h5 class="sub-group-title"
-                                                        data-sub="subcat-{{ $child->id }}">
-                                                        <a href="{{ route('products.category', $child->slug) }}">
-                                                            ● {{ $child->getTranslation('name') }}
-                                                        </a>
-                                                    </h5>
-                                                    @if ($child->childrenCategories && $child->childrenCategories->count())
-                                                        <ul class="third-level-list">
-                                                            @foreach ($child->childrenCategories as $grandChild)
-                                                                <li>
-                                                                    <a
-                                                                        href="{{ route('products.category', $grandChild->slug) }}">
-                                                                        {{ $grandChild->getTranslation('name') }}
-                                                                    </a>
-                                                                </li>
-                                                            @endforeach
-                                                        </ul>
-                                                    @endif
-                                                </div>
-                                            @endforeach
-                                        @else
-                                            <p class="text-muted">{{ translate('No Subcategories') }}</p>
-                                        @endif
-                                    </template>
-                                @endforeach
-                            </div>
-                        </div>
-                    </li>
-                    <li><a href="{{ route('get-a-quote') }}"
-                            class="text-decoration-none text-dark">{{ translate('get_quote') }}</a></li>
-                    <li><a href="{{ route('service-request') }}"
-                            class="text-decoration-none text-dark">{{ translate('service_request') }}</a></li>
-                    <li><a href="{{ route('maintainence-request') }}"
-                            class="text-decoration-none text-dark">{{ translate('maintainence_request') }}</a></li>
-                    <li>
-                        <a class="text-decoration-none text-dark"
-                            href="{{ route('all-our-partners') }}">{{ translate('partners') }}</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</header>
-
-<header class="mob">
-    <!-- Mobile Navbar with Dynamic Mega Menu -->
-    <nav class="navbar navbar-light bg-light d-md-none">
-        <div class="container-fluid justify-content-between">
-            <!-- Logo -->
-            <a class="navbar-brand" href="{{ route('home') }}">
-                @php $header_logo = get_setting('header_logo'); @endphp
-                @if ($header_logo)
-                    <img src="{{ uploaded_asset($header_logo) }}" class="logo-header" alt="Logo">
-                @else
-                    <img src="{{ static_asset('assets/img/logo.png') }}" class="logo-header" alt="Logo">
-                @endif
-            </a>
-
-            <!-- Toggler Icon -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-        </div>
-    </nav>
-
-    <!-- Offcanvas Menu -->
-    <div class="offcanvas offcanvas-start" style="padding-bottom: 80px" tabindex="-1" id="mobileMenu">
-        <div class="offcanvas-header">
-
-            <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
-        </div>
-        <div class="offcanvas-body">
-            <ul class="list-unstyled ps-0">
-                <li class="mb-3">
-                    <a href="{{ route('home') }}" class="text-decoration-none fw-bold text-dark">
-                        {{ translate('Home') }}</a>
-                </li>
-
-                <li class="mb-3">
-                    <a href="{{ route('about.us') }}" class="text-decoration-none fw-bold text-dark">
-                        {{ translate('About') }}</a>
-                </li>
-
-                <!-- Products Accordion -->
-                <li class="mb-3">
-                    <a class="text-decoration-none fw-bold text-dark d-block" data-bs-toggle="collapse"
-                        href="#productsMenu" role="button" aria-expanded="false" aria-controls="productsMenu">
-                        {{ translate('All Products') }}
-                    </a>
-
-                    <div class="collapse" id="productsMenu">
-                        <ul class="mt-3 @if (app()->getLocale() == 'en' || app()->getLocale() == 'cn') p-0 @else ps-3 @endif">
+                    <div class="@if (App::getLocale() == 'en' || App::getLocale() == 'cn') mega-menu-ltr @else mega-menu @endif"
+                        id="megaMenu" onmouseover="cancelHide()" onmouseout="hideMegaMenu()">
+                        <ul class="category-list">
                             @foreach ($categories->where('featured', 1) as $category)
-                                <li class="mb-3">
-                                    <a class="text-decoration-none text-muted d-block" data-bs-toggle="collapse"
-                                        href="#sub-{{ $category->id }}" role="button" aria-expanded="false"
-                                        aria-controls="sub-{{ $category->id }}">
-                                        <div class="d-flex justify-content-between">
-                                            <div style="margin: 0 10px;">
-                                                <img src="{{ uploaded_asset($category->icon) }}"
-                                                    style="width: 30px; height: 30px;">
-                                            </div>
-                                            <div style="width: 85%; font-weight:800;">
-                                                {{ $category->getTranslation('name') }}
-                                            </div>
+                                <li data-sub="cat-{{ $category->id }}" onmouseover="showSub(this)">
+                                    <a href="{{ route('products.category', $category->slug) }}">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <img src="{{ uploaded_asset($category->icon) }}" alt=""
+                                                style="width: 28px; height: 28px; object-fit: contain;">
+                                            <span>{{ $category->getTranslation('name') }}</span>
                                         </div>
                                     </a>
-
-                                    @if ($category->childrenCategories && $category->childrenCategories->count())
-                                        <div class="collapse" id="sub-{{ $category->id }}">
-                                            <ul class="pe-3 mt-1">
-                                                @foreach ($category->childrenCategories as $sub)
-                                                    <li class="mb-1">
-                                                        <a class="text-decoration-none text-muted d-block"
-                                                            data-bs-toggle="collapse"
-                                                            href="#subsub-{{ $sub->id }}" role="button"
-                                                            aria-expanded="false"
-                                                            aria-controls="subsub-{{ $sub->id }}">
-                                                            - {{ $sub->getTranslation('name') }}
-                                                        </a>
-
-                                                        @if ($sub->childrenCategories && $sub->childrenCategories->count())
-                                                            <div class="collapse" id="subsub-{{ $sub->id }}">
-                                                                <ul class="ps-3 mt-1">
-                                                                    @foreach ($sub->childrenCategories as $subsub)
-                                                                        <li>
-                                                                            <a href="{{ route('products.category', $subsub->slug) }}"
-                                                                                class="text-decoration-none text-muted">
-                                                                                --
-                                                                                {{ $subsub->getTranslation('name') }}
-                                                                            </a>
-                                                                        </li>
-                                                                    @endforeach
-                                                                </ul>
-                                                            </div>
-                                                        @endif
-                                                    </li>
-                                                @endforeach
-                                            </ul>
-                                        </div>
-                                    @endif
                                 </li>
                             @endforeach
                         </ul>
+                        <div class="subcategories-wrapper">
+                            <div class="sub-category-container" id="activeSubCategory"></div>
+                            @foreach ($categories as $category)
+                                <template id="cat-{{ $category->id }}">
+                                    @if ($category->childrenCategories && $category->childrenCategories->count())
+                                        @foreach ($category->childrenCategories as $child)
+                                            <div class="sub-group">
+                                                <h5 class="sub-group-title" data-sub="subcat-{{ $child->id }}">
+                                                    <a href="{{ route('products.category', $child->slug) }}">
+                                                        {{ $child->getTranslation('name') }}
+                                                    </a>
+                                                </h5>
+                                                @if ($child->childrenCategories && $child->childrenCategories->count())
+                                                    <ul class="third-level-list">
+                                                        @foreach ($child->childrenCategories as $grandChild)
+                                                            <li>
+                                                                <a href="{{ route('products.category', $grandChild->slug) }}">
+                                                                    {{ $grandChild->getTranslation('name') }}
+                                                                </a>
+                                                            </li>
+                                                        @endforeach
+                                                    </ul>
+                                                @endif
+                                            </div>
+                                        @endforeach
+                                    @else
+                                        <p class="text-muted p-3">{{ $nt('لا توجد أقسام فرعية', 'No subcategories') }}</p>
+                                    @endif
+                                </template>
+                            @endforeach
+                        </div>
                     </div>
-                </li>
+                </div>
 
-                <li class="mb-3">
-                    <a href="{{ route('get-a-quote') }}"
-                        class="text-decoration-none fw-bold text-dark">{{ translate('get_quote') }}</a>
-                </li>
-
-                <li class="mb-3">
-                    <a href="{{ route('service-request') }}"
-                        class="text-decoration-none fw-bold text-dark">{{ translate('service_request') }}</a>
-                </li>
-
-                <li class="mb-3">
-                    <a href="{{ route('maintainence-request') }}"
-                        class="text-decoration-none fw-bold text-dark">{{ translate('maintainence_request') }}</a>
-                </li>
-                <li class="mb-3">
-                    <a class="text-decoration-none fw-bold text-dark"
-                        href="{{ route('all-our-partners') }}">{{ translate('partners') }}</a>
-                </li>
-                <li class="mb-3">
-                    <a class="text-decoration-none fw-bold text-dark"
-                        href="{{ route('user.login') }}">{{ translate('login') }}</a>
-                </li>
-                <li class="mb-3">
-                    <a class="text-decoration-none fw-bold text-dark"
-                        href="{{ route('wishlists.index') }}">{{ translate('Wishlist') }}</a>
-                </li>
-                <li class="mb-3">
-                    <a class="text-decoration-none fw-bold text-dark"
-                        href="{{ route('cart') }}">{{ translate('Cart') }}</a>
-                </li>
-            </ul>
-            <!-- Language Dropdown -->
-            <div class="dropdown">
-                <button class="btn btn-sm btn-outline-secondary w-100 dropdown-toggle" type="button"
-                    id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                    🌐 {{ strtoupper(app()->getLocale()) }}
-                </button>
-                <ul class="dropdown-menu w-100" aria-labelledby="languageDropdown">
-                    @foreach (get_all_active_language() as $language)
-                        <li>
-                            <a class="dropdown-item d-flex align-items-center gap-2"
-                                href="{{ url('language/' . $language->code) }}">
-                                @if ($language->code == 'sa')
-                                    <img src="https://flagcdn.com/sa.svg" width="20" alt="SA">
-                                @elseif($language->code == 'en')
-                                    <img src="https://flagcdn.com/gb.svg" width="20" alt="EN">
-                                @elseif($language->code == 'cn')
-                                    <img src="https://flagcdn.com/cn.svg" width="20" alt="CN">
-                                @endif
-                                {{ $language->name }}
-                            </a>
-                        </li>
-                    @endforeach
-                </ul>
+                <a href="{{ route('todays-deal') }}" class="kn-subnav-link">
+                    <i class="fa-solid fa-tag" aria-hidden="true"></i>
+                    <span>{{ $nt('منتجات مخفضة', 'Discounted products') }}</span>
+                </a>
+                <a href="{{ route('get-a-quote') }}" class="kn-subnav-link">
+                    <i class="fa-solid fa-file-lines" aria-hidden="true"></i>
+                    <span>{{ $nt('طلب عرض سعر', 'Request a quote') }}</span>
+                </a>
+                <a href="{{ route('about.us') }}" class="kn-subnav-link">
+                    <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+                    <span>{{ $nt('من نحن', 'About us') }}</span>
+                </a>
             </div>
+
+            <span class="kn-motto">
+                <img src="https://flagcdn.com/sa.svg" width="20" height="14" alt="">
+                <span>{{ $motto }}</span>
+            </span>
         </div>
+    </nav>
+</header>
+
+<!-- Mobile Header -->
+<div class="kn-mobile-motto d-lg-none">{{ $motto }}</div>
+
+<header class="kn-header kn-mobile-header d-lg-none">
+    <div class="kn-mobile-row">
+        <button type="button" class="kn-mobile-icon" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu"
+            aria-controls="mobileMenu" aria-label="{{ $nt('القائمة', 'Menu') }}">
+            <i class="fa-solid fa-bars" aria-hidden="true"></i>
+        </button>
+
+        {{-- The logo is a square mark whose lettering is unreadable at header size,
+            so phones get the brand name set as a wordmark instead. --}}
+        <a href="{{ route('home') }}" class="kn-wordmark" aria-label="{{ $siteName }}">
+            {{ $nt('القناعة', 'AlKanaa') }}
+        </a>
+
+        @auth
+            <a href="{{ route('dashboard') }}" class="kn-mobile-icon" aria-label="{{ $nt('حسابي', 'My account') }}">
+                <i class="fa-solid fa-user" aria-hidden="true"></i>
+            </a>
+        @else
+            <a href="{{ route('user.login') }}" class="kn-mobile-icon" aria-label="{{ $nt('تسجيل الدخول', 'Log in') }}">
+                <i class="fa-regular fa-user" aria-hidden="true"></i>
+            </a>
+        @endauth
+    </div>
+
+    <div class="kn-search" role="search">
+        <form action="{{ route('search') }}" method="GET">
+            <label for="kn-search-mobile" class="kn-sr-only">{{ $searchPlaceholder }}</label>
+            <div class="kn-search-field">
+                <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                <input type="search" id="kn-search-mobile" name="keyword" value="{{ request('keyword') }}"
+                    placeholder="{{ $searchPlaceholder }}" autocomplete="off" enterkeyhint="search">
+            </div>
+        </form>
     </div>
 </header>
+
+<!-- Mobile Menu Drawer -->
+<div class="offcanvas {{ $navIsAr ? 'offcanvas-end' : 'offcanvas-start' }} kn-drawer d-lg-none" dir="{{ $navIsAr ? 'rtl' : 'ltr' }}" tabindex="-1"
+    id="mobileMenu" aria-labelledby="mobileMenuLabel" style="padding-bottom: 80px;">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title m-0 text-white fw-bold" id="mobileMenuLabel" style="font-size: 1rem;">{{ $siteName }}</h5>
+        <button type="button" class="btn-close btn-close-white m-0" data-bs-dismiss="offcanvas"
+            aria-label="{{ $nt('إغلاق', 'Close') }}"></button>
+    </div>
+    <div class="offcanvas-body p-2">
+        <ul class="list-unstyled m-0 p-0">
+            <li>
+                <a href="{{ route('home') }}" class="kn-drawer-link">
+                    <span><i class="fa-solid fa-house" aria-hidden="true"></i>{{ $nt('الصفحة الرئيسية', 'Home') }}</span>
+                </a>
+            </li>
+            <li>
+                <a class="kn-drawer-link" data-bs-toggle="collapse" href="#productsMenu" role="button"
+                    aria-expanded="false" aria-controls="productsMenu">
+                    <span><i class="fa-solid fa-table-cells" aria-hidden="true"></i>{{ $nt('جميع المنتجات', 'All products') }}</span>
+                    <i class="fa-solid fa-chevron-down" style="color: #8592a6; font-size: 12px;" aria-hidden="true"></i>
+                </a>
+
+                <div class="collapse ps-2 pe-2" id="productsMenu">
+                    <ul class="list-unstyled m-0 p-0">
+                        @foreach ($categories->where('featured', 1) as $category)
+                            @php $hasChildren = $category->childrenCategories && $category->childrenCategories->count(); @endphp
+                            <li>
+                                <a class="kn-drawer-sub justify-content-between"
+                                    @if ($hasChildren) data-bs-toggle="collapse" href="#sub-{{ $category->id }}" role="button"
+                                        aria-expanded="false" aria-controls="sub-{{ $category->id }}"
+                                    @else href="{{ route('products.category', $category->slug) }}" @endif>
+                                    <span class="d-flex align-items-center gap-2">
+                                        <img src="{{ uploaded_asset($category->icon) }}" alt=""
+                                            style="width: 22px; height: 22px; object-fit: contain;">
+                                        <span>{{ $category->getTranslation('name') }}</span>
+                                    </span>
+                                    @if ($hasChildren)
+                                        <i class="fa-solid fa-chevron-down" style="color: #8592a6; font-size: 10px;" aria-hidden="true"></i>
+                                    @endif
+                                </a>
+
+                                @if ($hasChildren)
+                                    <div class="collapse ps-4 pe-4" id="sub-{{ $category->id }}">
+                                        <ul class="list-unstyled m-0 p-0">
+                                            <li>
+                                                <a class="kn-drawer-sub fw-bold" href="{{ route('products.category', $category->slug) }}">
+                                                    {{ $nt('كل منتجات القسم', 'All in this category') }}
+                                                </a>
+                                            </li>
+                                            @foreach ($category->childrenCategories as $sub)
+                                                <li>
+                                                    <a class="kn-drawer-sub" href="{{ route('products.category', $sub->slug) }}">
+                                                        {{ $sub->getTranslation('name') }}
+                                                    </a>
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                @endif
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            </li>
+            <li>
+                <a href="{{ route('todays-deal') }}" class="kn-drawer-link">
+                    <span><i class="fa-solid fa-tag" aria-hidden="true"></i>{{ $nt('منتجات مخفضة', 'Discounted products') }}</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('get-a-quote') }}" class="kn-drawer-link">
+                    <span><i class="fa-solid fa-file-lines" aria-hidden="true"></i>{{ $nt('عروض الأسعار', 'Request a quote') }}</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('service-request') }}" class="kn-drawer-link">
+                    <span><i class="fa-solid fa-compass-drafting" aria-hidden="true"></i>{{ $nt('الخدمات الهندسية', 'Engineering services') }}</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('maintainence-request') }}" class="kn-drawer-link">
+                    <span><i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i>{{ $nt('خدمات الصيانة', 'Maintenance services') }}</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('all-our-partners') }}" class="kn-drawer-link">
+                    <span><i class="fa-solid fa-handshake" aria-hidden="true"></i>{{ $nt('شركاء النجاح', 'Our partners') }}</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('about.us') }}" class="kn-drawer-link">
+                    <span><i class="fa-solid fa-circle-info" aria-hidden="true"></i>{{ $nt('عن القناعة', 'About AlKanaa') }}</span>
+                </a>
+            </li>
+            <li>
+                <a href="tel:{{ $phone }}" class="kn-drawer-link">
+                    <span><i class="fa-solid fa-phone" aria-hidden="true"></i>{{ $nt('اتصل بنا', 'Call us') }}</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="d-flex flex-wrap gap-2 mt-3 pt-3 px-2" style="border-top: 1px solid #e3e8ef;">
+            @foreach (get_all_active_language() as $language)
+                <a href="{{ url('language/' . $language->code) }}"
+                    class="kn-btn {{ $language->code == $navLocale ? 'kn-btn-primary' : '' }}"
+                    style="min-height: 40px; padding: 6px 14px; {{ $language->code == $navLocale ? '' : 'background:#eef2f6;color:#0e1a2e !important;' }}">
+                    {{ $language->name }}
+                </a>
+            @endforeach
+        </div>
+    </div>
+</div>
+
 <script>
+    let megaMenuTimer = null;
+
+    function showMegaMenu() {
+        clearTimeout(megaMenuTimer);
+        const menu = document.getElementById('megaMenu');
+        if (!menu) return;
+        menu.style.display = 'flex';
+
+        // Auto load first category if activeSubCategory is empty
+        const container = document.getElementById('activeSubCategory');
+        const firstLi = menu.querySelector('.category-list li');
+        if (firstLi && (!container || container.innerHTML.trim() === '')) {
+            showSub(firstLi);
+        }
+    }
+
+    function hideMegaMenu() {
+        megaMenuTimer = setTimeout(function () {
+            const menu = document.getElementById('megaMenu');
+            if (menu) {
+                menu.style.display = 'none';
+            }
+        }, 200);
+    }
+
+    function cancelHide() {
+        clearTimeout(megaMenuTimer);
+    }
+
+    function showSub(el) {
+        if (!el) return;
+        const subId = el.getAttribute('data-sub');
+        const template = document.getElementById(subId);
+        const container = document.getElementById('activeSubCategory');
+        if (template && container) {
+            container.innerHTML = template.innerHTML;
+        }
+
+        const list = el.closest('.category-list');
+        if (list) {
+            list.querySelectorAll('li').forEach(li => li.classList.remove('active-cat'));
+            el.classList.add('active-cat');
+        }
+    }
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            const menu = document.getElementById('megaMenu');
+            if (menu) menu.style.display = 'none';
+        }
+    });
+
     function openCartOffcanvas() {
         const el = document.getElementById('cartOffcanvas');
         if (!el || typeof bootstrap === 'undefined') {

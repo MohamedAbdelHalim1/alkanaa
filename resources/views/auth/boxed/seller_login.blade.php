@@ -1,93 +1,70 @@
 @extends('frontend.layouts.app')
 
 @section('content')
-    <!-- aiz-main-wrapper -->
-    <div class="aiz-main-wrapper d-flex flex-column justify-content-md-center bg-white">
-        <section class="bg-white overflow-hidden">
-            <div class="d-flex justify-content-center align-items-center min-vh-100 bg-light">
-                <div class="row w-100">
-                    <div class="col-xxl-6 col-xl-9 col-lg-10 col-md-8 mx-auto py-lg-4">
-                        <div class="card shadow-sm border-0 rounded-3 px-3 py-4">
+    @php
+        $isAr = in_array(app()->getLocale(), ['sa', 'ar', 'eg']);
+        $t = fn($ar, $en) => $isAr ? $ar : $en;
+    @endphp
+    <div class="kn-auth">
+        <div class="kn-auth-shell">
+            <div class="kn-auth-card">
+                <img src="{{ uploaded_asset(get_setting('site_icon')) }}" alt="{{ get_setting('website_name') }}"
+                    class="kn-auth-logo">
 
-                            <!-- أيقونة المتجر + عنوان -->
-                            <div class="text-center mb-4">
-                                <i class="fas fa-store login-icon fs-1 mb-2" style="color: #ae2025;" ></i>
-                                <h4 class="fw-700">{{ translate('register as a seller') }}</h4>
-                            </div>
+                <h1 class="kn-auth-title">{{ translate('login as a seller') }}</h1>
+                <p class="kn-auth-sub">{{ $t('ادخل إلى لوحة البائع لإدارة منتجاتك وطلباتك.', 'Sign in to your seller panel to manage products and orders.') }}</p>
 
-                            <!-- فورم تسجيل الدخول -->
-                            <div class="row justify-content-center">
-                                <div class="col-lg-6">
-                                    <form class="form-default" action="{{ route('login') }}" method="POST">
-                                        @csrf
+                <form class="form-default" action="{{ route('login') }}" method="POST">
+                    @csrf
 
-                                        <div class="form-group">
-                                            <label class="fs-12 fw-700 text-soft-dark"
-                                                for="email">{{ translate('Email') }}</label>
-                                            <input type="email"
-                                                class="form-control rounded-0 {{ $errors->has('email') ? ' is-invalid' : '' }}"
-                                                name="email" placeholder="{{ translate('johndoe@example.com') }}">
-                                            @if ($errors->has('email'))
-                                                <span class="invalid-feedback d-block">{{ $errors->first('email') }}</span>
-                                            @endif
-                                        </div>
+                    <div class="kn-field">
+                        <label for="email">{{ translate('Email') }}</label>
+                        <input type="email" id="email" autocomplete="email"
+                            class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}" name="email"
+                            value="{{ old('email') }}" placeholder="{{ translate('johndoe@example.com') }}">
+                        @if ($errors->has('email'))
+                            <span class="invalid-feedback d-block">{{ $errors->first('email') }}</span>
+                        @endif
+                    </div>
 
-                                        <div class="form-group">
-                                            <label class="fs-12 fw-700 text-soft-dark"
-                                                for="password">{{ translate('Password') }}</label>
-                                            <div class="position-relative">
-                                                <input type="password"
-                                                    class="form-control rounded-0 {{ $errors->has('password') ? ' is-invalid' : '' }}"
-                                                    name="password" placeholder="{{ translate('Password') }}">
-                                                <i class="password-toggle las la-eye la-2x position-absolute top-50  translate-middle-y me-3 text-muted"
-                                                    style="cursor: pointer;"></i>
-                                            </div>
-                                        </div>
-
-                                        <div class="row mb-3">
-                                            <div class="col-6">
-                                                <label class="aiz-checkbox mb-0">
-                                                    <input type="checkbox" name="remember"
-                                                        {{ old('remember') ? 'checked' : '' }}>
-                                                    <span class="fs-12 text-gray-dark">{{ translate('Remember Me') }}</span>
-                                                </label>
-                                            </div>
-                                            <div class="col-6 text-end">
-                                                <a href="{{ route('password.request') }}" class="fs-12">
-                                                    <u>{{ translate('Forgot password?') }}</u>
-                                                </a>
-                                            </div>
-                                        </div>
-
-                                        <div class="mb-4">
-                                            <button type="submit"
-                                                class="btn btn-primary btn-block rounded-0 fw-700 fs-14" style="background-color: #ae2025">{{ translate('Login') }}</button>
-                                        </div>
-                                    </form>
-
-                                    <p class="fs-12 text-gray text-center mb-0">
-                                        {{ translate("Don't have a Seller account") }}
-                                        <a href="{{ route('shop-reg.verification') }}"
-                                            class="fs-14 fw-700 text-primary ms-2">{{ translate('Register Now Seller') }}</a>
-                                    </p>
-
-                                    <div class="text-center mt-3">
-                                        <a href="{{ url()->previous() }}"
-                                            class="fs-14 fw-700 text-primary d-inline-flex align-items-center">
-                                            <i class="las la-arrow-left fs-20 me-1"></i>
-                                            {{ translate('Back to Previous Page') }}
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-
+                    <div class="kn-field">
+                        <label for="password">{{ translate('Password') }}</label>
+                        <div class="kn-pass">
+                            <input type="password" id="password" autocomplete="current-password"
+                                class="form-control{{ $errors->has('password') ? ' is-invalid' : '' }}" name="password"
+                                placeholder="{{ translate('Password') }}">
+                            <i class="password-toggle las la-eye" role="button" tabindex="0"
+                                aria-label="{{ $t('إظهار كلمة المرور', 'Show password') }}"
+                                onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"></i>
                         </div>
                     </div>
-                    
-                </div>
+
+                    <div class="kn-auth-row">
+                        <label class="aiz-checkbox">
+                            <input type="checkbox" name="remember" {{ old('remember') ? 'checked' : '' }}>
+                            <span>{{ translate('Remember Me') }}</span>
+                            <span class="aiz-square-check"></span>
+                        </label>
+                        <a href="{{ route('password.request') }}">{{ translate('Forgot password?') }}</a>
+                    </div>
+
+                    <button type="submit" class="kn-btn kn-btn-primary kn-auth-submit">{{ translate('Login') }}</button>
+                </form>
+
+                <p class="kn-auth-alt">
+                    {{ translate("Don't have a Seller account") }}
+                    <a href="{{ route('shop-reg.verification') }}">{{ translate('Register Now Seller') }}</a>
+                </p>
+                <p class="kn-auth-alt">
+                    {{ $t('تبحث عن حساب عميل؟', 'Looking for a customer account?') }}
+                    <a href="{{ route('user.login') }}">{{ translate('Log In') }}</a>
+                </p>
             </div>
 
-        </section>
+            <a href="{{ url()->previous() }}" class="kn-auth-back">
+                <i class="las la-arrow-left" aria-hidden="true"></i> {{ translate('Back to Previous Page') }}
+            </a>
+        </div>
     </div>
     @include('auth.login_register_js')
 @endsection

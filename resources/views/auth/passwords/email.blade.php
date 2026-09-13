@@ -1,5 +1,9 @@
 @extends('auth.layouts.authentication')
 
+@section('css')
+    @vite(['resources/css/storefront-compat.css'])
+@endsection
+
 @section('content')
 
     @include('auth.'.get_setting('authentication_layout_select').'.forgot_password')
@@ -67,8 +71,3 @@
     @endif
 </script>
 @endsection
-
-
-
-
-

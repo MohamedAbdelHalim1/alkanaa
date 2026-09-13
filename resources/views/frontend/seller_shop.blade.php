@@ -28,27 +28,25 @@
 @endsection
 
 @section('content')
-    <section class="mt-3 mb-3 bg-white">
-        <div class="container">
-            <!--  Top Menu -->
-            <div class="d-flex flex-wrap justify-content-center justify-content-md-start">
-                <a class="fw-700 fs-11 fs-md-13 mr-3 mr-sm-4 mr-md-5 text-dark opacity-60 hov-opacity-100 @if(!isset($type)) opacity-100 @endif"
-                        href="{{ route('shop.visit', $shop->slug) }}">{{ translate('Store Home')}}</a>
-                <a class="fw-700 fs-11 fs-md-13 mr-3 mr-sm-4 mr-md-5 text-dark opacity-60 hov-opacity-100 @if(isset($type) && $type == 'top-selling') opacity-100 @endif"
-                        href="{{ route('shop.visit.type', ['slug'=>$shop->slug, 'type'=>'top-selling']) }}">{{ translate('Top Selling')}}</a>
-                <a class="fw-700 fs-11 fs-md-13 mr-3 mr-sm-4 mr-md-5 text-dark opacity-60 hov-opacity-100 @if(isset($type) && $type == 'cupons') opacity-100 @endif"
-                        href="{{ route('shop.visit.type', ['slug'=>$shop->slug, 'type'=>'cupons']) }}">{{ translate('Coupons')}}</a>
-
-                <a class="fw-700 fs-11 fs-md-13 text-dark mr-3 mr-sm-4 mr-md-5 opacity-60 hov-opacity-100 @if(isset($type) && $type == 'all-products') opacity-100 @endif"
-                        href="{{ route('shop.visit.type', ['slug'=>$shop->slug, 'type'=>'all-products']) }}">{{ translate('All Products')}}</a>
-
+    <!--  Top Menu -->
+    <nav class="kn-shop-tabs-bar" aria-label="{{ $shop->name }}">
+        <div class="kn-wrap">
+            <div class="kn-shop-tabs">
+                <a class="kn-shop-tab @if(!isset($type)) is-active @endif"
+                    href="{{ route('shop.visit', $shop->slug) }}" @if(!isset($type)) aria-current="page" @endif>{{ translate('Store Home')}}</a>
+                <a class="kn-shop-tab @if(isset($type) && $type == 'top-selling') is-active @endif"
+                    href="{{ route('shop.visit.type', ['slug'=>$shop->slug, 'type'=>'top-selling']) }}" @if(isset($type) && $type == 'top-selling') aria-current="page" @endif>{{ translate('Top Selling')}}</a>
+                <a class="kn-shop-tab @if(isset($type) && $type == 'cupons') is-active @endif"
+                    href="{{ route('shop.visit.type', ['slug'=>$shop->slug, 'type'=>'cupons']) }}" @if(isset($type) && $type == 'cupons') aria-current="page" @endif>{{ translate('Coupons')}}</a>
+                <a class="kn-shop-tab @if(isset($type) && $type == 'all-products') is-active @endif"
+                    href="{{ route('shop.visit.type', ['slug'=>$shop->slug, 'type'=>'all-products']) }}" @if(isset($type) && $type == 'all-products') aria-current="page" @endif>{{ translate('All Products')}}</a>
                 @if(addon_is_activated('preorder'))
-                <a class="fw-700 fs-11 fs-md-13 mr-3 mr-sm-4 mr-md-5 text-dark opacity-60 hov-opacity-100 @if(isset($type) && $type == 'all-preorder-products') opacity-100 @endif"
-                        href="{{ route('shop.visit.type', ['slug'=>$shop->slug, 'type'=>'all-preorder-products']) }}">{{ translate('All Preorder Products')}}</a>
+                    <a class="kn-shop-tab @if(isset($type) && $type == 'all-preorder-products') is-active @endif"
+                        href="{{ route('shop.visit.type', ['slug'=>$shop->slug, 'type'=>'all-preorder-products']) }}" @if(isset($type) && $type == 'all-preorder-products') aria-current="page" @endif>{{ translate('All Preorder Products')}}</a>
                 @endif
             </div>
         </div>
-    </section>
+    </nav>
 
     @php
         $followed_sellers = [];
@@ -57,199 +55,161 @@
         }
     @endphp
 
-    @if (!isset($type) || $type == 'top-selling' || $type == 'cupons')
-        @if ($shop->top_banner_image)
-            <!-- Top Banner -->
-            <section class="h-160px h-md-200px h-lg-300px h-xl-100 w-100">
-                <a href="{{ $shop->top_banner_link }}">
-                    <img class="d-block lazyload h-100 img-fit"
+    <div class="kn-wrap kn-page">
+
+        @if (!isset($type) || $type == 'top-selling' || $type == 'cupons')
+            @if ($shop->top_banner_image)
+                <!-- Top Banner -->
+                <a href="{{ $shop->top_banner_link }}" class="kn-shop-banner">
+                    <img class="lazyload"
                         src="{{ static_asset('assets/img/placeholder-rect.jpg') }}"
                         data-src="{{ uploaded_asset($shop->top_banner_image) }}" alt="{{ env('APP_NAME') }} offer">
                 </a>
-            </section>
+            @endif
         @endif
-    @endif
 
-    <section class="@if (!isset($type) || $type == 'top-selling' || $type == 'cupons') mb-3 @endif border-top border-bottom" style="background: #fcfcfd;">
-        <div class="container">
-            <!-- Seller Info -->
-            <div class="py-4">
-                <div class="row justify-content-md-between align-items-center">
-                    <div class="col-lg-5 col-md-6">
-                        <div class="d-flex align-items-center">
-                            <!-- Shop Logo -->
-                            <a href="{{ route('shop.visit', $shop->slug) }}" class="overflow-hidden size-64px rounded-content" style="border: 1px solid #e5e5e5;
-                                box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.06);min-width: fit-content;">
-                                <img class="lazyload h-64px  mx-auto"
-                                    src="{{ static_asset('assets/img/placeholder.jpg') }}"
-                                    data-src="{{ uploaded_asset($shop->logo) }}"
-                                    onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
-                            </a>
-                            <div class="ml-3">
-                                <!-- Shop Name & Verification Status -->
-                                <a href="{{ route('shop.visit', $shop->slug) }}"
-                                    class="text-dark d-block fs-16 fw-700">
-                                    {{ $shop->name }}
-                                    @if ($shop->verification_status == 1)
-                                        <span class="ml-2">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="17.5" height="17.5" viewBox="0 0 17.5 17.5">
-                                                <g id="Group_25616" data-name="Group 25616" transform="translate(-537.249 -1042.75)">
-                                                    <path id="Union_5" data-name="Union 5" d="M0,8.75A8.75,8.75,0,1,1,8.75,17.5,8.75,8.75,0,0,1,0,8.75Zm.876,0A7.875,7.875,0,1,0,8.75.875,7.883,7.883,0,0,0,.876,8.75Zm.875,0a7,7,0,1,1,7,7A7.008,7.008,0,0,1,1.751,8.751Zm3.73-.907a.789.789,0,0,0,0,1.115l2.23,2.23a.788.788,0,0,0,1.115,0l3.717-3.717a.789.789,0,0,0,0-1.115.788.788,0,0,0-1.115,0l-3.16,3.16L6.6,7.844a.788.788,0,0,0-1.115,0Z" transform="translate(537.249 1042.75)" fill="#3490f3"/>
-                                                </g>
-                                            </svg>
-                                        </span>
-                                    @else
-                                        <span class="ml-2">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="17.5" height="17.5" viewBox="0 0 17.5 17.5">
-                                                <g id="Group_25616" data-name="Group 25616" transform="translate(-537.249 -1042.75)">
-                                                    <path id="Union_5" data-name="Union 5" d="M0,8.75A8.75,8.75,0,1,1,8.75,17.5,8.75,8.75,0,0,1,0,8.75Zm.876,0A7.875,7.875,0,1,0,8.75.875,7.883,7.883,0,0,0,.876,8.75Zm.875,0a7,7,0,1,1,7,7A7.008,7.008,0,0,1,1.751,8.751Zm3.73-.907a.789.789,0,0,0,0,1.115l2.23,2.23a.788.788,0,0,0,1.115,0l3.717-3.717a.789.789,0,0,0,0-1.115.788.788,0,0,0-1.115,0l-3.16,3.16L6.6,7.844a.788.788,0,0,0-1.115,0Z" transform="translate(537.249 1042.75)" fill="red"/>
-                                                </g>
-                                            </svg>
-                                        </span>
-                                    @endif
-                                </a>
-                                <!-- Ratting -->
-                                <div class="rating rating-mr-2 text-dark">
-                                    {{ renderStarRating($shop->rating) }}
-                                    <span class="opacity-60 fs-12">({{ $shop->num_of_reviews }}
-                                        {{ translate('Reviews') }})</span>
-                                </div>
-                                <!-- Address -->
-                                <div class="location fs-12 opacity-70 text-dark mt-1">{{ $shop->address }}</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col pl-5 pl-md-0 ml-5 ml-md-0">
-                        <div class="d-lg-flex align-items-center justify-content-lg-end">
-                            <div class="d-md-flex justify-content-md-end align-items-md-baseline">
-                                <!-- Member Since -->
-                                <div class="pr-md-3 mt-2 mt-md-0 border-md-right">
-                                    <div class="fs-10 fw-400 text-secondary">{{ translate('Member Since') }}</div>
-                                    <div class="mt-1 fs-16 fw-700 text-secondary">{{ date('d M Y',strtotime($shop->created_at)) }}</div>
-                                </div>
-                                <!-- Social Links -->
-                                @if ($shop->facebook || $shop->instagram || $shop->google || $shop->twitter || $shop->youtube)
-                                    <div class="pl-md-3 pr-lg-3 mt-2 mt-md-0 border-lg-right">
-                                        <span class="fs-10 fw-400 text-secondary">{{ translate('Social Media') }}</span><br>
-                                        <ul class="social-md colored-light list-inline mb-0 mt-1">
-                                            @if ($shop->facebook)
-                                            <li class="list-inline-item mr-2">
-                                                <a href="{{ $shop->facebook }}" class="facebook"
-                                                    target="_blank">
-                                                    <i class="lab la-facebook-f"></i>
-                                                </a>
-                                            </li>
-                                            @endif
-                                            @if ($shop->instagram)
-                                            <li class="list-inline-item mr-2">
-                                                <a href="{{ $shop->instagram }}" class="instagram"
-                                                    target="_blank">
-                                                    <i class="lab la-instagram"></i>
-                                                </a>
-                                            </li>
-                                            @endif
-                                            @if ($shop->google)
-                                            <li class="list-inline-item mr-2">
-                                                <a href="{{ $shop->google }}" class="google"
-                                                    target="_blank">
-                                                    <i class="lab la-google"></i>
-                                                </a>
-                                            </li>
-                                            @endif
-                                            @if ($shop->twitter)
-                                            <li class="list-inline-item mr-2">
-                                                <a href="{{ $shop->twitter }}" class="twitter"
-                                                    target="_blank">
-                                                    <i class="lab la-twitter"></i>
-                                                </a>
-                                            </li>
-                                            @endif
-                                            @if ($shop->youtube)
-                                            <li class="list-inline-item">
-                                                <a href="{{ $shop->youtube }}" class="youtube"
-                                                    target="_blank">
-                                                    <i class="lab la-youtube"></i>
-                                                </a>
-                                            </li>
-                                            @endif
-                                        </ul>
-                                    </div>
-                                @endif
-                            </div>
-                            <!-- follow -->
-                            <div class="d-flex justify-content-md-end pl-lg-3 pt-3 pt-lg-0">
-                                @php $shopFollowers = count($shop->followers) + $shop->custom_followers; @endphp
-                                @if(in_array($shop->id, $followed_sellers))
-                                    <a href="{{ route("followed_seller.remove", ['id'=>$shop->id]) }}"  data-toggle="tooltip" data-title="{{ translate('Unfollow Seller') }}" data-placement="top"
-                                        class="btn btn-success d-flex align-items-center justify-content-center fs-12 w-190px follow-btn followed"
-                                        style="height: 40px; border-radius: 30px !important; justify-content: center;">
-                                        <i class="las la-check fs-16 mr-2"></i>
-                                        <span class="fw-700">{{ translate('Followed') }}</span> &nbsp; ({{ $shopFollowers }})
-                                    </a>
-                                @else
-                                    <a href="{{ route("followed_seller.store", ['id'=>$shop->id]) }}"
-                                        class="btn btn-primary d-flex align-items-center justify-content-center fs-12 w-190px follow-btn"
-                                        style="height: 40px; border-radius: 30px !important; justify-content: center;">
-                                        <i class="las la-plus fs-16 mr-2"></i>
-                                        <span class="fw-700">{{ translate('Follow Seller') }}</span> &nbsp; ({{ $shopFollowers }})
-                                    </a>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
+        <!-- Seller Info -->
+        <section class="kn-shop-info">
+            <!-- Shop Logo -->
+            <a href="{{ route('shop.visit', $shop->slug) }}" class="kn-shop-info-logo" tabindex="-1" aria-hidden="true">
+                <img class="lazyload"
+                    src="{{ static_asset('assets/img/placeholder.jpg') }}"
+                    data-src="{{ uploaded_asset($shop->logo) }}" alt=""
+                    onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
+            </a>
+            <div class="kn-shop-info-main">
+                <!-- Shop Name & Verification Status -->
+                <h1 class="kn-shop-info-name">
+                    <a href="{{ route('shop.visit', $shop->slug) }}">{{ $shop->name }}</a>
+                    @if ($shop->verification_status == 1)
+                        <svg xmlns="http://www.w3.org/2000/svg" width="17.5" height="17.5" viewBox="0 0 17.5 17.5" role="img" aria-label="{{ translate('Verified') }}">
+                            <g transform="translate(-537.249 -1042.75)">
+                                <path d="M0,8.75A8.75,8.75,0,1,1,8.75,17.5,8.75,8.75,0,0,1,0,8.75Zm.876,0A7.875,7.875,0,1,0,8.75.875,7.883,7.883,0,0,0,.876,8.75Zm.875,0a7,7,0,1,1,7,7A7.008,7.008,0,0,1,1.751,8.751Zm3.73-.907a.789.789,0,0,0,0,1.115l2.23,2.23a.788.788,0,0,0,1.115,0l3.717-3.717a.789.789,0,0,0,0-1.115.788.788,0,0,0-1.115,0l-3.16,3.16L6.6,7.844a.788.788,0,0,0-1.115,0Z" transform="translate(537.249 1042.75)" fill="#2346d1"/>
+                            </g>
+                        </svg>
+                    @else
+                        <svg xmlns="http://www.w3.org/2000/svg" width="17.5" height="17.5" viewBox="0 0 17.5 17.5" aria-hidden="true">
+                            <g transform="translate(-537.249 -1042.75)">
+                                <path d="M0,8.75A8.75,8.75,0,1,1,8.75,17.5,8.75,8.75,0,0,1,0,8.75Zm.876,0A7.875,7.875,0,1,0,8.75.875,7.883,7.883,0,0,0,.876,8.75Zm.875,0a7,7,0,1,1,7,7A7.008,7.008,0,0,1,1.751,8.751Zm3.73-.907a.789.789,0,0,0,0,1.115l2.23,2.23a.788.788,0,0,0,1.115,0l3.717-3.717a.789.789,0,0,0,0-1.115.788.788,0,0,0-1.115,0l-3.16,3.16L6.6,7.844a.788.788,0,0,0-1.115,0Z" transform="translate(537.249 1042.75)" fill="#d92d20"/>
+                            </g>
+                        </svg>
+                    @endif
+                </h1>
+                <!-- Ratting -->
+                <div class="rating rating-mr-2">
+                    {{ renderStarRating($shop->rating) }}
+                    <span class="kn-shop-stat-label">({{ $shop->num_of_reviews }} {{ translate('Reviews') }})</span>
                 </div>
+                <!-- Address -->
+                @if ($shop->address)
+                    <p class="kn-shop-address">{{ $shop->address }}</p>
+                @endif
             </div>
-        </div>
-    </section>
 
-    @if (!isset($type))
+            <div class="kn-shop-info-side">
+                <!-- Member Since -->
+                <div class="kn-shop-stat">
+                    <span class="kn-shop-stat-label">{{ translate('Member Since') }}</span>
+                    <span class="kn-shop-stat-value">{{ date('d M Y',strtotime($shop->created_at)) }}</span>
+                </div>
+                <!-- Social Links -->
+                @if ($shop->facebook || $shop->instagram || $shop->google || $shop->twitter || $shop->youtube)
+                    <div class="kn-shop-stat">
+                        <span class="kn-shop-stat-label">{{ translate('Social Media') }}</span>
+                        <ul class="social-md colored-light list-inline mb-0">
+                            @if ($shop->facebook)
+                            <li class="list-inline-item">
+                                <a href="{{ $shop->facebook }}" class="facebook" target="_blank" rel="noopener" aria-label="Facebook">
+                                    <i class="lab la-facebook-f"></i>
+                                </a>
+                            </li>
+                            @endif
+                            @if ($shop->instagram)
+                            <li class="list-inline-item">
+                                <a href="{{ $shop->instagram }}" class="instagram" target="_blank" rel="noopener" aria-label="Instagram">
+                                    <i class="lab la-instagram"></i>
+                                </a>
+                            </li>
+                            @endif
+                            @if ($shop->google)
+                            <li class="list-inline-item">
+                                <a href="{{ $shop->google }}" class="google" target="_blank" rel="noopener" aria-label="Google">
+                                    <i class="lab la-google"></i>
+                                </a>
+                            </li>
+                            @endif
+                            @if ($shop->twitter)
+                            <li class="list-inline-item">
+                                <a href="{{ $shop->twitter }}" class="twitter" target="_blank" rel="noopener" aria-label="Twitter">
+                                    <i class="lab la-twitter"></i>
+                                </a>
+                            </li>
+                            @endif
+                            @if ($shop->youtube)
+                            <li class="list-inline-item">
+                                <a href="{{ $shop->youtube }}" class="youtube" target="_blank" rel="noopener" aria-label="YouTube">
+                                    <i class="lab la-youtube"></i>
+                                </a>
+                            </li>
+                            @endif
+                        </ul>
+                    </div>
+                @endif
+                <!-- follow -->
+                @php $shopFollowers = count($shop->followers) + $shop->custom_followers; @endphp
+                @if(in_array($shop->id, $followed_sellers))
+                    <a href="{{ route("followed_seller.remove", ['id'=>$shop->id]) }}" data-toggle="tooltip" data-title="{{ translate('Unfollow Seller') }}" data-placement="top"
+                        class="btn btn-success kn-shop-follow follow-btn followed">
+                        <i class="las la-check" aria-hidden="true"></i>
+                        <span>{{ translate('Followed') }}</span> ({{ $shopFollowers }})
+                    </a>
+                @else
+                    <a href="{{ route("followed_seller.store", ['id'=>$shop->id]) }}"
+                        class="btn btn-primary kn-shop-follow follow-btn">
+                        <i class="las la-plus" aria-hidden="true"></i>
+                        <span>{{ translate('Follow Seller') }}</span> ({{ $shopFollowers }})
+                    </a>
+                @endif
+            </div>
+        </section>
 
-        <!-- Featured Products -->
-        @php
-            $feature_products = $shop->user->products->where('published', 1)->where('approved', 1)->where('seller_featured', 1);
-        @endphp
-        @if (count($feature_products) > 0)
-            <section class="mt-3 mb-3" id="section_featured">
-                <div class="container">
-                <!-- Top Section -->
-                <div class="d-flex mb-4 align-items-baseline justify-content-between">
-                        <!-- Title -->
-                        <h3 class="fs-16 fs-md-20 fw-700 mb-3 mb-sm-0">
-                            <span class="">{{ translate('Featured Products') }}</span>
-                        </h3>
-                        <!-- Links -->
-                        <div class="d-flex">
-                            <a type="button" class="arrow-prev slide-arrow text-secondary mr-2" onclick="clickToSlide('slick-prev','section_featured')"><i class="las la-angle-left fs-20 fw-600"></i></a>
-                            <a type="button" class="arrow-next slide-arrow text-secondary ml-2" onclick="clickToSlide('slick-next','section_featured')"><i class="las la-angle-right fs-20 fw-600"></i></a>
+        @if (!isset($type))
+
+            <!-- Featured Products -->
+            @php
+                $feature_products = $shop->user->products->where('published', 1)->where('approved', 1)->where('seller_featured', 1);
+            @endphp
+            @if (count($feature_products) > 0)
+                <section class="kn-section" id="section_featured">
+                    <div class="kn-section-head">
+                        <h2 class="kn-section-title">{{ translate('Featured Products') }}</h2>
+                        <div class="kn-slide-nav">
+                            <button type="button" class="arrow-prev slide-arrow kn-slide-btn" onclick="clickToSlide('slick-prev','section_featured')" aria-label="{{ translate('Previous') }}"><i class="las la-angle-left" aria-hidden="true"></i></button>
+                            <button type="button" class="arrow-next slide-arrow kn-slide-btn" onclick="clickToSlide('slick-next','section_featured')" aria-label="{{ translate('Next') }}"><i class="las la-angle-right" aria-hidden="true"></i></button>
                         </div>
                     </div>
-                    <!-- Products Section -->
-                    <div class="px-sm-3">
-                        <div class="aiz-carousel sm-gutters-16 arrow-none" data-items="6" data-xl-items="5" data-lg-items="4"  data-md-items="3" data-sm-items="2" data-xs-items="2" data-arrows='true' data-autoplay='true' data-infinute="true">
-                            @foreach ($feature_products as $key => $product)
-                            <div class="carousel-box px-3 position-relative has-transition hov-animate-outline border-right border-top border-bottom @if($key == 0) border-left @endif">
+                    <div class="aiz-carousel arrow-none" data-items="5" data-xl-items="4" data-lg-items="4" data-md-items="3" data-sm-items="2" data-xs-items="2" data-arrows='true' data-autoplay='true' data-infinute="true">
+                        @foreach ($feature_products as $key => $product)
+                            <div class="carousel-box kn-carousel-cell">
                                 @include('frontend.'.get_setting('homepage_select').'.partials.product_box_1',['product' => $product])
                             </div>
-                            @endforeach
-                        </div>
+                        @endforeach
                     </div>
-                </div>
-            </section>
-        @endif
+                </section>
+            @endif
 
-        <!-- Banner Slider -->
-        @if ($shop->slider_images != null)
-            <section class="mt-3 mb-3">
-                <div class="container">
+            <!-- Banner Slider -->
+            @if ($shop->slider_images != null)
+                <section class="kn-section">
                     <div class="aiz-carousel mobile-img-auto-height" data-arrows="true" data-dots="false" data-autoplay="true">
                         @php
                             $shop_slider_images = get_slider_images(json_decode($shop->slider_images, true));
                             $shop_slider_links = json_decode($shop->slider_links, true);
                         @endphp
                         @foreach ($shop_slider_images as $key => $slider)
-                            <div class="carousel-box w-100 h-140px h-md-300px h-xl-450px">
-                                <a href="{{ isset($shop_slider_links[$key]) ? $shop_slider_links[$key] : '' }}">
-                                    <img class="d-block lazyload h-100 img-fit" 
+                            <div class="carousel-box w-100">
+                                <a href="{{ isset($shop_slider_links[$key]) ? $shop_slider_links[$key] : '' }}" class="kn-shop-banner">
+                                    <img class="lazyload"
                                         src="{{ $slider ? my_asset($slider->file_name) : static_asset('assets/img/placeholder.jpg') }}"
                                         onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder-rect.jpg') }}';"
                                         alt="{{ $key }} offer">
@@ -257,32 +217,23 @@
                             </div>
                         @endforeach
                     </div>
-                </div>
-            </section>
-        @endif
+                </section>
+            @endif
 
-
-        <!-- Coupons -->
-        @php
-            $coupons = get_coupons($shop->user->id);
-        @endphp
-        @if (count($coupons)>0)
-            <section class="mt-3 mb-3" id="section_coupons">
-                <div class="container">
-                <!-- Top Section -->
-                <div class="d-flex mb-4 align-items-baseline justify-content-between">
-                        <!-- Title -->
-                        <h3 class="fs-16 fs-md-20 fw-700 mb-3 mb-sm-0">
-                            <span class="pb-3">{{ translate('Coupons') }}</span>
-                        </h3>
-                        <!-- Links -->
-                        <div class="d-flex">
-                            <a type="button" class="arrow-prev slide-arrow link-disable text-secondary mr-2" onclick="clickToSlide('slick-prev','section_coupons')"><i class="las la-angle-left fs-20 fw-600"></i></a>
-                            <a class="text-blue fs-12 fw-700 hov-text-primary" href="{{ route('shop.visit.type', ['slug'=>$shop->slug, 'type'=>'cupons']) }}">{{ translate('View All') }}</a>
-                            <a type="button" class="arrow-next slide-arrow text-secondary ml-2" onclick="clickToSlide('slick-next','section_coupons')"><i class="las la-angle-right fs-20 fw-600"></i></a>
+            <!-- Coupons -->
+            @php
+                $coupons = get_coupons($shop->user->id);
+            @endphp
+            @if (count($coupons)>0)
+                <section class="kn-section" id="section_coupons">
+                    <div class="kn-section-head">
+                        <h2 class="kn-section-title">{{ translate('Coupons') }}</h2>
+                        <div class="kn-slide-nav">
+                            <button type="button" class="arrow-prev slide-arrow link-disable kn-slide-btn" onclick="clickToSlide('slick-prev','section_coupons')" aria-label="{{ translate('Previous') }}"><i class="las la-angle-left" aria-hidden="true"></i></button>
+                            <a class="kn-link" href="{{ route('shop.visit.type', ['slug'=>$shop->slug, 'type'=>'cupons']) }}">{{ translate('View All') }}</a>
+                            <button type="button" class="arrow-next slide-arrow kn-slide-btn" onclick="clickToSlide('slick-next','section_coupons')" aria-label="{{ translate('Next') }}"><i class="las la-angle-right" aria-hidden="true"></i></button>
                         </div>
                     </div>
-                    <!-- Coupons Section -->
                     <div class="aiz-carousel sm-gutters-16 arrow-none" data-items="3" data-lg-items="2" data-sm-items="1" data-arrows='true' data-infinite='false'>
                         @foreach ($coupons->take(10) as $key => $coupon)
                             <div class="carousel-box">
@@ -290,80 +241,75 @@
                             </div>
                         @endforeach
                     </div>
-                </div>
-            </section>
-        @endif
-        
-        <!-- Banner full width 1 -->
-        @if ($shop->banner_full_width_1_images)
-            @php
-                $shop_banner_full_width_1_images = get_slider_images(json_decode($shop->banner_full_width_1_images, true));
-                $shop_banner_full_width_1_links = json_decode($shop->banner_full_width_1_links, true);
-            @endphp
-            @foreach ($shop_banner_full_width_1_images as $key => $banner)
-                <section class="container mb-3 mt-3">
-                    <div class="w-100">
-                        <a href="{{ isset($shop_banner_full_width_1_links[$key]) ? $shop_banner_full_width_1_links[$key] : '' }}">
-                            <img class="d-block lazyload h-100 img-fit"
+                </section>
+            @endif
+
+            <!-- Banner full width 1 -->
+            @if ($shop->banner_full_width_1_images)
+                @php
+                    $shop_banner_full_width_1_images = get_slider_images(json_decode($shop->banner_full_width_1_images, true));
+                    $shop_banner_full_width_1_links = json_decode($shop->banner_full_width_1_links, true);
+                @endphp
+                <section class="kn-section">
+                    @foreach ($shop_banner_full_width_1_images as $key => $banner)
+                        <a href="{{ isset($shop_banner_full_width_1_links[$key]) ? $shop_banner_full_width_1_links[$key] : '' }}" class="kn-shop-banner">
+                            <img class="lazyload"
                                 src="{{ $banner ? my_asset($banner->file_name) : static_asset('assets/img/placeholder.jpg') }}"
                                 onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder-rect.jpg') }}';"
                                 alt="{{ env('APP_NAME') }} banner">
                         </a>
-                    </div>
+                    @endforeach
                 </section>
-            @endforeach
-        @endif
-        
-        <!-- Banner half width -->
-        @if($shop->banners_half_width_images)
-            @php
-                $shop_banners_half_width_images = get_slider_images(json_decode($shop->banners_half_width_images, true));
-                $shop_banners_half_width_links = json_decode($shop->banners_half_width_links, true);
-            @endphp
-            <section class="container  mb-3 mt-3">
-                <div class="row gutters-16">
-                    @foreach ($shop_banners_half_width_images as $key => $banner)
-                    <div class="col-md-6 mb-3 mb-md-0">
-                        <div class="w-100">
-                            <a href="{{ isset($shop_banners_half_width_links[$key]) ? $shop_banners_half_width_links[$key] : '' }}">
-                                <img class="d-block lazyload h-100 img-fit"
+            @endif
+
+            <!-- Banner half width -->
+            @if($shop->banners_half_width_images)
+                @php
+                    $shop_banners_half_width_images = get_slider_images(json_decode($shop->banners_half_width_images, true));
+                    $shop_banners_half_width_links = json_decode($shop->banners_half_width_links, true);
+                @endphp
+                <section class="kn-section">
+                    <div class="row gutters-16">
+                        @foreach ($shop_banners_half_width_images as $key => $banner)
+                        <div class="col-md-6 mb-3 mb-md-0">
+                            <a href="{{ isset($shop_banners_half_width_links[$key]) ? $shop_banners_half_width_links[$key] : '' }}" class="kn-shop-banner">
+                                <img class="lazyload"
                                     src="{{ $banner ? my_asset($banner->file_name) : static_asset('assets/img/placeholder.jpg') }}"
                                     onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder-rect.jpg') }}';"
                                     alt="{{ env('APP_NAME') }} banner">
                             </a>
                         </div>
+                        @endforeach
                     </div>
-                    @endforeach
-                </div>
-            </section>
+                </section>
+            @endif
+
         @endif
 
-    @endif
+        <section class="kn-section" id="section_types">
+            @php
+                $sectionTitle = null;
+                if (!isset($type)) {
+                    $sectionTitle = translate('New Arrival Products');
+                } elseif ($type == 'top-selling') {
+                    $sectionTitle = translate('Top Selling');
+                } elseif ($type == 'cupons') {
+                    $sectionTitle = translate('All Cupons');
+                }
+            @endphp
 
-    <section class="mb-3 mt-3" id="section_types">
-        <div class="container">
-            <!-- Top Section -->
-            <div class="d-flex mb-4 align-items-baseline justify-content-between">
-                <!-- Title -->
-                <h3 class="fs-16 fs-md-20 fw-700 mb-3 mb-sm-0">
-                    <span class="pb-3">
-                        @if (!isset($type))
-                            {{ translate('New Arrival Products')}}
-                        @elseif ($type == 'top-selling')
-                            {{ translate('Top Selling')}}
-                        @elseif ($type == 'cupons')
-                            {{ translate('All Cupons')}}
-                        @endif
-                    </span>
-                </h3>
-                @if (!isset($type))
-                    <!-- Links -->
-                    <div class="d-flex">
-                        <a type="button" class="arrow-prev slide-arrow link-disable text-secondary mr-2" onclick="clickToSlide('slick-prev','section_types')"><i class="las la-angle-left fs-20 fw-600"></i></a>
-                        <a type="button" class="arrow-next slide-arrow text-secondary ml-2" onclick="clickToSlide('slick-next','section_types')"><i class="las la-angle-right fs-20 fw-600"></i></a>
-                    </div>
-                @endif
-            </div>
+            @if ($sectionTitle)
+                <!-- Top Section -->
+                <div class="kn-section-head">
+                    <h2 class="kn-section-title">{{ $sectionTitle }}</h2>
+                    @if (!isset($type))
+                        <div class="kn-slide-nav">
+                            <button type="button" class="arrow-prev slide-arrow link-disable kn-slide-btn" onclick="clickToSlide('slick-prev','section_types')" aria-label="{{ translate('Previous') }}"><i class="las la-angle-left" aria-hidden="true"></i></button>
+                            <button type="button" class="arrow-next slide-arrow kn-slide-btn" onclick="clickToSlide('slick-next','section_types')" aria-label="{{ translate('Next') }}"><i class="las la-angle-right" aria-hidden="true"></i></button>
+                        </div>
+                    @endif
+                </div>
+            @endif
 
             @php
                 if (!isset($type)){
@@ -379,14 +325,12 @@
 
             @if (!isset($type))
                 <!-- New Arrival Products Section -->
-                <div class="px-sm-3 pb-3">
-                    <div class="aiz-carousel sm-gutters-16 arrow-none" data-items="6" data-xl-items="5" data-lg-items="4"  data-md-items="3" data-sm-items="2" data-xs-items="2" data-arrows='true' data-infinite='false'>
-                        @foreach ($products as $key => $product)
-                        <div class="carousel-box px-3 position-relative has-transition hov-animate-outline border-right border-top border-bottom @if($key == 0) border-left @endif">
+                <div class="aiz-carousel arrow-none" data-items="5" data-xl-items="4" data-lg-items="4" data-md-items="3" data-sm-items="2" data-xs-items="2" data-arrows='true' data-infinite='false'>
+                    @foreach ($products as $key => $product)
+                        <div class="carousel-box kn-carousel-cell">
                             @include('frontend.'.get_setting('homepage_select').'.partials.product_box_1',['product' => $product])
                         </div>
-                        @endforeach
-                    </div>
+                    @endforeach
                 </div>
 
                 <!-- Banner full width 2 -->
@@ -395,18 +339,17 @@
                         $shop_banner_full_width_2_images = get_slider_images(json_decode($shop->banner_full_width_2_images, true));
                         $shop_banner_full_width_2_links = json_decode($shop->banner_full_width_2_links, true);
                     @endphp
-                    @foreach ($shop_banner_full_width_2_images as $key => $banner)
-                        <div class="mt-3 mb-3 w-100">
-                            <a href="{{ isset($shop_banner_full_width_2_links[$key]) ? $shop_banner_full_width_2_links[$key] : '' }}">
-                                <img class="d-block lazyload h-100 img-fit"
+                    <div class="kn-section">
+                        @foreach ($shop_banner_full_width_2_images as $key => $banner)
+                            <a href="{{ isset($shop_banner_full_width_2_links[$key]) ? $shop_banner_full_width_2_links[$key] : '' }}" class="kn-shop-banner">
+                                <img class="lazyload"
                                     src="{{ $banner ? my_asset($banner->file_name) : static_asset('assets/img/placeholder.jpg') }}"
                                     onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder-rect.jpg') }}';"
                                     alt="{{ env('APP_NAME') }} banner">
                             </a>
-                        </div>
-                    @endforeach
+                        @endforeach
+                    </div>
                 @endif
-
 
             @elseif ($type == 'cupons')
                 <!-- All Coupons Section -->
@@ -417,36 +360,36 @@
                         </div>
                     @endforeach
                 </div>
-                <div class="aiz-pagination mt-4 mb-4">
-                    {{ $coupons->links() }}
+                <div class="kn-pagination">
+                    <div class="aiz-pagination">
+                        {{ $coupons->links() }}
+                    </div>
                 </div>
 
             @elseif ($type == 'all-products')
                 <!-- All Products Section -->
                 <form class="" id="search-form" action="" method="GET">
-                    <div class="row gutters-16 justify-content-center">
-                        <!-- Sidebar -->
-                        <div class="col-xl-3 col-md-6 col-sm-8">
-
-                            <!-- Sidebar Filters -->
+                    <div class="kn-listing-layout">
+                        <!-- Sidebar Filters -->
+                        <aside class="kn-listing-aside" aria-label="{{ translate('Filters') }}">
                             <div class="aiz-filter-sidebar collapse-sidebar-wrap sidebar-xl sidebar-right z-1035">
                                 <div class="overlay overlay-fixed dark c-pointer" data-toggle="class-toggle" data-target=".aiz-filter-sidebar" data-same=".filter-sidebar-thumb"></div>
-                                <div class="collapse-sidebar c-scrollbar-light text-left">
-                                    <div class="d-flex d-xl-none justify-content-between align-items-center pl-3 border-bottom">
-                                        <h3 class="h6 mb-0 fw-600">{{ translate('Filters') }}</h3>
-                                        <button type="button" class="btn btn-sm p-2 filter-sidebar-thumb" data-toggle="class-toggle" data-target=".aiz-filter-sidebar" >
-                                            <i class="las la-times la-2x"></i>
+                                <div class="collapse-sidebar c-scrollbar-light kn-filter-panel">
+                                    <div class="kn-filter-drawer-head d-xl-none">
+                                        <h2 class="kn-filter-drawer-title">{{ translate('Filters') }}</h2>
+                                        <button type="button" class="kn-filter-close filter-sidebar-thumb" data-toggle="class-toggle" data-target=".aiz-filter-sidebar" aria-label="{{ translate('Close') }}">
+                                            <i class="las la-times" aria-hidden="true"></i>
                                         </button>
                                     </div>
 
                                     <!-- Categories -->
-                                    <div class="bg-white border mb-4 mx-3 mx-xl-0 mt-3 mt-xl-0">
-                                        <div class="fs-16 fw-700 p-3">
-                                            <a href="#collapse_1" class="dropdown-toggle filter-section text-dark d-flex align-items-center justify-content-between" data-toggle="collapse">
+                                    <div class="kn-filter-block">
+                                        <h3 class="kn-filter-title">
+                                            <a href="#collapse_1" class="dropdown-toggle filter-section d-flex align-items-center justify-content-between" data-toggle="collapse">
                                                 {{ translate('Categories')}}
                                             </a>
-                                        </div>
-                                        <div class="collapse show px-3" id="collapse_1">
+                                        </h3>
+                                        <div class="collapse show kn-filter-options" id="collapse_1">
                                             @foreach (get_categories_by_products($shop->user->id) as $category)
                                                 <label class="aiz-checkbox mb-3">
                                                     <input
@@ -464,11 +407,9 @@
                                     </div>
 
                                     <!-- Price range -->
-                                    <div class="bg-white border mb-3">
-                                        <div class="fs-16 fw-700 p-3">
-                                            {{ translate('Price range')}}
-                                        </div>
-                                        <div class="p-3 mr-3">
+                                    <div class="kn-filter-block">
+                                        <h3 class="kn-filter-title">{{ translate('Price range')}}</h3>
+                                        <div class="kn-filter-options">
                                             <div class="aiz-range-slider">
                                                 <div
                                                     id="input-slider-range"
@@ -510,96 +451,50 @@
                                     </div>
 
                                     <!-- Ratings -->
-                                    <div class="bg-white border mb-4 mx-3 mx-xl-0 mt-3 mt-xl-0">
-                                        <div class="fs-16 fw-700 p-3">
-                                            <a href="#collapse_2" class="dropdown-toggle filter-section text-dark d-flex align-items-center justify-content-between" data-toggle="collapse">
+                                    <div class="kn-filter-block">
+                                        <h3 class="kn-filter-title">
+                                            <a href="#collapse_2" class="dropdown-toggle filter-section d-flex align-items-center justify-content-between" data-toggle="collapse">
                                                 {{ translate('Ratings')}}
                                             </a>
-                                        </div>
-                                        <div class="collapse show px-3" id="collapse_2">
-                                            <label class="aiz-checkbox mb-3">
-                                                <input
-                                                    type="radio"
-                                                    name="rating"
-                                                    value="5" @if ($rating==5) checked @endif
-                                                    onchange="filter()"
-                                                >
-                                                <span class="aiz-square-check"></span>
-                                                <span class="rating rating-mr-2">{{ renderStarRating(5) }}</span>
-                                            </label>
-                                            <br>
-                                            <label class="aiz-checkbox mb-3">
-                                                <input
-                                                    type="radio"
-                                                    name="rating"
-                                                    value="4" @if ($rating==4) checked @endif
-                                                    onchange="filter()"
-                                                >
-                                                <span class="aiz-square-check"></span>
-                                                <span class="rating rating-mr-2">{{ renderStarRating(4) }}</span>
-                                                <span class="fs-14 fw-400 text-dark">{{ translate('And Up')}}</span>
-                                            </label>
-                                            <br>
-                                            <label class="aiz-checkbox mb-3">
-                                                <input
-                                                    type="radio"
-                                                    name="rating"
-                                                    value="3" @if ($rating==3) checked @endif
-                                                    onchange="filter()"
-                                                >
-                                                <span class="aiz-square-check"></span>
-                                                <span class="rating rating-mr-2">{{ renderStarRating(3) }}</span>
-                                                <span class="fs-14 fw-400 text-dark">{{ translate('And Up')}}</span>
-                                            </label>
-                                            <br>
-                                            <label class="aiz-checkbox mb-3">
-                                                <input
-                                                    type="radio"
-                                                    name="rating"
-                                                    value="2" @if ($rating==2) checked @endif
-                                                    onchange="filter()"
-                                                >
-                                                <span class="aiz-square-check"></span>
-                                                <span class="rating rating-mr-2">{{ renderStarRating(2) }}</span>
-                                                <span class="fs-14 fw-400 text-dark">{{ translate('And Up')}}</span>
-                                            </label>
-                                            <br>
-                                            <label class="aiz-checkbox mb-3">
-                                                <input
-                                                    type="radio"
-                                                    name="rating"
-                                                    value="1" @if ($rating==1) checked @endif
-                                                    onchange="filter()"
-                                                >
-                                                <span class="aiz-square-check"></span>
-                                                <span class="rating rating-mr-2">{{ renderStarRating(1) }}</span>
-                                                <span class="fs-14 fw-400 text-dark">{{ translate('And Up')}}</span>
-                                            </label>
-                                            <br>
+                                        </h3>
+                                        <div class="collapse show kn-filter-options" id="collapse_2">
+                                            @foreach ([5, 4, 3, 2, 1] as $ratingValue)
+                                                <label class="aiz-checkbox mb-3">
+                                                    <input
+                                                        type="radio"
+                                                        name="rating"
+                                                        value="{{ $ratingValue }}" @if ($rating==$ratingValue) checked @endif
+                                                        onchange="filter()"
+                                                    >
+                                                    <span class="aiz-square-check"></span>
+                                                    <span class="rating rating-mr-2">{{ renderStarRating($ratingValue) }}</span>
+                                                    @if ($ratingValue < 5)
+                                                        <span class="fs-14 fw-400 text-dark">{{ translate('And Up')}}</span>
+                                                    @endif
+                                                </label>
+                                                <br>
+                                            @endforeach
                                         </div>
                                     </div>
 
                                     <!-- Brands -->
-                                    <div class="bg-white border mb-4 mx-3 mx-xl-0 mt-3 mt-xl-0">
-                                        <div class="fs-16 fw-700 p-3">
-                                            <a href="#collapse_3" class="dropdown-toggle filter-section text-dark d-flex align-items-center justify-content-between" data-toggle="collapse">
+                                    <div class="kn-filter-block">
+                                        <h3 class="kn-filter-title">
+                                            <a href="#collapse_3" class="dropdown-toggle filter-section d-flex align-items-center justify-content-between" data-toggle="collapse">
                                                 {{ translate('Brands')}}
                                             </a>
-                                        </div>
-                                        <div class="collapse show px-3" id="collapse_3">
+                                        </h3>
+                                        <div class="collapse show" id="collapse_3">
                                             <div class="row gutters-10">
                                                 @foreach (get_brands_by_products($shop->user->id) as $key => $brand)
                                                     <div class="col-6">
                                                         <label class="aiz-megabox d-block mb-3">
                                                             <input value="{{ $brand->slug }}" type="radio" onchange="filter()"
                                                                 name="brand" @isset($brand_id) @if ($brand_id == $brand->id) checked @endif @endisset>
-                                                            <span class="d-block aiz-megabox-elem rounded-0 p-3 border-transparent hov-border-primary">
+                                                            <span class="d-block aiz-megabox-elem p-2 border-transparent hov-border-primary">
                                                                 <img src="{{ uploaded_asset($brand->logo) }}"
                                                                     class="img-fit mb-2" alt="{{ $brand->getTranslation('name') }}">
-                                                                <span class="d-block text-center">
-                                                                    <span
-                                                                        class="d-block fw-400 fs-14">{{ $brand->getTranslation('name') }}</span>
-                                                                </span>
+                                                                <span class="d-block text-center fs-13">{{ $brand->getTranslation('name') }}</span>
                                                             </span>
                                                         </label>
                                                     </div>
@@ -610,48 +505,49 @@
 
                                 </div>
                             </div>
-                        </div>
+                        </aside>
 
                         <!-- Contents -->
-                        <div class="col-xl-9">
+                        <div class="kn-listing-main">
                             <!-- Top Filters -->
-                            <div class="text-left mb-2">
-                                <div class="row gutters-5 flex-wrap">
-                                    <div class="col-lg col-10">
-                                        <h1 class="fs-20 fs-md-24 fw-700 text-dark">
-                                            {{ translate('All Products') }}
-                                        </h1>
-                                    </div>
-                                    <div class="col-2 col-lg-auto d-xl-none mb-lg-3 text-right">
-                                        <button type="button" class="btn btn-icon p-0" data-toggle="class-toggle" data-target=".aiz-filter-sidebar">
-                                            <i class="la la-filter la-2x"></i>
-                                        </button>
-                                    </div>
-                                    <div class="col-6 col-lg-auto mb-3 w-lg-200px">
-                                        <select class="form-control form-control-sm aiz-selectpicker rounded-0" name="sort_by" onchange="filter()">
-                                            <option value="">{{ translate('Sort by')}}</option>
-                                            <option value="newest" @isset($sort_by) @if ($sort_by == 'newest') selected @endif @endisset>{{ translate('Newest')}}</option>
-                                            <option value="oldest" @isset($sort_by) @if ($sort_by == 'oldest') selected @endif @endisset>{{ translate('Oldest')}}</option>
-                                            <option value="price-asc" @isset($sort_by) @if ($sort_by == 'price-asc') selected @endif @endisset>{{ translate('Price low to high')}}</option>
-                                            <option value="price-desc" @isset($sort_by) @if ($sort_by == 'price-desc') selected @endif @endisset>{{ translate('Price high to low')}}</option>
-                                        </select>
-                                    </div>
+                            <div class="kn-listing-toolbar">
+                                <h2 class="kn-listing-toolbar-title">{{ translate('All Products') }}</h2>
+                                <button type="button" class="kn-listing-filter-btn d-xl-none" data-toggle="class-toggle" data-target=".aiz-filter-sidebar">
+                                    <i class="las la-sliders-h" aria-hidden="true"></i>
+                                    <span>{{ translate('Filters') }}</span>
+                                </button>
+                                <div class="kn-listing-sort">
+                                    <label for="kn-shop-sort" class="kn-listing-sort-label">{{ translate('Sort by') }}</label>
+                                    <select id="kn-shop-sort" class="form-control form-control-sm aiz-selectpicker" name="sort_by" onchange="filter()">
+                                        <option value="">{{ translate('Sort by')}}</option>
+                                        <option value="newest" @isset($sort_by) @if ($sort_by == 'newest') selected @endif @endisset>{{ translate('Newest')}}</option>
+                                        <option value="oldest" @isset($sort_by) @if ($sort_by == 'oldest') selected @endif @endisset>{{ translate('Oldest')}}</option>
+                                        <option value="price-asc" @isset($sort_by) @if ($sort_by == 'price-asc') selected @endif @endisset>{{ translate('Price low to high')}}</option>
+                                        <option value="price-desc" @isset($sort_by) @if ($sort_by == 'price-desc') selected @endif @endisset>{{ translate('Price high to low')}}</option>
+                                    </select>
                                 </div>
                             </div>
 
                             <!-- Products -->
-                            <div class="px-3">
-                                <div class="row gutters-16 row-cols-xxl-4 row-cols-xl-3 row-cols-lg-4 row-cols-md-3 row-cols-2 border-top border-left">
+                            @if ($products->count() > 0)
+                                <div class="kn-listing-grid">
                                     @foreach ($products as $key => $product)
-                                        <div class="col border-right border-bottom has-transition hov-shadow-out z-1">
+                                        <div class="kn-grid-item">
                                             @include('frontend.'.get_setting('homepage_select').'.partials.product_box_1',['product' => $product])
                                         </div>
                                     @endforeach
                                 </div>
-                            </div>
-                            <div class="aiz-pagination mt-4">
-                                {{ $products->appends(request()->input())->links() }}
-                            </div>
+                                <div class="kn-pagination">
+                                    <div class="aiz-pagination">
+                                        {{ $products->appends(request()->input())->links() }}
+                                    </div>
+                                </div>
+                            @else
+                                <div class="kn-empty">
+                                    <span class="kn-empty-icon" aria-hidden="true"><i class="las la-search"></i></span>
+                                    <h3 class="kn-empty-title">{{ translate('No products found') }}</h3>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </form>
@@ -659,142 +555,131 @@
             @elseif ($type == 'all-preorder-products')
                 <!-- All preorder Products Section -->
                 <form class="" id="search-form" action="" method="GET">
-                    <div class="row gutters-16 justify-content-center">
-                        <!-- Sidebar -->
-                        <div class="col-xl-3 col-md-6 col-sm-8">
-
-                            <!-- Sidebar Filters -->
+                    <div class="kn-listing-layout">
+                        <!-- Sidebar Filters -->
+                        <aside class="kn-listing-aside" aria-label="{{ translate('Filters') }}">
                             <div class="aiz-filter-sidebar collapse-sidebar-wrap sidebar-xl sidebar-right z-1035">
                                 <div class="overlay overlay-fixed dark c-pointer" data-toggle="class-toggle" data-target=".aiz-filter-sidebar" data-same=".filter-sidebar-thumb"></div>
-                                <div class="collapse-sidebar c-scrollbar-light text-left">
-                                    <div class="d-flex d-xl-none justify-content-between align-items-center pl-3 border-bottom">
-                                        <h3 class="h6 mb-0 fw-600">{{ translate('Filters') }}</h3>
-                                        <button type="button" class="btn btn-sm p-2 filter-sidebar-thumb" data-toggle="class-toggle" data-target=".aiz-filter-sidebar" >
-                                            <i class="las la-times la-2x"></i>
+                                <div class="collapse-sidebar c-scrollbar-light kn-filter-panel">
+                                    <div class="kn-filter-drawer-head d-xl-none">
+                                        <h2 class="kn-filter-drawer-title">{{ translate('Filters') }}</h2>
+                                        <button type="button" class="kn-filter-close filter-sidebar-thumb" data-toggle="class-toggle" data-target=".aiz-filter-sidebar" aria-label="{{ translate('Close') }}">
+                                            <i class="las la-times" aria-hidden="true"></i>
                                         </button>
                                     </div>
 
-                                        <!-- Categories -->
-     
-                                <div class="bg-white border mb-4 mx-3 mx-xl-0 mt-3 mt-xl-0">
-                                    <div class="fs-16 fw-700 p-3">
-                                        <a href="#collapse_1" class="dropdown-toggle filter-section text-dark d-flex align-items-center justify-content-between" data-toggle="collapse">
-                                            {{ translate('Categories')}}
-                                        </a>
-                                    </div>
-                                    <div class="collapse show px-3" id="collapse_1">
-                                       
-                                        @php
-                                        $product_categories = $type == 'all-preorder-products' ? get_categories_by_preorder_products($shop->user->id) : get_categories_by_products($shop->user->id);
-                                        @endphp
-                                        @foreach ($product_categories as $category)
-                                            <label class="aiz-checkbox mb-3">
-                                                <input
-                                                    type="checkbox"
-                                                    name="selected_categories[]"
-                                                    value="{{ $category->id }}" @if (in_array($category->id, $selected_categories)) checked @endif
-                                                    onchange="filter()"
-                                                >
-                                                <span class="aiz-square-check"></span>
-                                                <span class="fs-14 fw-400 text-dark">{{ $category->getTranslation('name') }}</span>
-                                            </label>
-                                            <br>
-                                        @endforeach
-                                    </div>
-                                </div>
-
-                                 <!-- Attributes -->
-                                 <div class="bg-white border mb-3">
-                                    <div class="fs-16 fw-700 p-3">
-                                        <a href="#" class="dropdown-toggle text-dark filter-section collapsed d-flex align-items-center justify-content-between" 
-                                            data-toggle="collapse" data-target="#collapse_availability_filter" style="white-space: normal;">
-                                            {{ translate('Filter by Availability') }}
-                                        </a>
-                                    </div>
-                                    @php
-                                        $show = $is_available !== null ? 'show' : '';
-                                    @endphp
-                                    <div class="collapse {{ $show }}" id="collapse_availability_filter">
-                                        <div class="p-3 aiz-checkbox-list">
-                                            <label class="aiz-checkbox mb-3">
-                                                <input
-                                                    type="radio"
-                                                    name="is_available"
-                                                    value="1" @if ($is_available == 1) checked @endif
-                                                    onchange="filter()"
-                                                >
-                                                <span class="aiz-square-check"></span>
-                                                <span class="fs-14 fw-400 text-dark">{{ translate('Available Now') }}</span>
-                                            </label>
-                                            <label class="aiz-checkbox mb-3">
-                                                <input
-                                                    type="radio"
-                                                    name="is_available"
-                                                    value="0" @if ($is_available === '0') checked @endif
-                                                    onchange="filter()"
-                                                >
-                                                <span class="aiz-square-check"></span>
-                                                <span class="fs-14 fw-400 text-dark">{{ translate('Upcoming') }}</span>
-                                            </label>
-                                            <label class="aiz-checkbox mb-3">
-                                                <input
-                                                    type="radio"
-                                                    name="is_available"
-                                                    value=""
-                                                    @if ($is_available === null) checked @endif
-                                                    onchange="filter()"
-                                                >
-                                                <span class="aiz-square-check"></span>
-                                                <span class="fs-14 fw-400 text-dark">{{ translate('All') }}</span>
-                                            </label>
+                                    <!-- Categories -->
+                                    <div class="kn-filter-block">
+                                        <h3 class="kn-filter-title">
+                                            <a href="#collapse_1" class="dropdown-toggle filter-section d-flex align-items-center justify-content-between" data-toggle="collapse">
+                                                {{ translate('Categories')}}
+                                            </a>
+                                        </h3>
+                                        <div class="collapse show kn-filter-options" id="collapse_1">
+                                            @php
+                                            $product_categories = $type == 'all-preorder-products' ? get_categories_by_preorder_products($shop->user->id) : get_categories_by_products($shop->user->id);
+                                            @endphp
+                                            @foreach ($product_categories as $category)
+                                                <label class="aiz-checkbox mb-3">
+                                                    <input
+                                                        type="checkbox"
+                                                        name="selected_categories[]"
+                                                        value="{{ $category->id }}" @if (in_array($category->id, $selected_categories)) checked @endif
+                                                        onchange="filter()"
+                                                    >
+                                                    <span class="aiz-square-check"></span>
+                                                    <span class="fs-14 fw-400 text-dark">{{ $category->getTranslation('name') }}</span>
+                                                </label>
+                                                <br>
+                                            @endforeach
                                         </div>
                                     </div>
-                                </div>
+
+                                    <!-- Availability -->
+                                    <div class="kn-filter-block">
+                                        <h3 class="kn-filter-title">
+                                            <a href="#" class="dropdown-toggle filter-section collapsed d-flex align-items-center justify-content-between"
+                                                data-toggle="collapse" data-target="#collapse_availability_filter" style="white-space: normal;">
+                                                {{ translate('Filter by Availability') }}
+                                            </a>
+                                        </h3>
+                                        @php
+                                            $show = $is_available !== null ? 'show' : '';
+                                        @endphp
+                                        <div class="collapse {{ $show }}" id="collapse_availability_filter">
+                                            <div class="kn-filter-options aiz-checkbox-list">
+                                                <label class="aiz-checkbox mb-3">
+                                                    <input
+                                                        type="radio"
+                                                        name="is_available"
+                                                        value="1" @if ($is_available == 1) checked @endif
+                                                        onchange="filter()"
+                                                    >
+                                                    <span class="aiz-square-check"></span>
+                                                    <span class="fs-14 fw-400 text-dark">{{ translate('Available Now') }}</span>
+                                                </label>
+                                                <label class="aiz-checkbox mb-3">
+                                                    <input
+                                                        type="radio"
+                                                        name="is_available"
+                                                        value="0" @if ($is_available === '0') checked @endif
+                                                        onchange="filter()"
+                                                    >
+                                                    <span class="aiz-square-check"></span>
+                                                    <span class="fs-14 fw-400 text-dark">{{ translate('Upcoming') }}</span>
+                                                </label>
+                                                <label class="aiz-checkbox mb-3">
+                                                    <input
+                                                        type="radio"
+                                                        name="is_available"
+                                                        value=""
+                                                        @if ($is_available === null) checked @endif
+                                                        onchange="filter()"
+                                                    >
+                                                    <span class="aiz-square-check"></span>
+                                                    <span class="fs-14 fw-400 text-dark">{{ translate('All') }}</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
 
                                 </div>
                             </div>
-                        </div>
+                        </aside>
 
                         <!-- Contents -->
-                        <div class="col-xl-9">
+                        <div class="kn-listing-main">
                             <!-- Top Filters -->
-                            <div class="text-left mb-2">
-                                <div class="row gutters-5 flex-wrap">
-                                    <div class="col-lg col-10">
-                                        <h1 class="fs-20 fs-md-24 fw-700 text-dark">
-                                            {{ translate('All Preorder Products') }}
-                                        </h1>
-                                    </div>
-                                    <div class="col-2 col-lg-auto d-xl-none mb-lg-3 text-right">
-                                        <button type="button" class="btn btn-icon p-0" data-toggle="class-toggle" data-target=".aiz-filter-sidebar">
-                                            <i class="la la-filter la-2x"></i>
-                                        </button>
-                                    </div>
-                                    <div class="col-6 col-lg-auto mb-3 w-lg-200px">
-                                        <select class="form-control form-control-sm aiz-selectpicker rounded-0" name="sort_by" onchange="filter()">
-                                            <option value="">{{ translate('Sort by')}}</option>
-                                            <option value="newest" @isset($sort_by) @if ($sort_by == 'newest') selected @endif @endisset>{{ translate('Newest')}}</option>
-                                            <option value="oldest" @isset($sort_by) @if ($sort_by == 'oldest') selected @endif @endisset>{{ translate('Oldest')}}</option>
-                                            <option value="price-asc" @isset($sort_by) @if ($sort_by == 'price-asc') selected @endif @endisset>{{ translate('Price low to high')}}</option>
-                                            <option value="price-desc" @isset($sort_by) @if ($sort_by == 'price-desc') selected @endif @endisset>{{ translate('Price high to low')}}</option>
-                                        </select>
-                                    </div>
+                            <div class="kn-listing-toolbar">
+                                <h2 class="kn-listing-toolbar-title">{{ translate('All Preorder Products') }}</h2>
+                                <button type="button" class="kn-listing-filter-btn d-xl-none" data-toggle="class-toggle" data-target=".aiz-filter-sidebar">
+                                    <i class="las la-sliders-h" aria-hidden="true"></i>
+                                    <span>{{ translate('Filters') }}</span>
+                                </button>
+                                <div class="kn-listing-sort">
+                                    <label for="kn-shop-preorder-sort" class="kn-listing-sort-label">{{ translate('Sort by') }}</label>
+                                    <select id="kn-shop-preorder-sort" class="form-control form-control-sm aiz-selectpicker" name="sort_by" onchange="filter()">
+                                        <option value="">{{ translate('Sort by')}}</option>
+                                        <option value="newest" @isset($sort_by) @if ($sort_by == 'newest') selected @endif @endisset>{{ translate('Newest')}}</option>
+                                        <option value="oldest" @isset($sort_by) @if ($sort_by == 'oldest') selected @endif @endisset>{{ translate('Oldest')}}</option>
+                                        <option value="price-asc" @isset($sort_by) @if ($sort_by == 'price-asc') selected @endif @endisset>{{ translate('Price low to high')}}</option>
+                                        <option value="price-desc" @isset($sort_by) @if ($sort_by == 'price-desc') selected @endif @endisset>{{ translate('Price high to low')}}</option>
+                                    </select>
                                 </div>
                             </div>
 
                             <!-- Products -->
-                            <div class="px-3">
-                                <div class="row gutters-16 row-cols-xxl-4 row-cols-xl-3 row-cols-lg-4 row-cols-md-3 row-cols-2 border-top border-left">
-                                    @foreach ($products as $key => $product)
-                                        <div class="col border-right border-bottom has-transition hov-shadow-out z-1">
-                                            {{-- @include('frontend.'.get_setting('homepage_select').'.partials.product_box_1',['product' => $product]) --}}
-                                            @include('preorder.frontend.product_box3',['product' => $product])
-                                        </div>
-                                    @endforeach
-                                </div>
+                            <div class="kn-listing-grid">
+                                @foreach ($products as $key => $product)
+                                    <div class="kn-grid-item">
+                                        @include('preorder.frontend.product_box3',['product' => $product])
+                                    </div>
+                                @endforeach
                             </div>
-                            <div class="aiz-pagination mt-4">
-                                {{ $products->appends(request()->input())->links() }}
+                            <div class="kn-pagination">
+                                <div class="aiz-pagination">
+                                    {{ $products->appends(request()->input())->links() }}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -802,21 +687,21 @@
             @else
 
                 <!-- Top Selling Products Section -->
-                <div class="px-3">
-                    <div class="row gutters-16 row-cols-xxl-6 row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-2 border-left border-top">
-                        @foreach ($products as $key => $product)
-                            <div class="col border-bottom border-right overflow-hidden has-transition hov-shadow-out z-1">
-                                @include('frontend.'.get_setting('homepage_select').'.partials.product_box_1',['product' => $product])
-                            </div>
-                        @endforeach
+                <div class="kn-listing-grid">
+                    @foreach ($products as $key => $product)
+                        <div class="kn-grid-item">
+                            @include('frontend.'.get_setting('homepage_select').'.partials.product_box_1',['product' => $product])
+                        </div>
+                    @endforeach
+                </div>
+                <div class="kn-pagination">
+                    <div class="aiz-pagination">
+                        {{ $products->links() }}
                     </div>
                 </div>
-                <div class="aiz-pagination mt-4 mb-4">
-                    {{ $products->links() }}
-                </div>
             @endif
-        </div>
-    </section>
+        </section>
+    </div>
 
 @endsection
 

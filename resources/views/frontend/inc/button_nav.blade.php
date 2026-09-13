@@ -1,199 +1,128 @@
 <style>
-    /* المتغيّرات محليّة على عنصر الشريط نفسه */
-    .dmnt-bar {
-        --dmnt-primary: #2e7d32;
-        --dmnt-primary-rgb: 46, 125, 50;
-        --dmnt-text: #111827;
-        --dmnt-muted: #6b7280;
-        --dmnt-bg: rgba(255, 255, 255, .92);
-        --dmnt-divider: #e5e7eb;
-        --dmnt-badge: #ff7a00;
-        --dmnt-radius: 14px;
-
+    .mobile-bottom-nav {
         position: fixed;
         left: 0;
         right: 0;
         bottom: 0;
-        padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
-        background: var(--dmnt-bg);
-        -webkit-backdrop-filter: saturate(180%) blur(10px);
-        backdrop-filter: saturate(180%) blur(10px);
-        border-top: 1px solid var(--dmnt-divider);
+        background: rgba(255, 255, 255, 0.97);
+        -webkit-backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
+        border-top: 1px solid #e3e8ef;
         z-index: 1000;
+        padding: 4px 8px calc(4px + env(safe-area-inset-bottom));
         display: none;
-        /* يظهر فقط على الموبايل */
     }
 
-    @media (max-width: 820px) {
-        .dmnt-bar {
-            display: block
+    @media (max-width: 991px) {
+        .mobile-bottom-nav {
+            display: block;
+        }
+        .mobile-bottom-spacer {
+            height: calc(64px + env(safe-area-inset-bottom));
+            display: block;
         }
     }
 
-    .dmnt-bar__inner {
+    .mobile-bottom-nav__inner {
         display: flex;
-        gap: 8px;
-        align-items: center;
-        justify-content: space-between;
-        max-width: 900px;
+        align-items: stretch;
+        justify-content: space-around;
+        max-width: 520px;
         margin: 0 auto;
     }
 
-    .dmnt-tab {
+    .mobile-nav-tab {
         flex: 1;
-        min-height: 56px;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 4px;
-        text-decoration: none;
-        color: var(--dmnt-muted);
-        border-radius: var(--dmnt-radius);
-        position: relative;
-        padding: 8px 4px;
-        transition: background .2s ease, color .2s ease, transform .06s ease;
-        -webkit-tap-highlight-color: transparent;
-    }
-
-    .dmnt-tab:active {
-        transform: translateY(1px)
-    }
-
-    .dmnt-tab:focus-visible {
-        outline: 2px solid rgba(var(--dmnt-primary-rgb), .35);
-        outline-offset: 3px
-    }
-
-    .dmnt-tab svg {
-        width: 24px;
-        height: 24px;
-        display: block
-    }
-
-    .dmnt-tab span {
-        font-size: 12px;
+        gap: 2px;
+        min-height: 52px;
+        color: #5b6b82 !important;
+        text-decoration: none !important;
+        font-size: 11px;
         font-weight: 600;
-        letter-spacing: .2px
+        line-height: 1.2;
+        position: relative;
+        padding: 4px 2px;
+        transition: color 0.2s ease;
     }
 
-    .dmnt-tab.is-active {
-        color: var(--dmnt-primary);
-        background: rgba(var(--dmnt-primary-rgb), .08)
+    .mobile-nav-tab:hover,
+    .mobile-nav-tab.is-active {
+        color: #2346d1 !important;
     }
 
-    .dmnt-tab--brand {
-        font-weight: 800;
-        font-size: 18px;
-        color: var(--dmnt-primary);
-        background: rgba(var(--dmnt-primary-rgb), .08);
-        padding: 8px 10px;
-        border-radius: 18px;
-        line-height: 1;
+    .mobile-nav-tab i {
+        font-size: 20px;
     }
 
-    .dmnt-badge {
+    .mobile-nav-badge {
         position: absolute;
-        top: 4px;
-        inset-inline-end: 18px;
-        min-width: 18px;
-        height: 18px;
+        top: 2px;
+        inset-inline-start: calc(50% + 4px);
+        background: #2346d1;
+        color: #ffffff;
+        font-size: 10px;
+        font-weight: 700;
+        min-width: 17px;
+        height: 17px;
         padding: 0 4px;
-        display: inline-flex;
+        border-radius: 9999px;
+        display: flex;
         align-items: center;
         justify-content: center;
-        background: var(--dmnt-badge);
-        color: #fff;
-        font-size: 11px;
-        font-weight: 800;
-        border-radius: 999px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, .12);
-    }
-
-    .dmnt-badge[data-count="0"] {
-        display: none
-    }
-
-    /* اختياري: سبيسر تتضيف تحت المحتوى لو محتاج تمنع التداخل */
-    .dmnt-spacer {
-        height: 72px;
-        display: none
-    }
-
-    @media (max-width: 820px) {
-        .dmnt-spacer {
-            display: block
-        }
+        border: 1.5px solid #ffffff;
     }
 </style>
-<!-- ===== Bottom Navigation ===== -->
-<div class="mob">
-    <div class="dmnt-spacer" aria-hidden="true"></div>
 
-    <nav class="dmnt-bar" role="navigation" aria-label="التنقل السفلي" dir="rtl">
-        <div class="dmnt-bar__inner">
+<div class="d-lg-none">
+    <div class="mobile-bottom-spacer" aria-hidden="true"></div>
 
-            <a class="dmnt-tab is-active" href="{{ route('home') }}" data-tab="home" aria-label="الرئيسية">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-                    stroke-linejoin="round">
-                    <path d="M3 10.5L12 3l9 7.5"></path>
-                    <path d="M5 9.5V21h14V9.5"></path>
-                    <path d="M9 21v-6h6v6"></path>
-                </svg>
-                <span>@if(app()->getLocale() == 'sa') الرئيسية  @elseif(app()->getLocale() == 'cn') 首页 @else Home @endif</span>
+    @php
+        $bnIsAr = in_array(app()->getLocale(), ['sa', 'ar', 'eg']);
+        $bt = fn ($ar, $en) => $bnIsAr ? $ar : $en;
+    @endphp
+    <nav class="mobile-bottom-nav" aria-label="{{ $bt('التنقل السفلي', 'Bottom navigation') }}">
+        <div class="mobile-bottom-nav__inner">
+            <a class="mobile-nav-tab {{ request()->routeIs('home') ? 'is-active' : '' }}" href="{{ route('home') }}">
+                <i class="fa-solid fa-house" aria-hidden="true"></i>
+                <span>{{ $bt('الرئيسية', 'Home') }}</span>
             </a>
 
-            <a class="dmnt-tab" href="{{ route('categories.all') }}" data-tab="categories" aria-label="التصنيفات">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-                    stroke-linejoin="round">
-                    <rect x="4" y="4" width="16" height="16" rx="3"></rect>
-                    <path d="M9 8h6M9 12h6M9 16h6"></path>
-                </svg>
-                <span>@if(app()->getLocale() == 'sa') التصنيفات  @elseif(app()->getLocale() == 'cn') 分类 @else Categories @endif</span>
+            <!-- Menu / Offcanvas trigger -->
+            <button type="button" class="mobile-nav-tab border-0 bg-transparent" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu">
+                <i class="fa-solid fa-table-cells" aria-hidden="true"></i>
+                <span>{{ $bt('الأقسام', 'Categories') }}</span>
+            </button>
+
+            <!-- Wishlist -->
+            <a class="mobile-nav-tab" href="{{ route('wishlists.index') }}">
+                <i class="fa-regular fa-heart" aria-hidden="true"></i>
+                @php
+                    $wishlistCount = auth()->check() ? \App\Models\Wishlist::where('user_id', auth()->id())->count() : 0;
+                @endphp
+                @if ($wishlistCount > 0)
+                    <span class="mobile-nav-badge">{{ $wishlistCount }}</span>
+                @endif
+                <span>{{ $bt('المفضلة', 'Wishlist') }}</span>
             </a>
 
-            <a class="dmnt-tab dmnt-tab--brand" href="#rowad" data-tab="rowad" aria-label="القناعه">@if(app()->getLocale() == 'sa') القناعه  @elseif(app()->getLocale() == 'cn') 品牌 @else Alkanaa @endif</a>
-
-            <a class="dmnt-tab" href="{{ route('dashboard') }}" data-tab="account" aria-label="الحساب">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-                    stroke-linejoin="round">
-                    <path d="M20 21a8 8 0 0 0-16 0"></path>
-                    <circle cx="12" cy="7" r="4"></circle>
-                </svg>
-                <span>@if(app()->getLocale() == 'sa') الحساب  @elseif(app()->getLocale() == 'cn') 账户 @else Account @endif</span>
+            <!-- Cart -->
+            @php
+                if (auth()->check()) {
+                    $cartCount = \App\Models\Cart::where('user_id', auth()->id())->count();
+                } else {
+                    $tempUserId = session()->get('temp_user_id');
+                    $cartCount = $tempUserId ? \App\Models\Cart::where('temp_user_id', $tempUserId)->count() : 0;
+                }
+            @endphp
+            <a class="mobile-nav-tab" href="javascript:void(0);" onclick="openCartOffcanvas()">
+                <i class="fa-solid fa-cart-shopping" aria-hidden="true"></i>
+                <span class="mobile-nav-badge cart-count-span">{{ $cartCount }}</span>
+                <span>{{ $bt('السلة', 'Cart') }}</span>
             </a>
-
-            <a class="dmnt-tab" href="{{ route('cart') }}" data-tab="cart" aria-label="السلة">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-                    stroke-linejoin="round">
-                    <circle cx="9" cy="20" r="1.8"></circle>
-                    <circle cx="18" cy="20" r="1.8"></circle>
-                    <path d="M3 4h2l2.4 10.5a2 2 0 0 0 2 1.5h8.6a2 2 0 0 0 2-1.6L22 8H7.2"></path>
-                </svg>
-                <span>@if(app()->getLocale() == 'sa') السلة  @elseif(app()->getLocale() == 'cn') 购物车 @else Cart @endif</span>
-                
-            </a>
-
         </div>
     </nav>
 </div>
-
-
-<script>
-  // كله متسمّي dmnt علشان ما يتعارضش مع أي سكربت تاني
-  document.querySelectorAll('.dmnt-bar .dmnt-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.dmnt-bar .dmnt-tab').forEach(t => t.classList.remove('is-active'));
-      tab.classList.add('is-active');
-    });
-  });
-
-  // تحديث رقم السلة (اختياري)
-  function dmntSetCartCount(n){
-    const b = document.getElementById('dmntCartBadge');
-    if(!b) return;
-    b.dataset.count = String(n);
-    b.textContent = n;
-  }
-  // مثال: dmntSetCartCount(0);
-</script>

@@ -63,23 +63,25 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700;800&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+
     <!-- CSS Files -->
     <link rel="stylesheet" href="{{ static_asset('assets/css/vendors.css') }}">
-    {{-- @if ($rtl == 1)
-        <link rel="stylesheet" href="{{ static_asset('assets/css/bootstrap-rtl.min.css') }}">
-    @endif --}}
     <link rel="stylesheet" href="{{ static_asset('assets/css/aiz-core.css?v=') }}{{ rand(1000, 9999) }}">
     <link rel="stylesheet" href="{{ static_asset('assets/css/custom-style.css') }}">
     <script src="https://kit.fontawesome.com/cbcafb1e3c.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="{{ static_asset('assets/front_css/bootstrap.css') }}">
     <link rel="stylesheet" href="{{ static_asset('assets/front_css/index.css') }}">
 
+    {{-- Storefront Design System & Styles --}}
+    @vite(['resources/css/storefront-compat.css'])
+
     
     <script>
         var AIZ = AIZ || {};
+        AIZ.routes = AIZ.routes || {
+            addToCart: '{{ route('cart.addToCart') }}',
+        };
         AIZ.local = {
             nothing_selected: '{!! translate('Nothing selected', null, true) !!}',
             nothing_found: '{!! translate('Nothing found', null, true) !!}',
@@ -101,6 +103,7 @@
             complete: '{{ translate('Complete') }}',
             file: '{{ translate('File') }}',
             files: '{{ translate('Files') }}',
+            add_to_cart_failed: {!! json_encode(in_array(app()->getLocale(), ['sa', 'ar', 'eg']) ? 'تعذرت إضافة المنتج إلى السلة، حاول مرة أخرى.' : 'Could not add the product to the cart. Please try again.', JSON_UNESCAPED_UNICODE) !!},
         }
     </script>
 
@@ -958,9 +961,13 @@ echo get_setting('footer_script'); @endphp
     <script src="{{ static_asset('assets/front_js/bootstrap.js') }}"></script>
     <script src="{{ static_asset('assets/front_js/index.js') }}"></script>
 
-<!-- Popper & Bootstrap JS -->
+<!-- Popper & Bootstrap 5 JS — required by every data-bs-toggle element on the
+     site (category filter accordions, offcanvas menus, product tabs). Without
+     this, those elements render static HTML with no working toggle behavior. -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+<!-- Storefront JS (Swiper Carousels & Interactions) -->
+@vite(['resources/js/storefront.js'])
 
 @yield('script')
 </body>
