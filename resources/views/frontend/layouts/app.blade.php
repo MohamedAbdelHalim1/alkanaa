@@ -71,7 +71,30 @@
     <link rel="stylesheet" href="{{ static_asset('assets/css/custom-style.css') }}">
     <script src="https://kit.fontawesome.com/cbcafb1e3c.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="{{ static_asset('assets/front_css/bootstrap.css') }}">
-    <link rel="stylesheet" href="{{ static_asset('assets/front_css/index.css') }}">
+    <link rel="stylesheet" id="legacy-front-css" href="{{ static_asset('assets/front_css/index.css') }}">
+    <script>
+        // The legacy sheet (not in git, lives only on the server) forces overflow:hidden on
+        // every element under 1000px. That clips Swiper slides in RTL and kills scroll strips.
+        // Drop just those blanket overflow rules; the rest of the sheet still applies.
+        (function () {
+            var link = document.getElementById('legacy-front-css');
+            function strip() {
+                try {
+                    var rules = link.sheet.cssRules;
+                    for (var i = rules.length - 1; i >= 0; i--) {
+                        var media = rules[i];
+                        if (!media.media || !/max-width:\s*1000px/.test(media.media.mediaText)) continue;
+                        for (var j = media.cssRules.length - 1; j >= 0; j--) {
+                            var r = media.cssRules[j];
+                            if (r.style && /overflow-[xy]\s*:\s*hidden/.test(r.style.cssText)) media.deleteRule(j);
+                        }
+                    }
+                } catch (e) {}
+            }
+            if (link.sheet) strip();
+            link.addEventListener('load', strip);
+        })();
+    </script>
 
     {{-- Storefront Design System & Styles --}}
     {!! render_vite_assets(['resources/css/storefront-compat.css']) !!}

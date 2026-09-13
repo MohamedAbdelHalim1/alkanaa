@@ -1985,3 +1985,27 @@ a.kn-tile:hover img {
         transition: none !important;
     }
 }
+
+/* ------------------------------------------------------------------ */
+/* Legacy public/assets/front_css/index.css guard                      */
+/* ------------------------------------------------------------------ */
+/* That old sheet sets * { overflow-x: hidden !important } under 1000px.
+   It turns every Swiper wrapper into a clip box, so in RTL the slides that
+   start off-screen never paint (blank hero slide 2/3, empty category strip)
+   and native scroll strips stop scrolling. The layout strips those rules at
+   runtime; these class-level !important rules are the fallback. */
+@media (max-width: 1000px) {
+    .swiper-wrapper,
+    .swiper-slide {
+        overflow: visible !important;
+    }
+
+    .swiper {
+        overflow: hidden !important;
+    }
+
+    .kn-offers {
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+    }
+}
