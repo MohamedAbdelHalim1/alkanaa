@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="{{ static_asset('assets/css/vendors.css') }}">
     <link rel="stylesheet" href="{{ static_asset('assets/css/aiz-core.css') }}">
     <link rel="stylesheet" href="{{ static_asset('assets/css/custom-style.css') }}">
-    @vite(['resources/css/storefront-compat.css'])
+    {!! render_vite_assets(['resources/css/storefront-compat.css']) !!}
 </head>
 <body>
     <div class="kn-page">

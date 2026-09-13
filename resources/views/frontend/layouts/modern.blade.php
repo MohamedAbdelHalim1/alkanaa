@@ -40,7 +40,7 @@
     {{-- Fully converted pages carry no legacy Bootstrap/AIZ stylesheet at
         all, so the standard, unrestricted Tailwind entry is safe here:
         Preflight's base-element reset has nothing to fight. --}}
-    @vite(['resources/css/storefront.css', 'resources/js/storefront.js'])
+    {!! render_vite_assets(['resources/css/storefront.css', 'resources/js/storefront.js']) !!}
 
     <script>
         var AIZ = AIZ || {};

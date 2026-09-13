@@ -3075,3 +3075,40 @@ function filter_single_preorder_product($product)
     // If vendor system is not activated, return the product directly
     return $product;
 }
+
+if (!function_exists('render_vite_assets')) {
+    /**
+     * @vite() replacement that never takes the page down: if Vite throws
+     * (missing manifest/entry on the server) fall back to reading public/build.
+     */
+    function render_vite_assets($entrypoints)
+    {
+        try {
+            return app(\Illuminate\Foundation\Vite::class)($entrypoints);
+        } catch (\Throwable $e) {
+            report($e);
+            $tag = function ($file) {
+                $url = asset('public/build/' . $file);
+                if (str_ends_with($file, '.css')) {
+                    return '<link rel="stylesheet" href="' . $url . '">';
+                }
+                return str_ends_with($file, '.js') ? '<script type="module" src="' . $url . '"></script>' : '';
+            };
+            $html = '';
+            $manifestPath = public_path('build/manifest.json');
+            if (file_exists($manifestPath)) {
+                $manifest = json_decode(file_get_contents($manifestPath), true) ?: [];
+                foreach ((array) $entrypoints as $entry) {
+                    if (!isset($manifest[$entry])) {
+                        continue;
+                    }
+                    foreach ($manifest[$entry]['css'] ?? [] as $css) {
+                        $html .= $tag($css);
+                    }
+                    $html .= $tag($manifest[$entry]['file']);
+                }
+            }
+            return new \Illuminate\Support\HtmlString($html);
+        }
+    }
+}

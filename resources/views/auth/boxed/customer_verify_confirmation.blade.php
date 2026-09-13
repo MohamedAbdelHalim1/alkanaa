@@ -1,7 +1,7 @@
 @extends('auth.layouts.authentication')
 
 @section('css')
-    @vite(['resources/css/storefront-compat.css'])
+    {!! render_vite_assets(['resources/css/storefront-compat.css']) !!}
 @endsection
 
 @section('content')
