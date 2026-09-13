@@ -74,7 +74,7 @@
 				@if($logo != null)
 					<img src="{{ uploaded_asset($logo) }}" height="20">
 				@else
-					<img src="{{ static_asset('assets/img/logo.png') }}" height="20">
+					<img src="{{ get_setting('header_logo') ? uploaded_asset(get_setting('header_logo')) : static_asset('assets/img/logo.png') }}" height="20">
 				@endif
 			</div>
 			<div style="text-align: center;">

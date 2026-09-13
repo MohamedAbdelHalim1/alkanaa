@@ -97,7 +97,8 @@
                             <a href="{{ $sliderLinks[$key] ?? '#' }}" class="d-block">
                                 <img src="{{ static_asset($slider->file_name) }}" class="kn-hero-img"
                                     alt="{{ get_setting('website_name') }}"
-                                    @if (!$loop->first) loading="lazy" @endif
+                                    {{-- No loading="lazy": mobile browsers never load lazy images parked off-screen inside the slider track, so slides 2+ stayed blank. --}}
+                                    @if ($loop->first) fetchpriority="high" @endif
                                     onerror="this.onerror=null;this.src='{{ $img('icecream') }}';">
                             </a>
                         </div>

@@ -33,6 +33,13 @@ class AppServiceProvider extends ServiceProvider
           );
 
       View::composer('*', function ($view) {
+        // Shared header/footer partials (frontend.inc.*) always get the full header
+        // list, whatever the page passed. Every other view keeps a $categories its
+        // controller supplied: admin lists pass a paginator and crash on a Collection.
+        if (!str_starts_with($view->getName(), 'frontend.inc.') && isset($view->getData()['categories'])) {
+            return;
+        }
+
         $categories = \Cache::rememberForever('header_categories', function () {
             return Category::all();
         });

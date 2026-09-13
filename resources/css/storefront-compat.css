@@ -667,6 +667,15 @@ body {
     .kn-hero .swiper-pagination {
         margin-top: 8px;
     }
+
+    /* 1500x341 artwork is only ~88px tall at phone width. Zoom to 2.5:1 and anchor
+       20% from the left: every slide's headline sits within 10-57% of the width. */
+    .kn-hero .kn-hero-img {
+        aspect-ratio: 5 / 2;
+        height: auto;
+        object-fit: cover;
+        object-position: 20% center;
+    }
 }
 
 @media (min-width: 992px) {

@@ -1,14 +1,28 @@
+<style>
+    .kn-admin-brand { display: flex; align-items: center; gap: 12px; text-decoration: none !important; }
+    .kn-admin-brand-mark { flex: none; width: 46px; height: 46px; border-radius: 10px; background: #fff; display: grid; place-items: center; padding: 4px; }
+    .kn-admin-brand-mark img { max-width: 100%; max-height: 100%; object-fit: contain; }
+    .kn-admin-brand-text { display: flex; flex-direction: column; line-height: 1.2; min-width: 0; }
+    .kn-admin-brand-text strong { color: #fff; font-size: 20px; font-weight: 700; }
+    .kn-admin-brand-text small { color: #9aa5b8; font-size: 11px; letter-spacing: .02em; }
+</style>
 <div class="aiz-sidebar-wrap">
     <div class="aiz-sidebar left c-scrollbar">
         <div class="aiz-side-nav-logo-wrap">
-            <a href="{{ route('admin.dashboard') }}" class="d-block text-left">
-                @if(get_setting('system_logo_black') != null)
-                <img class="mw-100" src="{{ uploaded_asset(get_setting('system_logo_black')) }}" class="brand-icon"
-                    alt="{{ get_setting('site_name') }}">
-                @else
-                <img class="mw-100" src="{{ static_asset('assets/img/logo.png') }}" class="brand-icon"
-                    alt="{{ get_setting('site_name') }}">
+            @php
+                $adminLogoId = get_setting('system_logo_black') ?: get_setting('header_logo');
+                $adminLogo = $adminLogoId ? \App\Models\Upload::find($adminLogoId) : null;
+            @endphp
+            <a href="{{ route('admin.dashboard') }}" class="kn-admin-brand" aria-label="{{ get_setting('site_name') }}">
+                @if ($adminLogo)
+                    <span class="kn-admin-brand-mark">
+                        <img src="{{ uploaded_asset($adminLogoId) }}" alt="">
+                    </span>
                 @endif
+                <span class="kn-admin-brand-text">
+                    <strong>القناعة</strong>
+                    <small>{{ translate('Admin Panel') }}</small>
+                </span>
             </a>
         </div>
         <div class="aiz-side-nav-wrap">
