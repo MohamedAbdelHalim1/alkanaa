@@ -167,11 +167,14 @@
                             @if ($hasDiscount)
                                 <del class="kn-pd-price-was">{{ number_format($old_price, 2) }} {{ $cur }}</del>
                             @endif
+                            {{-- unit_price is stored VAT-inclusive (the cart re-adds 15% on the base stock price). --}}
+                            <span class="kn-pd-vat" title="{{ $t('ضريبة القيمة المضافة 15%', 'VAT 15%') }}">
+                                <i class="fa-solid fa-circle-check" aria-hidden="true"></i>{{ $t('شامل الضريبة', 'VAT included') }}
+                            </span>
                         </div>
                         @if ($hasDiscount)
                             <p class="kn-pd-saving">{{ translate('save') }} {{ number_format($saving, 2) }} {{ $cur }}</p>
                         @endif
-                        <p class="kn-pd-vat">{{ translate('including_vat') }} (15%)</p>
                     </div>
 
                     <div class="kn-pd-actions">

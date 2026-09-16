@@ -302,10 +302,24 @@ html[dir="rtl"] .kn-pd-crumb-sep {
     font-weight: 700;
 }
 
+/* Quiet "VAT included" tag that rides in the price row instead of adding a line. */
 .kn-pd-vat {
-    margin: 4px 0 0;
-    color: var(--kn-muted);
-    font-size: 0.8125rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    align-self: center;
+    padding: 2px 9px;
+    border-radius: 999px;
+    background: #e7f6ef;
+    color: var(--kn-green);
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.6;
+    white-space: nowrap;
+}
+
+.kn-pd-vat i {
+    font-size: 0.6875rem;
 }
 
 .kn-pd-actions {
